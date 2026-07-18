@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONNECTA — Eventos para creadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#060608;
+    --panel:#0D0D11;
+    --offwhite:#F1F0EC;
+    --white:#FFFFFF;
+    --purple:#6F6AE0;
+    --purple-2:#9C98EC;
+    --purple-dim:rgba(111,106,224,0.16);
+    --muted:rgba(255,255,255,0.58);
+    --faint:rgba(255,255,255,0.36);
+    --border:rgba(255,255,255,0.12);
+    --font-sans:'Plus Jakarta Sans', sans-serif;
+    --font-accent:'Instrument Serif', serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black); color:var(--white); font-family:var(--font-sans);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  :focus-visible{outline:2px solid var(--purple-2); outline-offset:3px;}
+  .wrap{max-width:1220px; margin:0 auto; padding:0 28px;}
+  .accent{font-family:var(--font-accent); font-style:italic; font-weight:400; color:var(--purple-2);}
+  .eyebrow{font-size:12.5px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--purple-2);}
+
+  /* ---------- LOGO ---------- */
+  .logo{display:inline-flex; align-items:center; font-size:20px; font-weight:700; letter-spacing:-0.01em;}
+  .logo-oo{position:relative; display:inline-block; width:1.5em; height:0.76em; vertical-align:-0.05em;}
+  .logo-oo i{position:absolute; top:0; width:0.76em; height:0.76em; border-radius:50%; box-sizing:border-box; font-style:normal;}
+  .logo-oo i.fill{left:0; background:var(--purple);}
+  .logo-oo i.ring{left:0.66em; border:0.1em solid currentColor; background:transparent;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50; background:rgba(6,6,8,0.85);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; padding:18px 28px; max-width:1220px; margin:0 auto;}
+  .nav-links{display:flex; align-items:center; gap:32px;}
+  .nav-links a{font-size:14px; font-weight:600; color:var(--muted); transition:color .15s ease;}
+  .nav-links a.is-active, .nav-links a:hover{color:var(--white);}
+  @media (max-width:820px){.nav-links{display:none;}}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:11px 20px; border-radius:999px; font-weight:700; font-size:13.5px;
+    cursor:pointer; border:1.5px solid transparent; transition:transform .15s ease, filter .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn-solid{background:var(--purple); color:var(--white);}
+  .btn-solid:hover{filter:brightness(1.1);}
+  .btn-outline{background:transparent; border-color:var(--border); color:var(--white);}
+  .btn-outline:hover{border-color:var(--purple-2);}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative; padding:64px 0 36px; overflow:hidden;}
+  .hero::before{
+    content:""; position:absolute; top:-220px; right:-200px; width:560px; height:560px; border-radius:50%;
+    background:radial-gradient(circle, var(--purple-dim), transparent 70%); pointer-events:none;
+  }
+  .hero-inner{position:relative; max-width:640px;}
+  .hero .eyebrow{margin-bottom:16px; display:block;}
+  .hero h1{font-size:clamp(32px, 5vw, 50px); font-weight:700; line-height:1.1; letter-spacing:-0.01em; margin-bottom:14px;}
+  .hero p{font-size:16px; color:var(--muted); max-width:480px; margin-bottom:26px;}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
+
+  /* ---------- FILTER CHIPS ---------- */
+  .filters{
+    position:sticky; top:65px; z-index:40; background:rgba(6,6,8,0.92); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border); padding:16px 0;
+  }
+  .filters-row{display:flex; gap:10px; overflow-x:auto; scrollbar-width:none;}
+  .filters-row::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto; padding:9px 18px; border-radius:999px; border:1.5px solid var(--border);
+    font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; background:transparent;
+    transition:all .15s ease;
+  }
+  .chip:hover{color:var(--white); border-color:var(--purple-2);}
+  .chip.is-active{background:var(--purple); border-color:var(--purple); color:var(--white);}
+
+  /* ---------- EVENTS GRID ---------- */
+  .events-section{padding:44px 0 100px;}
+  .events-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:10px;}
+  .events-head h2{font-size:22px; font-weight:700;}
+  .events-count{font-size:13px; color:var(--faint);}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:22px;}
+
+  .event-card{display:block; cursor:pointer;}
+  .poster{
+    position:relative; aspect-ratio:3/4; border-radius:16px; overflow:hidden;
+    display:flex; align-items:flex-end; padding:16px; border:1px solid var(--border);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .event-card:hover .poster{transform:translateY(-4px); box-shadow:0 16px 36px rgba(0,0,0,0.5);}
+  .event-card.is-full .poster{opacity:0.45;}
+  .poster-letter{
+    position:absolute; top:-14px; left:-8px; font-family:var(--font-accent); font-style:italic;
+    font-size:8.5rem; font-weight:400; color:rgba(255,255,255,0.14); line-height:1; pointer-events:none;
+  }
+  .poster-tag{
+    position:absolute; top:12px; right:12px; padding:5px 11px; border-radius:999px;
+    font-size:10.5px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;
+  }
+  .tag-open{background:var(--purple); color:var(--white);}
+  .tag-soon{background:transparent; border:1.5px solid var(--purple-2); color:var(--purple-2);}
+  .tag-full{background:rgba(255,255,255,0.1); color:var(--faint);}
+  .poster-brand{position:relative; font-size:15px; font-weight:800; letter-spacing:-0.01em;}
+
+  .p1{background:linear-gradient(155deg,#211c3d,#060608 70%);}
+  .p2{background:linear-gradient(200deg,#6F6AE0,#0A0910 68%);}
+  .p3{background:linear-gradient(145deg,#060608,#2c2657 55%,#6F6AE0 130%);}
+  .p4{background:linear-gradient(165deg,#161327,#060608 75%);}
+  .p5{background:linear-gradient(210deg,#3f3aa0,#060608 65%);}
+  .p6{background:linear-gradient(150deg,#0D0D11,#221d45 80%);}
+  .p7{background:linear-gradient(190deg,#544ec7,#060608 60%);}
+  .p8{background:linear-gradient(160deg,#1a1633,#060608 70%);}
+  .p9{background:linear-gradient(220deg,#6F6AE0,#161327 70%);}
+
+  .event-meta{padding:14px 2px 0;}
+  .event-cat{font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--purple-2);}
+  .event-meta h4{font-size:16px; font-weight:700; margin:5px 0 3px;}
+  .event-sub{font-size:13px; color:var(--faint);}
+
+  /* ---------- HOW TO APPLY ---------- */
+  .how-section{background:var(--offwhite); color:var(--black); padding:80px 0;}
+  .how-head{max-width:520px; margin-bottom:44px;}
+  .how-head .eyebrow{color:var(--purple);}
+  .how-head h2{font-size:clamp(26px, 4vw, 36px); font-weight:700; margin-top:12px; color:var(--black);}
+  .how-steps{display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;}
+  @media (max-width:760px){.how-steps{grid-template-columns:1fr;}}
+  .how-step{background:var(--white); border:1px solid rgba(10,10,10,0.1); border-radius:14px; padding:26px 22px;}
+  .how-step span{font-size:12px; font-weight:700; color:var(--purple); letter-spacing:0.06em;}
+  .how-step h4{font-size:16px; font-weight:700; margin:12px 0 6px; color:var(--black);}
+  .how-step p{font-size:13.5px; color:rgba(10,10,10,0.6);}
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta{padding:90px 0 60px; text-align:center; position:relative; overflow:hidden;}
+  .final-cta::before{
+    content:""; position:absolute; bottom:-220px; left:-200px; width:520px; height:520px; border-radius:50%;
+    background:radial-gradient(circle, var(--purple-dim), transparent 70%); pointer-events:none;
+  }
+  .final-cta h2{font-size:clamp(28px, 5vw, 46px); font-weight:700; margin-bottom:16px; position:relative;}
+  .final-cta p{color:var(--muted); font-size:15.5px; margin-bottom:28px; position:relative;}
+  .final-cta .btn{position:relative; padding:15px 28px; font-size:14.5px;}
+
+  footer{border-top:1px solid var(--border); padding:32px 0;}
+  .footer-row{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;}
+  .footer-links{display:flex; gap:22px;}
+  .footer-links a{font-size:13px; color:var(--faint);}
+  .footer-links a:hover{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">c<span class="logo-oo"><i class="fill"></i><i class="ring"></i></span>nnecta</div>
+    <nav class="nav-links">
+      <a href="#eventos" class="is-active">Eventos</a>
+      <a href="#como-postularte">Cómo postularte</a>
+      <a href="#">Mi perfil</a>
+    </nav>
+    <div class="nav-ctas">
+      <a href="#" class="btn btn-outline">Ingresar</a>
+      <a href="#" class="btn btn-solid">Crear mi perfil</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Para creadores</span>
+    <h1>Encontrá tu próxima <span class="accent">colaboración.</span></h1>
+    <p>Estos son los eventos que las marcas están publicando ahora mismo. Postulate al que va con tu estilo — si ya trabajaste con esa marca antes, tenés prioridad.</p>
+    <div class="hero-ctas">
+      <a href="#eventos" class="btn btn-solid">Ver eventos</a>
+      <a href="#como-postularte" class="btn btn-outline">Cómo postularte</a>
+    </div>
+  </div>
+</section>
+
+<div class="filters">
+  <div class="wrap filters-row" id="filterRow">
+    <button class="chip is-active" data-filter="todos">Todos</button>
+    <button class="chip" data-filter="gastronomia">Gastronomía</button>
+    <button class="chip" data-filter="fitness">Fitness</button>
+    <button class="chip" data-filter="moda">Moda</button>
+    <button class="chip" data-filter="arte">Arte</button>
+    <button class="chip" data-filter="lifestyle">Lifestyle</button>
+  </div>
+</div>
+
+<section class="events-section" id="eventos">
+  <div class="wrap">
+    <div class="events-head">
+      <h2>Eventos abiertos</h2>
+      <span class="events-count" id="eventsCount">9 eventos</span>
+    </div>
+    <div class="grid" id="eventsGrid"></div>
+  </div>
+</section>
+
+<section class="how-section" id="como-postularte">
+  <div class="wrap">
+    <div class="how-head">
+      <span class="eyebrow">Cómo postularte</span>
+      <h2>Tres pasos, sin vueltas</h2>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <span>01</span>
+        <h4>Elegí un evento</h4>
+        <p>Mirá qué está buscando la marca: estilo, tipo de contenido, ubicación.</p>
+      </div>
+      <div class="how-step">
+        <span>02</span>
+        <h4>Postulate con un clic</h4>
+        <p>Tu perfil ya tiene tus redes y tu historial cargado — no repetís nada.</p>
+      </div>
+      <div class="how-step">
+        <span>03</span>
+        <h4>Esperá la confirmación</h4>
+        <p>La marca revisa y confirma. Si te acepta, queda en tu historial para siempre.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Tu nombre, en <span class="accent">la lista.</span></h2>
+    <p>Creá tu perfil gratis y empezá a postularte hoy.</p>
+    <a href="#" class="btn btn-solid">Crear mi perfil</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-row">
+    <div class="logo">c<span class="logo-oo"><i class="fill"></i><i class="ring"></i></span>nnecta</div>
+    <div class="footer-links">
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+      <a href="#">Contacto</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const events = [
+    {brand:"Costa 7070", title:"Inauguración de temporada", cat:"gastronomia", catLabel:"Gastronomía", place:"Buenos Aires · 14 ago", status:"open", poster:"p1"},
+    {brand:"Manada Fit Club", title:"Clase abierta + brunch", cat:"fitness", catLabel:"Fitness", place:"Palermo · 21 ago", status:"open", poster:"p2"},
+    {brand:"Studio Lino", title:"Desfile cápsula invierno", cat:"moda", catLabel:"Moda", place:"Recoleta · 28 ago", status:"soon", poster:"p3"},
+    {brand:"Terreno Galería", title:"Muestra colectiva", cat:"arte", catLabel:"Arte", place:"Villa Crespo · 30 ago", status:"open", poster:"p4"},
+    {brand:"Casa Cala", title:"Apertura de rooftop", cat:"lifestyle", catLabel:"Lifestyle", place:"Nordelta · 5 sep", status:"open", poster:"p5"},
+    {brand:"Fierro Bar", title:"Noche de autor", cat:"gastronomia", catLabel:"Gastronomía", place:"San Telmo · 6 sep", status:"full", poster:"p6"},
+    {brand:"Bendita Golosa", title:"Lanzamiento línea de postres", cat:"gastronomia", catLabel:"Gastronomía", place:"Almagro · 10 sep", status:"open", poster:"p1"},
+    {brand:"Vértigo Run Club", title:"Carrera nocturna", cat:"fitness", catLabel:"Fitness", place:"Puerto Madero · 12 sep", status:"soon", poster:"p2"},
+    {brand:"Almendra Café", title:"Reapertura de local", cat:"lifestyle", catLabel:"Lifestyle", place:"Chacarita · 18 sep", status:"open", poster:"p3"},
+  ];
+
+  const statusMap = {
+    open:{cls:"tag-open", label:"Abierto"},
+    soon:{cls:"tag-soon", label:"Cierra pronto"},
+    full:{cls:"tag-full", label:"Cupo lleno"},
+  };
+
+  function cardHTML(ev){
+    const s = statusMap[ev.status];
+    const letter = ev.brand.charAt(0);
+    return `<a class="event-card ${ev.status === 'full' ? 'is-full' : ''}" data-cat="${ev.cat}" href="#">
+      <div class="poster ${ev.poster}">
+        <span class="poster-letter">${letter}</span>
+        <span class="poster-tag ${s.cls}">${s.label}</span>
+        <span class="poster-brand">${ev.brand}</span>
+      </div>
+      <div class="event-meta">
+        <span class="event-cat">${ev.catLabel}</span>
+        <h4>${ev.title}</h4>
+        <span class="event-sub">${ev.place}</span>
+      </div>
+    </a>`;
+  }
+
+  const grid = document.getElementById('eventsGrid');
+  const countEl = document.getElementById('eventsCount');
+
+  function render(filter){
+    const filtered = filter === 'todos' ? events : events.filter(e => e.cat === filter);
+    grid.innerHTML = filtered.map(cardHTML).join('');
+    countEl.textContent = `${filtered.length} evento${filtered.length === 1 ? '' : 's'}`;
+  }
+
+  document.getElementById('filterRow').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if(!chip) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+    chip.classList.add('is-active');
+    render(chip.dataset.filter);
+  });
+
+  render('todos');
+</script>
+
+</body>
+</html>

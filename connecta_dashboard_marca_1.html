@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONNECTA — Dashboard de marca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#060608;
+    --offwhite:#F1F0EC;
+    --white:#FFFFFF;
+    --ink:#0A0A0A;
+    --muted:rgba(10,10,10,0.56);
+    --faint:rgba(10,10,10,0.36);
+    --border:rgba(10,10,10,0.1);
+    --purple:#6F6AE0;
+    --purple-2:#9C98EC;
+    --purple-dim:rgba(111,106,224,0.14);
+    --green:#4CAF7D;
+    --green-dim:rgba(76,175,125,0.12);
+    --red:#D8595F;
+    --red-dim:rgba(216,89,95,0.1);
+    --font-sans:'Plus Jakarta Sans', sans-serif;
+    --font-accent:'Instrument Serif', serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--offwhite); color:var(--ink); font-family:var(--font-sans);
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  button{font-family:var(--font-sans); cursor:pointer;}
+  :focus-visible{outline:2px solid var(--purple); outline-offset:2px;}
+  .accent{font-family:var(--font-accent); font-style:italic; color:var(--purple);}
+
+  /* ---------- LOGO ---------- */
+  .logo{display:inline-flex; align-items:center; font-size:18px; font-weight:700; color:var(--white);}
+  .logo-oo{position:relative; display:inline-block; width:1.5em; height:0.76em; vertical-align:-0.05em;}
+  .logo-oo i{position:absolute; top:0; width:0.76em; height:0.76em; border-radius:50%; box-sizing:border-box; font-style:normal;}
+  .logo-oo i.fill{left:0; background:var(--purple);}
+  .logo-oo i.ring{left:0.66em; border:0.1em solid currentColor; background:transparent;}
+
+  /* ---------- LAYOUT ---------- */
+  .app{display:flex; min-height:100vh;}
+  .sidebar{
+    width:236px; flex-shrink:0; background:var(--black); color:var(--white);
+    display:flex; flex-direction:column; padding:24px 16px; position:sticky; top:0; height:100vh;
+  }
+  .sidebar-nav{margin-top:38px; display:flex; flex-direction:column; gap:3px; flex:1;}
+  .sidebar-link{
+    padding:10px 12px; border-radius:9px; font-size:14px; font-weight:600;
+    color:rgba(255,255,255,0.55); display:flex; align-items:center; gap:10px; transition:all .15s ease;
+  }
+  .sidebar-link .ic{width:16px; height:16px; flex-shrink:0;}
+  .sidebar-link:hover{color:var(--white);}
+  .sidebar-link.active{background:var(--purple-dim); color:var(--white);}
+  .sidebar-account{
+    margin-top:auto; padding:12px; border-radius:10px; background:rgba(255,255,255,0.05);
+    display:flex; align-items:center; gap:10px;
+  }
+  .sidebar-account .av{
+    width:32px; height:32px; border-radius:9px; background:var(--purple); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:white;
+  }
+  .sidebar-account .name{font-size:13px; font-weight:700; color:white;}
+  .sidebar-account .role{font-size:11.5px; color:rgba(255,255,255,0.4);}
+
+  .main{flex:1; min-width:0;}
+  .topbar{
+    background:var(--white); border-bottom:1px solid var(--border); padding:22px 36px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .topbar h1{font-size:20px; font-weight:800;}
+  .topbar .sub{font-size:13px; color:var(--muted); margin-top:2px;}
+  .content{padding:32px 36px 60px;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:9px;
+    font-weight:700; font-size:13.5px; border:1.5px solid transparent; transition:all .15s ease; white-space:nowrap;
+  }
+  .btn-solid{background:var(--purple); color:white;}
+  .btn-solid:hover{filter:brightness(1.08);}
+  .btn-outline{background:transparent; border-color:var(--border); color:var(--ink);}
+  .btn-outline:hover{border-color:var(--purple);}
+  .btn-sm{padding:7px 13px; font-size:12.5px;}
+  .btn-ghost{background:transparent; color:var(--muted); padding:7px 10px;}
+  .btn-ghost:hover{color:var(--ink);}
+
+  /* ---------- MIS EVENTOS: LISTA ---------- */
+  .tabs-row{display:flex; gap:8px; margin-bottom:24px;}
+  .tab-pill{
+    padding:8px 16px; border-radius:999px; border:1.5px solid var(--border); font-size:13px; font-weight:700;
+    color:var(--muted); background:var(--white);
+  }
+  .tab-pill.is-active{background:var(--ink); color:var(--white); border-color:var(--ink);}
+
+  .events-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px;}
+  .event-row-card{
+    background:var(--white); border:1px solid var(--border); border-radius:16px; overflow:hidden;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .event-row-card:hover{transform:translateY(-3px); box-shadow:0 14px 30px rgba(10,10,10,0.08);}
+  .event-row-poster{height:92px; position:relative; display:flex; align-items:center; padding:0 18px;}
+  .event-row-poster .letter{
+    position:absolute; right:6px; top:-24px; font-family:var(--font-accent); font-style:italic;
+    font-size:5.5rem; color:rgba(255,255,255,0.16); line-height:1;
+  }
+  .event-row-poster .brand{position:relative; font-size:15px; font-weight:800; color:white;}
+  .p1{background:linear-gradient(155deg,#211c3d,#060608 70%);}
+  .p2{background:linear-gradient(200deg,#6F6AE0,#0A0910 68%);}
+  .p3{background:linear-gradient(145deg,#060608,#2c2657 55%,#6F6AE0 130%);}
+  .p4{background:linear-gradient(165deg,#161327,#060608 75%);}
+  .p5{background:linear-gradient(210deg,#3f3aa0,#060608 65%);}
+  .p6{background:linear-gradient(150deg,#0D0D11,#221d45 80%);}
+
+  .event-row-body{padding:16px 18px 18px;}
+  .event-row-top{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+  .event-row-body h4{font-size:15.5px; font-weight:700; margin-bottom:3px;}
+  .event-row-body .meta{font-size:12.5px; color:var(--faint);}
+  .status-badge{padding:4px 10px; border-radius:999px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; flex-shrink:0;}
+  .status-activo{background:var(--purple-dim); color:var(--purple);}
+  .status-finalizado{background:rgba(10,10,10,0.06); color:var(--muted);}
+  .status-borrador{background:rgba(10,10,10,0.06); color:var(--faint); border:1px dashed var(--border);}
+
+  .event-row-stats{display:flex; gap:16px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);}
+  .stat-mini{font-size:12px; color:var(--muted);}
+  .stat-mini b{display:block; font-size:16px; font-weight:800; color:var(--ink);}
+  .stat-mini.alert b{color:var(--purple);}
+
+  /* ---------- DETAIL VIEW ---------- */
+  #detailView{display:none;}
+  .back-link{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:14px;}
+  .back-link:hover{color:var(--ink);}
+
+  .detail-header{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px;}
+  .detail-header h1{font-size:24px; font-weight:800; margin-bottom:6px;}
+  .detail-header .meta{font-size:13px; color:var(--muted);}
+  .detail-actions{display:flex; gap:10px;}
+
+  .quota-box{background:var(--white); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:26px;}
+  .quota-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;}
+  .quota-top b{font-size:14px; font-weight:800;}
+  .quota-top span{font-size:12.5px; color:var(--faint);}
+  .quota-bar{height:8px; border-radius:999px; background:rgba(10,10,10,0.07); overflow:hidden;}
+  .quota-fill{height:100%; background:var(--purple); border-radius:999px;}
+
+  .main-tabs{display:flex; gap:26px; border-bottom:1.5px solid var(--border); margin-bottom:22px;}
+  .main-tab{padding:10px 2px; font-size:14.5px; font-weight:700; color:var(--faint); border-bottom:2px solid transparent; margin-bottom:-1.5px;}
+  .main-tab.is-active{color:var(--ink); border-color:var(--purple);}
+
+  .panel{display:none;}
+  .panel.is-active{display:block;}
+
+  .sub-tabs{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .sub-tab{
+    padding:8px 15px; border-radius:999px; border:1.5px solid var(--border); font-size:12.5px; font-weight:700;
+    color:var(--muted); background:var(--white);
+  }
+  .sub-tab.is-active{background:var(--ink); color:var(--white); border-color:var(--ink);}
+
+  .toolbar{display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .search-box{
+    flex:1; min-width:180px; padding:9px 14px; border-radius:9px; border:1.5px solid var(--border);
+    font-size:13px; background:var(--white); color:var(--ink);
+  }
+  .sort-select{
+    padding:9px 12px; border-radius:9px; border:1.5px solid var(--border); font-size:13px;
+    background:var(--white); color:var(--ink); font-weight:600;
+  }
+  .filter-chip{
+    padding:9px 14px; border-radius:9px; border:1.5px solid var(--border); font-size:12.5px; font-weight:700;
+    color:var(--muted); background:var(--white); white-space:nowrap;
+  }
+  .filter-chip.is-active{background:var(--purple-dim); color:var(--purple); border-color:var(--purple);}
+
+  .bulk-bar{
+    display:none; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--ink); color:white; padding:10px 16px; border-radius:10px; margin-bottom:14px; font-size:13px; font-weight:600;
+  }
+  .bulk-bar.is-visible{display:flex;}
+  .bulk-actions{display:flex; gap:8px;}
+
+  .sample-note{font-size:12px; color:var(--faint); margin-bottom:14px;}
+
+  .applicant-row{
+    display:flex; align-items:center; gap:14px; padding:13px 16px; background:var(--white);
+    border:1px solid var(--border); border-radius:13px; margin-bottom:10px;
+  }
+  .applicant-check{width:16px; height:16px; accent-color:var(--purple); flex-shrink:0;}
+  .applicant-avatar{
+    width:42px; height:42px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; color:white;
+  }
+  .applicant-info{flex:1; min-width:0;}
+  .applicant-info .name-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .applicant-info h5{font-size:14.5px; font-weight:700;}
+  .worked-badge{
+    font-size:10px; font-weight:700; color:var(--purple); background:var(--purple-dim);
+    padding:2px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:0.02em;
+  }
+  .applicant-info .meta{font-size:12px; color:var(--faint); margin-top:2px;}
+  .applicant-info .meta span{margin-right:10px;}
+
+  .match-score{
+    text-align:center; flex-shrink:0; width:58px;
+  }
+  .match-score b{display:block; font-size:16px; font-weight:800; color:var(--purple);}
+  .match-score span{font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:0.03em;}
+
+  .applicant-actions{display:flex; gap:8px; flex-shrink:0;}
+  .icon-btn{
+    width:34px; height:34px; border-radius:9px; border:1.5px solid var(--border); background:var(--white);
+    display:flex; align-items:center; justify-content:center; font-size:15px; transition:all .15s ease;
+  }
+  .icon-btn.approve:hover{background:var(--green-dim); border-color:var(--green); color:var(--green);}
+  .icon-btn.reject:hover{background:var(--red-dim); border-color:var(--red); color:var(--red);}
+  .icon-btn.save:hover{background:var(--purple-dim); border-color:var(--purple); color:var(--purple);}
+
+  .applicant-row.is-approved{border-color:var(--green-dim);}
+  .applicant-row.is-rejected{opacity:0.55;}
+
+  .review-btn{
+    padding:8px 14px; border-radius:9px; border:1.5px solid var(--purple); color:var(--purple);
+    font-size:12.5px; font-weight:700; background:transparent; flex-shrink:0;
+  }
+  .review-btn:hover{background:var(--purple-dim);}
+
+  .rejected-note{font-size:12px; color:var(--faint); font-style:italic;}
+
+  /* ---------- EVENTO PANEL ---------- */
+  .event-info-card{background:var(--white); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:22px;}
+  .event-info-poster{height:150px; position:relative; display:flex; align-items:flex-end; padding:18px;}
+  .event-info-poster .brand{position:relative; font-size:22px; font-weight:800; color:white;}
+  .event-info-body{padding:22px; display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:700px){.event-info-body{grid-template-columns:1fr;}}
+  .field label{display:block; font-size:11.5px; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;}
+  .field .val{font-size:14px; font-weight:600;}
+  .field .val.tags{display:flex; gap:6px; flex-wrap:wrap;}
+  .tag-pill{background:var(--purple-dim); color:var(--purple); padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700;}
+  .field.full{grid-column:1 / -1;}
+  .field .val.desc{font-weight:400; color:var(--muted); line-height:1.6;}
+
+  .stats-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-bottom:22px;}
+  .stat-card{background:var(--white); border:1px solid var(--border); border-radius:14px; padding:18px 20px;}
+  .stat-card b{font-size:26px; font-weight:800; display:block;}
+  .stat-card span{font-size:12px; color:var(--faint); text-transform:uppercase; letter-spacing:0.03em;}
+
+  .danger-zone{background:var(--white); border:1px solid var(--border); border-radius:14px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .danger-zone p{font-size:13px; color:var(--muted); max-width:360px;}
+  .btn-danger{border-color:var(--red-dim); color:var(--red);}
+  .btn-danger:hover{background:var(--red-dim); border-color:var(--red);}
+
+  /* ---------- BASE DE DATOS DE CREADORES ---------- */
+  .db-toolbar{display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+
+  .discover-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px;}
+  .disc-card{background:var(--white); border:1px solid var(--border); border-radius:14px; padding:18px; text-align:center; transition:transform .15s ease, box-shadow .15s ease;}
+  .disc-card:hover{transform:translateY(-3px); box-shadow:0 14px 28px rgba(10,10,10,0.07);}
+  .disc-avatar{
+    width:52px; height:52px; border-radius:14px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; color:white;
+  }
+  .disc-card h5{font-size:14.5px; font-weight:700;}
+  .disc-card .disc-meta{font-size:12px; color:var(--faint); margin:4px 0 12px;}
+  .disc-card .disc-actions{display:flex; gap:6px;}
+  .disc-card .disc-actions .btn{flex:1; padding:8px 4px; font-size:12px;}
+  .db-count{font-size:13px; color:var(--faint); margin-bottom:14px;}
+
+  .table-wrap{background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; overflow-x:auto;}
+  .creator-table{width:100%; border-collapse:collapse; min-width:760px;}
+  .creator-table th{
+    text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--faint);
+    padding:12px 16px; border-bottom:1px solid var(--border); font-weight:700; background:var(--offwhite);
+  }
+  .creator-table td{padding:13px 16px; border-bottom:1px solid var(--border); font-size:13.5px; vertical-align:middle;}
+  .creator-table tr:last-child td{border-bottom:none;}
+  .creator-table tbody tr{cursor:pointer; transition:background .1s ease;}
+  .creator-table tbody tr:hover{background:var(--offwhite);}
+  .ct-name{display:flex; align-items:center; gap:10px;}
+  .ct-avatar{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:800; color:white; flex-shrink:0;
+  }
+  .ct-tags{margin-top:3px;}
+  .ct-tag{
+    background:var(--purple-dim); color:var(--purple); padding:2px 8px; border-radius:999px;
+    font-size:10.5px; font-weight:700; margin-right:4px; display:inline-block;
+  }
+  .ct-rating{color:var(--purple); font-weight:800;}
+  .ct-rating.none{color:var(--faint); font-weight:400;}
+  .ct-empty{color:var(--faint);}
+
+  /* ---------- SLIDE-OVER ---------- */
+  .slideover-backdrop{position:fixed; inset:0; background:rgba(6,6,8,0.4); display:none; z-index:90;}
+  .slideover-backdrop.is-open{display:block;}
+  .slideover{
+    position:fixed; top:0; right:0; height:100vh; width:420px; max-width:92vw; background:var(--white);
+    z-index:91; transform:translateX(100%); transition:transform .25s ease; overflow-y:auto;
+    box-shadow:-16px 0 40px rgba(0,0,0,0.18);
+  }
+  .slideover.is-open{transform:translateX(0);}
+  .slideover-close{
+    position:absolute; top:20px; right:20px; background:var(--offwhite); border:none; width:32px; height:32px;
+    border-radius:9px; font-size:16px; color:var(--muted); cursor:pointer;
+  }
+  .slideover-body{padding:28px 24px 40px;}
+  .so-avatar{
+    width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+    font-size:19px; font-weight:800; color:white; margin-bottom:14px;
+  }
+  .so-handle{font-size:18px; font-weight:800;}
+  .so-meta{font-size:13px; color:var(--faint); margin-top:2px;}
+  .so-stat-row{display:flex; gap:10px; margin:20px 0;}
+  .so-stat{flex:1; background:var(--offwhite); border-radius:11px; padding:12px 8px; text-align:center;}
+  .so-stat b{display:block; font-size:17px; font-weight:800;}
+  .so-stat span{font-size:9.5px; color:var(--faint); text-transform:uppercase; letter-spacing:0.03em;}
+  .so-section{margin-top:22px;}
+  .so-section h6{font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--faint); margin-bottom:10px; font-weight:700;}
+  .history-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  .history-item:last-child{border-bottom:none;}
+  .history-item .ev{font-weight:600;}
+  .history-item .dt{color:var(--faint); font-size:12px;}
+  .note-box{
+    width:100%; border:1.5px solid var(--border); border-radius:10px; padding:10px; font-family:var(--font-sans);
+    font-size:13px; resize:vertical; min-height:70px; color:var(--ink);
+  }
+  .so-invite-btn{width:100%; justify-content:center; margin-top:8px;}
+
+  .portfolio-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;}
+  .portfolio-item{
+    aspect-ratio:3/4; border-radius:10px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:flex-end; padding:8px;
+  }
+  .portfolio-item .plat{font-size:10px; font-weight:800; color:white; text-transform:uppercase; letter-spacing:0.03em;}
+  .portfolio-item .brandtag{font-size:9.5px; color:rgba(255,255,255,0.65);}
+
+  .other-review{padding:12px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  .other-review:last-child{border-bottom:none;}
+  .other-review .or-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;}
+  .other-review .or-brand{font-weight:700;}
+  .other-review .or-stars{color:var(--purple); font-size:12.5px;}
+  .other-review .or-text{color:var(--muted); font-size:12.5px; line-height:1.5;}
+
+  /* ---------- RESUMEN ---------- */
+  .kpi-row{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:32px;}
+  @media (max-width:900px){.kpi-row{grid-template-columns:1fr 1fr;}}
+  .kpi-card{background:var(--white); border:1px solid var(--border); border-radius:14px; padding:20px 22px;}
+  .kpi-card b{font-size:30px; font-weight:800; display:block;}
+  .kpi-card span{font-size:12.5px; color:var(--faint); text-transform:uppercase; letter-spacing:0.03em;}
+  .kpi-card.highlight b{color:var(--purple);}
+
+  .attention-box{background:var(--white); border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:24px;}
+  .attention-box h3{font-size:15.5px; font-weight:800; margin-bottom:14px;}
+  .attention-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 0; border-bottom:1px solid var(--border);
+  }
+  .attention-row:last-child{border-bottom:none;}
+  .attention-row .info h5{font-size:14px; font-weight:700;}
+  .attention-row .info span{font-size:12.5px; color:var(--faint);}
+  .attention-row .badge-alert{
+    background:var(--purple-dim); color:var(--purple); font-size:11.5px; font-weight:700;
+    padding:4px 10px; border-radius:999px; margin-right:10px;
+  }
+
+  .summary-cols{display:grid; grid-template-columns:1.4fr 1fr; gap:20px;}
+  @media (max-width:900px){.summary-cols{grid-template-columns:1fr;}}
+  .mini-event-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13.5px;}
+  .mini-event-row:last-child{border-bottom:none;}
+  .mini-event-row .sq{width:34px; height:34px; border-radius:9px; flex-shrink:0;}
+  .mini-event-row .nm{font-weight:700; flex:1;}
+  .mini-event-row .ct{color:var(--faint); font-size:12px;}
+
+  /* ---------- RESEÑAS ---------- */
+  .review-card{background:var(--white); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:12px;}
+  .review-top{display:flex; align-items:center; gap:12px; margin-bottom:10px;}
+  .review-top .rv-avatar{
+    width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:800; color:white; flex-shrink:0;
+  }
+  .review-top h5{font-size:14.5px; font-weight:700;}
+  .review-top .rv-meta{font-size:12px; color:var(--faint);}
+  .review-stars{color:var(--purple); font-size:14px; letter-spacing:1px; margin-left:auto;}
+  .review-text{font-size:13.5px; color:var(--muted); line-height:1.6;}
+  .review-pending-actions{display:flex; gap:8px; margin-top:12px;}
+  .star-input{display:flex; gap:4px; margin-bottom:10px;}
+  .star-input span{font-size:22px; color:rgba(10,10,10,0.15); cursor:pointer;}
+  .star-input span.is-filled{color:var(--purple);}
+
+  /* ---------- CONFIGURACIÓN ---------- */
+  .config-card{background:var(--white); border:1px solid var(--border); border-radius:16px; padding:26px; margin-bottom:20px; max-width:640px;}
+  .config-card h3{font-size:15.5px; font-weight:800; margin-bottom:18px;}
+  .config-field{margin-bottom:16px;}
+  .config-field label{display:block; font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:6px;}
+  .config-input{
+    width:100%; padding:10px 14px; border-radius:9px; border:1.5px solid var(--border);
+    font-family:var(--font-sans); font-size:13.5px; color:var(--ink); background:var(--white);
+  }
+  textarea.config-input{resize:vertical; min-height:80px;}
+  .config-row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .config-logo-row{display:flex; align-items:center; gap:14px; margin-bottom:20px;}
+  .config-logo{width:56px; height:56px; border-radius:14px; background:var(--purple); display:flex; align-items:center; justify-content:center; color:white; font-weight:800; flex-shrink:0;}
+  .plan-options{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .plan-card{border:1.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer;}
+  .plan-card.is-selected{border-color:var(--purple); background:var(--purple-dim);}
+  .plan-card h5{font-size:14px; font-weight:800; margin-bottom:4px;}
+  .plan-card p{font-size:12px; color:var(--faint);}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">c<span class="logo-oo"><i class="fill"></i><i class="ring"></i></span>nnecta</div>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link" href="#" id="navResumen" onclick="showView('resumen'); return false;">Resumen</a>
+      <a class="sidebar-link active" href="#" id="navEvents" onclick="showView('list'); return false;">Mis eventos</a>
+      <a class="sidebar-link" href="#" id="navCreators" onclick="showView('creators'); return false;">Creadores</a>
+      <a class="sidebar-link" href="#" id="navReviews" onclick="showView('reviews'); return false;">Reseñas</a>
+      <a class="sidebar-link" href="#" id="navConfig" onclick="showView('config'); return false;">Configuración</a>
+    </nav>
+    <div class="sidebar-account">
+      <div class="av">C7</div>
+      <div>
+        <div class="name">Costa 7070</div>
+        <div class="role">Cuenta de marca</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===================== RESUMEN ===================== -->
+    <div id="resumenView" style="display:none;">
+      <div class="topbar">
+        <div>
+          <h1>Resumen</h1>
+          <div class="sub">Cómo está tu cuenta hoy</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="kpi-row">
+          <div class="kpi-card"><b>3</b><span>Eventos activos</span></div>
+          <div class="kpi-card"><b>431</b><span>Postulaciones totales</span></div>
+          <div class="kpi-card"><b>111</b><span>Creadores confirmados</span></div>
+          <div class="kpi-card highlight"><b>18</b><span>Postulaciones sin revisar</span></div>
+        </div>
+
+        <div class="attention-box">
+          <h3>Eventos que necesitan atención</h3>
+          <div class="attention-row">
+            <div class="info"><h5>Costa 7070 — Inauguración de temporada</h5><span>214 postulaciones · 32 confirmados</span></div>
+            <div><span class="badge-alert">18 sin revisar</span><button class="btn btn-outline btn-sm" onclick="showView('detail')">Revisar</button></div>
+          </div>
+          <div class="attention-row">
+            <div class="info"><h5>Terreno Galería — Muestra colectiva</h5><span>41 postulaciones · 0 confirmados</span></div>
+            <div><span class="badge-alert">41 sin revisar</span><button class="btn btn-outline btn-sm">Revisar</button></div>
+          </div>
+          <div class="attention-row">
+            <div class="info"><h5>Manada Fit Club — Clase abierta + brunch</h5><span>76 postulaciones · 20 confirmados</span></div>
+            <div><span class="badge-alert">6 sin revisar</span><button class="btn btn-outline btn-sm">Revisar</button></div>
+          </div>
+        </div>
+
+        <div class="summary-cols">
+          <div class="attention-box" style="margin-bottom:0;">
+            <h3>Últimos eventos</h3>
+            <div class="mini-event-row"><div class="sq p1"></div><div class="nm">Costa 7070</div><div class="ct">Activo</div></div>
+            <div class="mini-event-row"><div class="sq p2"></div><div class="nm">Manada Fit Club</div><div class="ct">Activo</div></div>
+            <div class="mini-event-row"><div class="sq p3"></div><div class="nm">Studio Lino</div><div class="ct">Finalizado</div></div>
+            <div class="mini-event-row"><div class="sq p6"></div><div class="nm">Fierro Bar</div><div class="ct">Finalizado</div></div>
+          </div>
+          <div class="attention-box" style="margin-bottom:0;">
+            <h3>Reseñas pendientes de dejar</h3>
+            <div class="mini-event-row"><div class="sq" style="background:#9C98EC;"></div><div class="nm">@male.ferreyra</div><div class="ct">Fierro Bar</div></div>
+            <div class="mini-event-row"><div class="sq" style="background:#4C4894;"></div><div class="nm">@juanpa.streetfood</div><div class="ct">Studio Lino</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== LISTADO ===================== -->
+    <div id="listView">
+      <div class="topbar">
+        <div>
+          <h1>Mis eventos</h1>
+          <div class="sub">Gestioná tus eventos y las postulaciones que recibís</div>
+        </div>
+        <a href="#" class="btn btn-solid">+ Crear evento</a>
+      </div>
+      <div class="content">
+        <div class="tabs-row">
+          <button class="tab-pill is-active">Activos</button>
+          <button class="tab-pill">Finalizados</button>
+          <button class="tab-pill">Borradores</button>
+        </div>
+        <div class="events-grid" id="eventsGrid"></div>
+      </div>
+    </div>
+
+    <!-- ===================== DETALLE ===================== -->
+    <div id="detailView">
+      <div class="topbar">
+        <div>
+          <a href="#" class="back-link" id="backLink">← Mis eventos</a>
+          <div class="detail-header" style="margin-bottom:0;">
+            <div>
+              <h1>Inauguración de temporada</h1>
+              <div class="meta">Costa 7070 · Buenos Aires · 14 ago 2026 · <span class="status-badge status-activo" style="vertical-align:middle;">Activo</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-outline btn-sm">Duplicar evento</button>
+          <button class="btn btn-outline btn-sm">Cerrar postulaciones</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="quota-box">
+          <div class="quota-top">
+            <b>32 de 50 cupos confirmados</b>
+            <span>214 postulaciones totales · 18 sin revisar</span>
+          </div>
+          <div class="quota-bar"><div class="quota-fill" style="width:64%;"></div></div>
+        </div>
+
+        <div class="main-tabs">
+          <div class="main-tab is-active" data-tab="solicitudes">Solicitudes</div>
+          <div class="main-tab" data-tab="evento">Evento</div>
+        </div>
+
+        <!-- SOLICITUDES -->
+        <div class="panel is-active" id="panel-solicitudes">
+          <div class="sub-tabs">
+            <button class="sub-tab is-active" data-sub="pendientes">Pendientes (18)</button>
+            <button class="sub-tab" data-sub="aprobadas">Aprobadas (32)</button>
+            <button class="sub-tab" data-sub="rechazadas">Rechazadas (9)</button>
+          </div>
+
+          <!-- Pendientes -->
+          <div class="sub-panel is-active" id="sub-pendientes">
+            <div class="toolbar">
+              <input class="search-box" type="text" placeholder="Buscar por nombre o handle...">
+              <select class="sort-select">
+                <option>Mejor match</option>
+                <option>Más seguidores</option>
+                <option>Más reciente</option>
+              </select>
+              <button class="filter-chip" id="workedFilter">Ya trabajó conmigo</button>
+            </div>
+            <div class="bulk-bar" id="bulkBar">
+              <span id="bulkCount">0 seleccionados</span>
+              <div class="bulk-actions">
+                <button class="btn btn-sm" style="background:var(--green-dim); color:var(--green);">Aceptar seleccionados</button>
+                <button class="btn btn-sm" style="background:var(--red-dim); color:var(--red);">Rechazar seleccionados</button>
+              </div>
+            </div>
+            <div class="sample-note">Mostrando 10 de 214 postulantes</div>
+            <div id="pendingList"></div>
+          </div>
+
+          <!-- Aprobadas -->
+          <div class="sub-panel" id="sub-aprobadas" style="display:none;">
+            <div id="approvedList"></div>
+          </div>
+
+          <!-- Rechazadas -->
+          <div class="sub-panel" id="sub-rechazadas" style="display:none;">
+            <div class="sample-note">Solo vos ves esta lista — nunca es visible para el creador ni para otras marcas.</div>
+            <div id="rejectedList"></div>
+          </div>
+        </div>
+
+        <!-- EVENTO -->
+        <div class="panel" id="panel-evento">
+          <div class="event-info-card">
+            <div class="event-info-poster p1">
+              <span class="brand">Costa 7070</span>
+            </div>
+            <div class="event-info-body">
+              <div class="field"><label>Fecha del evento</label><div class="val">14 de agosto, 2026</div></div>
+              <div class="field"><label>Ubicación</label><div class="val">Buenos Aires</div></div>
+              <div class="field"><label>Cupos</label><div class="val">50 creadores</div></div>
+              <div class="field"><label>Cierre de postulaciones</label><div class="val">7 de agosto, 2026</div></div>
+              <div class="field full"><label>Perfil buscado</label>
+                <div class="val tags">
+                  <span class="tag-pill">Gastronomía</span>
+                  <span class="tag-pill">Lifestyle</span>
+                  <span class="tag-pill">Buenos Aires</span>
+                </div>
+              </div>
+              <div class="field full"><label>Descripción</label>
+                <div class="val desc">Buscamos creadores para cubrir la inauguración de temporada de Costa 7070. Contenido en vivo durante el evento: stories, reels cortos y un posteo final. Se ofrece la experiencia completa + acompañante.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card"><b>1.840</b><span>Vistas del evento</span></div>
+            <div class="stat-card"><b>214</b><span>Postulaciones</span></div>
+            <div class="stat-card"><b>32</b><span>Confirmados</span></div>
+          </div>
+
+          <div class="danger-zone">
+            <p>Eliminar este evento borra las postulaciones pendientes. Las participaciones ya confirmadas quedan en el historial de todas formas.</p>
+            <button class="btn btn-outline btn-sm btn-danger">Eliminar evento</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== BASE DE DATOS DE CREADORES ===================== -->
+    <div id="creatorsView" style="display:none;">
+      <div class="topbar">
+        <div>
+          <h1>Creadores</h1>
+          <div class="sub">Tu historial y todo el resto de la comunidad de CONNECTA</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="tabs-row">
+          <button class="tab-pill is-active" data-crmode="mine">Mi CRM</button>
+          <button class="tab-pill" data-crmode="discover">Descubrir</button>
+        </div>
+
+        <!-- ---- MI CRM ---- -->
+        <div class="cr-panel is-active" id="crPanelMine">
+          <div class="db-toolbar">
+            <input class="search-box" type="text" id="dbSearch" placeholder="Buscar por nombre o handle...">
+            <button class="filter-chip is-active" data-dbfilter="todos">Todos</button>
+            <button class="filter-chip" data-dbfilter="worked">Ya trabajé</button>
+            <button class="filter-chip" data-dbfilter="new">Nunca trabajé</button>
+            <select class="sort-select" id="dbSort">
+              <option value="collabs">Más colaboraciones</option>
+              <option value="rating">Mejor rating</option>
+              <option value="followers">Más seguidores</option>
+              <option value="recent">Más reciente</option>
+            </select>
+          </div>
+          <div class="db-count" id="dbCount">14 creadores</div>
+          <div class="table-wrap">
+            <table class="creator-table">
+              <thead>
+                <tr>
+                  <th>Creador</th>
+                  <th>Categoría</th>
+                  <th>Seguidores</th>
+                  <th>Colaboraciones</th>
+                  <th>Última vez</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody id="dbTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ---- DESCUBRIR ---- -->
+        <div class="cr-panel" id="crPanelDiscover" style="display:none;">
+          <div class="db-toolbar">
+            <input class="search-box" type="text" id="discSearch" placeholder="Buscar por nombre o handle...">
+            <select class="sort-select" id="discCat">
+              <option value="todas">Todas las categorías</option>
+              <option value="Gastronomía">Gastronomía</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Moda">Moda</option>
+              <option value="Arte">Arte</option>
+              <option value="Lifestyle">Lifestyle</option>
+            </select>
+            <select class="sort-select" id="discFollowers">
+              <option value="todos">Cualquier tamaño</option>
+              <option value="0-10000">Hasta 10.000</option>
+              <option value="10000-40000">10.000 – 40.000</option>
+              <option value="40000-999999">Más de 40.000</option>
+            </select>
+          </div>
+          <div class="db-count" id="discCount">— creadores en la plataforma</div>
+          <div class="discover-grid" id="discoverGrid"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===================== RESEÑAS ===================== -->
+    <div id="reviewsView" style="display:none;">
+      <div class="topbar">
+        <div>
+          <h1>Reseñas</h1>
+          <div class="sub">Calificá a los creadores con los que trabajaste y mirá lo que dicen de vos</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="tabs-row">
+          <button class="tab-pill is-active" data-rvtab="pending">Para dejar (2)</button>
+          <button class="tab-pill" data-rvtab="received">Recibidas (5)</button>
+        </div>
+
+        <div class="sub-panel is-active" id="rv-pending">
+          <div class="review-card">
+            <div class="review-top">
+              <div class="rv-avatar" style="background:#9C98EC;">MF</div>
+              <div><h5>@male.ferreyra</h5><span class="rv-meta">Fierro Bar · Noche de autor · 18 may 2026</span></div>
+            </div>
+            <div class="star-input">
+              <span class="is-filled">★</span><span class="is-filled">★</span><span class="is-filled">★</span><span class="is-filled">★</span><span>★</span>
+            </div>
+            <textarea class="config-input" placeholder="Contá cómo fue trabajar con este creador — cumplió los plazos, calidad del contenido, trato..."></textarea>
+            <div class="review-pending-actions">
+              <button class="btn btn-solid btn-sm">Publicar reseña</button>
+              <button class="btn btn-ghost btn-sm">Más tarde</button>
+            </div>
+          </div>
+          <div class="review-card">
+            <div class="review-top">
+              <div class="rv-avatar" style="background:#4C4894;">JS</div>
+              <div><h5>@juanpa.streetfood</h5><span class="rv-meta">Studio Lino · Desfile cápsula invierno · 2 jun 2026</span></div>
+            </div>
+            <div class="star-input">
+              <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+            </div>
+            <textarea class="config-input" placeholder="Contá cómo fue trabajar con este creador..."></textarea>
+            <div class="review-pending-actions">
+              <button class="btn btn-solid btn-sm">Publicar reseña</button>
+              <button class="btn btn-ghost btn-sm">Más tarde</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sub-panel" id="rv-received" style="display:none;">
+          <div class="review-card">
+            <div class="review-top">
+              <div class="rv-avatar" style="background:#6F6AE0;">JC</div>
+              <div><h5>@juli.crea</h5><span class="rv-meta">Inauguración de temporada · 14 ago 2026</span></div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+            <div class="review-text">Todo clarísimo desde el brief. Pagaron a tiempo y el trato fue excelente. Repetiría sin dudarlo.</div>
+          </div>
+          <div class="review-card">
+            <div class="review-top">
+              <div class="rv-avatar" style="background:#9C98EC;">VE</div>
+              <div><h5>@vale.eats</h5><span class="rv-meta">Inauguración de temporada · 14 ago 2026</span></div>
+              <div class="review-stars">★★★★☆</div>
+            </div>
+            <div class="review-text">Buena experiencia en general, aunque la comunicación previa al evento podría ser un poco más rápida.</div>
+          </div>
+          <div class="review-card">
+            <div class="review-top">
+              <div class="rv-avatar" style="background:#3E3A85;">NL</div>
+              <div><h5>@nico.lens</h5><span class="rv-meta">Muestra colectiva · 30 ago 2026</span></div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+            <div class="review-text">Marca seria, brief claro y buen trato con los creadores. Ya quiero la próxima edición.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== CONFIGURACIÓN ===================== -->
+    <div id="configView" style="display:none;">
+      <div class="topbar">
+        <div>
+          <h1>Configuración</h1>
+          <div class="sub">El perfil de tu marca y tu plan de visibilidad</div>
+        </div>
+        <button class="btn btn-solid">Guardar cambios</button>
+      </div>
+      <div class="content">
+        <div class="config-card">
+          <h3>Perfil de la marca</h3>
+          <div class="config-logo-row">
+            <div class="config-logo">C7</div>
+            <button class="btn btn-outline btn-sm">Cambiar logo</button>
+          </div>
+          <div class="config-field"><label>Nombre comercial</label><input class="config-input" type="text" value="Costa 7070"></div>
+          <div class="config-row2">
+            <div class="config-field"><label>Rubro</label><input class="config-input" type="text" value="Gastronomía"></div>
+            <div class="config-field"><label>Ciudad</label><input class="config-input" type="text" value="Buenos Aires"></div>
+          </div>
+          <div class="config-field"><label>Descripción</label><textarea class="config-input">Restaurante frente al río con propuesta de autor y eventos estacionales.</textarea></div>
+        </div>
+
+        <div class="config-card">
+          <h3>Redes sociales</h3>
+          <div class="config-row2">
+            <div class="config-field"><label>Instagram</label><input class="config-input" type="text" value="@costa7070"></div>
+            <div class="config-field"><label>TikTok</label><input class="config-input" type="text" value="@costa7070"></div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h3>Plan de visibilidad</h3>
+          <div class="plan-options">
+            <div class="plan-card is-selected" onclick="selectPlan(this)">
+              <h5>Gratis</h5>
+              <p>Publicá eventos y recibí postulaciones sin costo.</p>
+            </div>
+            <div class="plan-card" onclick="selectPlan(this)">
+              <h5>Destacado</h5>
+              <p>Tus eventos aparecen primero en el feed de los creadores.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="slideover-backdrop" id="soBackdrop" onclick="closeCreator()"></div>
+<div class="slideover" id="slideover">
+  <button class="slideover-close" onclick="closeCreator()">✕</button>
+  <div class="slideover-body">
+    <div class="so-avatar" id="soAvatar"></div>
+    <div class="so-handle" id="soHandle"></div>
+    <div class="so-meta" id="soMeta"></div>
+
+    <div class="so-stat-row">
+      <div class="so-stat"><b id="soCollabs"></b><span>Colaboraciones</span></div>
+      <div class="so-stat"><b id="soRating"></b><span>Rating dado</span></div>
+      <div class="so-stat"><b id="soFollowers"></b><span>Seguidores</span></div>
+    </div>
+
+    <div class="so-section" id="soHistorySection">
+      <h6>Historial con tu marca</h6>
+      <div id="soHistory"></div>
+    </div>
+
+    <div class="so-section">
+      <h6>Portfolio</h6>
+      <div class="portfolio-grid" id="soPortfolio"></div>
+    </div>
+
+    <div class="so-section">
+      <h6>Reseñas de otras marcas</h6>
+      <div id="soOtherReviews"></div>
+    </div>
+
+    <div class="so-section">
+      <h6>Notas internas (privadas)</h6>
+      <textarea class="note-box" id="soNotes" placeholder="Ej: buena calidad de contenido, entrega a tiempo..."></textarea>
+    </div>
+
+    <div class="so-section">
+      <h6>Invitar a un evento</h6>
+      <select class="config-input" id="soInviteSelect" style="margin-bottom:10px;">
+        <option>Costa 7070 — Inauguración de temporada</option>
+        <option>Manada Fit Club — Clase abierta + brunch</option>
+        <option>Terreno Galería — Muestra colectiva</option>
+      </select>
+      <button class="btn btn-solid so-invite-btn" id="soInviteBtn" onclick="sendInvite(this)">Enviar invitación</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- MIS EVENTOS: datos ----------
+  const events = [
+    {brand:"Costa 7070", title:"Inauguración de temporada", place:"Buenos Aires · 14 ago", status:"activo", poster:"p1", total:214, confirmed:32, pending:18},
+    {brand:"Manada Fit Club", title:"Clase abierta + brunch", place:"Palermo · 21 ago", status:"activo", poster:"p2", total:76, confirmed:20, pending:6},
+    {brand:"Terreno Galería", title:"Muestra colectiva", place:"Villa Crespo · 30 ago", status:"activo", poster:"p4", total:41, confirmed:0, pending:41},
+    {brand:"Studio Lino", title:"Desfile cápsula invierno", place:"Recoleta · 2 jun", status:"finalizado", poster:"p3", total:98, confirmed:24, pending:0},
+    {brand:"Fierro Bar", title:"Noche de autor", place:"San Telmo · 18 may", status:"finalizado", poster:"p6", total:130, confirmed:35, pending:0},
+    {brand:"Casa Cala", title:"Apertura de rooftop", place:"Nordelta · sin fecha", status:"borrador", poster:"p5", total:0, confirmed:0, pending:0},
+  ];
+
+  function eventCard(ev, i){
+    const statusLabel = {activo:"Activo", finalizado:"Finalizado", borrador:"Borrador"}[ev.status];
+    const letter = ev.brand.charAt(0);
+    return `<div class="event-row-card" onclick="openDetail(${i})">
+      <div class="event-row-poster ${ev.poster}">
+        <span class="letter">${letter}</span>
+        <span class="brand">${ev.brand}</span>
+      </div>
+      <div class="event-row-body">
+        <div class="event-row-top">
+          <div>
+            <h4>${ev.title}</h4>
+            <div class="meta">${ev.place}</div>
+          </div>
+          <span class="status-badge status-${ev.status}">${statusLabel}</span>
+        </div>
+        <div class="event-row-stats">
+          <div class="stat-mini"><b>${ev.total}</b>Postulantes</div>
+          <div class="stat-mini"><b>${ev.confirmed}</b>Confirmados</div>
+          <div class="stat-mini ${ev.pending > 0 ? 'alert' : ''}"><b>${ev.pending}</b>Sin revisar</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('eventsGrid').innerHTML = events.map(eventCard).join('');
+
+  function showView(name){
+    document.getElementById('resumenView').style.display = name === 'resumen' ? 'block' : 'none';
+    document.getElementById('listView').style.display = name === 'list' ? 'block' : 'none';
+    document.getElementById('detailView').style.display = name === 'detail' ? 'block' : 'none';
+    document.getElementById('creatorsView').style.display = name === 'creators' ? 'block' : 'none';
+    document.getElementById('reviewsView').style.display = name === 'reviews' ? 'block' : 'none';
+    document.getElementById('configView').style.display = name === 'config' ? 'block' : 'none';
+    document.getElementById('navResumen').classList.toggle('active', name === 'resumen');
+    document.getElementById('navEvents').classList.toggle('active', name === 'list' || name === 'detail');
+    document.getElementById('navCreators').classList.toggle('active', name === 'creators');
+    document.getElementById('navReviews').classList.toggle('active', name === 'reviews');
+    document.getElementById('navConfig').classList.toggle('active', name === 'config');
+    window.scrollTo(0,0);
+  }
+
+  function openDetail(i){
+    showView('detail');
+  }
+  document.getElementById('backLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    showView('list');
+  });
+
+  // ---------- BASE DE DATOS DE CREADORES ----------
+  const creatorsDB = [
+    {handle:"@juli.crea", cat:"Gastronomía", followers:24500, collabs:3, last:"10 jun 2026", lastSort:3, rating:4.8, tags:["Confiable","Puntual"], worked:true, color:"#6F6AE0"},
+    {handle:"@male.ferreyra", cat:"Gastronomía", followers:29100, collabs:2, last:"18 may 2026", lastSort:2, rating:4.6, tags:["Buena calidad"], worked:true, color:"#9C98EC"},
+    {handle:"@vale.eats", cat:"Lifestyle", followers:19800, collabs:1, last:"14 ago 2026", lastSort:5, rating:4.9, tags:[], worked:true, color:"#4C4894"},
+    {handle:"@fede.viajes", cat:"Lifestyle", followers:12100, collabs:1, last:"3 abr 2026", lastSort:1, rating:4.2, tags:["Llegó tarde"], worked:true, color:"#8683CC"},
+    {handle:"@juanpa.streetfood", cat:"Gastronomía", followers:44700, collabs:1, last:"18 may 2026", lastSort:2, rating:4.7, tags:["Excelente contenido"], worked:true, color:"#3E3A85"},
+    {handle:"@nachodiaz", cat:"Lifestyle", followers:18200, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#6F6AE0"},
+    {handle:"@lu.moda", cat:"Moda", followers:41800, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#9C98EC"},
+    {handle:"@rociofit", cat:"Fitness", followers:33400, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#4C4894"},
+    {handle:"@tomifilma", cat:"Arte", followers:7900, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#8683CC"},
+    {handle:"@sole.beauty", cat:"Lifestyle", followers:56200, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#3E3A85"},
+    {handle:"@nico.lens", cat:"Arte", followers:22300, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#6F6AE0"},
+    {handle:"@flor.gourmet", cat:"Gastronomía", followers:37600, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#9C98EC"},
+    {handle:"@brunodj", cat:"Lifestyle", followers:15300, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#4C4894"},
+    {handle:"@cami.arte", cat:"Arte", followers:5400, collabs:0, last:"—", lastSort:0, rating:null, tags:[], worked:false, color:"#8683CC"},
+  ];
+
+  let dbFilter = 'todos';
+  let dbSortKey = 'collabs';
+  let dbSearchTerm = '';
+
+  function fmtFollowers(n){ return n.toLocaleString('es-AR'); }
+
+  function dbRow(c, idx){
+    const initials = c.handle.replace('@','').slice(0,2).toUpperCase();
+    const tagsHTML = c.tags.length
+      ? `<div class="ct-tags">${c.tags.map(t => `<span class="ct-tag">${t}</span>`).join('')}</div>`
+      : '';
+    const ratingHTML = c.rating ? `<span class="ct-rating">★ ${c.rating}</span>` : `<span class="ct-rating none">Sin datos</span>`;
+    return `<tr onclick="openCreator('${c.handle}')">
+      <td>
+        <div class="ct-name">
+          <div class="ct-avatar" style="background:${c.color}">${initials}</div>
+          <div>
+            <div>${c.handle}</div>
+            ${tagsHTML}
+          </div>
+        </div>
+      </td>
+      <td>${c.cat}</td>
+      <td>${fmtFollowers(c.followers)}</td>
+      <td>${c.collabs > 0 ? c.collabs : '<span class="ct-empty">0</span>'}</td>
+      <td>${c.last === '—' ? '<span class="ct-empty">—</span>' : c.last}</td>
+      <td>${ratingHTML}</td>
+    </tr>`;
+  }
+
+  function renderDB(){
+    let rows = creatorsDB.filter(c => {
+      if(dbFilter === 'worked' && !c.worked) return false;
+      if(dbFilter === 'new' && c.worked) return false;
+      if(dbSearchTerm && !c.handle.toLowerCase().includes(dbSearchTerm.toLowerCase())) return false;
+      return true;
+    });
+    rows.sort((a,b) => {
+      if(dbSortKey === 'collabs') return b.collabs - a.collabs;
+      if(dbSortKey === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if(dbSortKey === 'followers') return b.followers - a.followers;
+      if(dbSortKey === 'recent') return b.lastSort - a.lastSort;
+      return 0;
+    });
+    document.getElementById('dbTableBody').innerHTML = rows.map(dbRow).join('');
+    document.getElementById('dbCount').textContent = `${rows.length} creador${rows.length === 1 ? '' : 'es'}`;
+  }
+
+  document.querySelectorAll('[data-dbfilter]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('[data-dbfilter]').forEach(c => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+      dbFilter = chip.dataset.dbfilter;
+      renderDB();
+    });
+  });
+  document.getElementById('dbSort').addEventListener('change', (e) => {
+    dbSortKey = e.target.value;
+    renderDB();
+  });
+  document.getElementById('dbSearch').addEventListener('input', (e) => {
+    dbSearchTerm = e.target.value;
+    renderDB();
+  });
+
+  renderDB();
+
+  // ---------- DESCUBRIR: creadores de toda la plataforma ----------
+  const discoverDB = [
+    {handle:"@martifit.ok", cat:"Fitness", followers:28900, location:"Córdoba", color:"#6F6AE0"},
+    {handle:"@renelens", cat:"Arte", followers:16200, location:"Buenos Aires", color:"#9C98EC"},
+    {handle:"@pauli.style", cat:"Moda", followers:52100, location:"Rosario", color:"#4C4894"},
+    {handle:"@santi.brunch", cat:"Gastronomía", followers:9800, location:"Buenos Aires", color:"#8683CC"},
+    {handle:"@cande.wellness", cat:"Fitness", followers:21400, location:"Mendoza", color:"#3E3A85"},
+    {handle:"@iggy.travel", cat:"Lifestyle", followers:38700, location:"Buenos Aires", color:"#6F6AE0"},
+    {handle:"@bel.artvisual", cat:"Arte", followers:13500, location:"La Plata", color:"#9C98EC"},
+    {handle:"@dieguito.food", cat:"Gastronomía", followers:61200, location:"Buenos Aires", color:"#4C4894"},
+    {handle:"@sofi.looks", cat:"Moda", followers:24800, location:"Córdoba", color:"#8683CC"},
+  ];
+
+  let discSearchTerm = '';
+  let discCatFilter = 'todas';
+  let discFollowersFilter = 'todos';
+
+  function discRow(c){
+    const initials = c.handle.replace('@','').slice(0,2).toUpperCase();
+    return `<div class="disc-card">
+      <div class="disc-avatar" style="background:${c.color}">${initials}</div>
+      <h5>${c.handle}</h5>
+      <div class="disc-meta">${c.cat} · ${c.location}<br>${fmtFollowers(c.followers)} seguidores</div>
+      <div class="disc-actions">
+        <button class="btn btn-outline btn-sm" onclick="openCreator('${c.handle}')">Ver perfil</button>
+        <button class="btn btn-solid btn-sm" onclick="openCreator('${c.handle}')">Invitar</button>
+      </div>
+    </div>`;
+  }
+
+  function renderDiscover(){
+    let rows = discoverDB.filter(c => {
+      if(discCatFilter !== 'todas' && c.cat !== discCatFilter) return false;
+      if(discSearchTerm && !c.handle.toLowerCase().includes(discSearchTerm.toLowerCase())) return false;
+      if(discFollowersFilter !== 'todos'){
+        const [min, max] = discFollowersFilter.split('-').map(Number);
+        if(c.followers < min || c.followers > max) return false;
+      }
+      return true;
+    });
+    document.getElementById('discoverGrid').innerHTML = rows.map(discRow).join('');
+    document.getElementById('discCount').textContent = `${rows.length} creador${rows.length === 1 ? '' : 'es'} en la plataforma`;
+  }
+
+  document.getElementById('discSearch').addEventListener('input', (e) => { discSearchTerm = e.target.value; renderDiscover(); });
+  document.getElementById('discCat').addEventListener('change', (e) => { discCatFilter = e.target.value; renderDiscover(); });
+  document.getElementById('discFollowers').addEventListener('change', (e) => { discFollowersFilter = e.target.value; renderDiscover(); });
+
+  document.querySelectorAll('[data-crmode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-crmode]').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      document.getElementById('crPanelMine').style.display = btn.dataset.crmode === 'mine' ? 'block' : 'none';
+      document.getElementById('crPanelDiscover').style.display = btn.dataset.crmode === 'discover' ? 'block' : 'none';
+      if(btn.dataset.crmode === 'discover') renderDiscover();
+    });
+  });
+
+  // ---------- SLIDE-OVER DE PERFIL ----------
+  const mockHistory = {
+    "@juli.crea": [
+      {ev:"Inauguración de temporada", dt:"14 ago 2026"},
+      {ev:"Lanzamiento línea verano", dt:"3 feb 2026"},
+      {ev:"Apertura de local", dt:"20 oct 2025"},
+    ],
+    "@male.ferreyra": [
+      {ev:"Noche de autor", dt:"18 may 2026"},
+      {ev:"Brunch de prensa", dt:"9 ene 2026"},
+    ],
+  };
+
+  function openCreator(handle){
+    const c = creatorsDB.find(x => x.handle === handle) || discoverDB.find(x => x.handle === handle);
+    if(!c) return;
+    const isMine = !!creatorsDB.find(x => x.handle === handle);
+    const initials = c.handle.replace('@','').slice(0,2).toUpperCase();
+    document.getElementById('soAvatar').style.background = c.color;
+    document.getElementById('soAvatar').textContent = initials;
+    document.getElementById('soHandle').textContent = c.handle;
+    document.getElementById('soMeta').textContent = `${c.cat} · ${c.location || 'Buenos Aires'}`;
+    document.getElementById('soCollabs').textContent = isMine ? c.collabs : 0;
+    document.getElementById('soRating').textContent = isMine && c.rating ? c.rating : '—';
+    document.getElementById('soFollowers').textContent = fmtFollowers(c.followers);
+
+    const history = mockHistory[handle] || [];
+    const historyHTML = history.length
+      ? history.map(h => `<div class="history-item"><span class="ev">${h.ev}</span><span class="dt">${h.dt}</span></div>`).join('')
+      : `<div class="history-item"><span class="dt">Todavía no colaboraste con este creador.</span></div>`;
+    document.getElementById('soHistory').innerHTML = historyHTML;
+    document.getElementById('soNotes').value = isMine ? c.tags.join(', ') : '';
+
+    // Portfolio (mock, generado a partir del handle)
+    const seed = handle.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
+    const platforms = ['IG · Reel', 'TikTok', 'IG · Post'];
+    const posterClasses = ['p1','p2','p3','p4','p5','p6'];
+    const portfolioHTML = platforms.map((plat, i) => {
+      const pc = posterClasses[(seed + i) % posterClasses.length];
+      return `<div class="portfolio-item ${pc}"><span class="plat">${plat}</span><span class="brandtag">Trabajo publicado</span></div>`;
+    }).join('');
+    document.getElementById('soPortfolio').innerHTML = portfolioHTML;
+
+    // Reseñas de otras marcas (mock)
+    const reviewPool = [
+      {brand:"Almendra Café", stars:5, text:"Excelente predisposición y contenido de calidad."},
+      {brand:"Vértigo Run Club", stars:4, text:"Buen trabajo, algo de demora en la entrega final."},
+      {brand:"Bendita Golosa", stars:5, text:"Repetiríamos sin dudarlo, muy profesional."},
+      {brand:"Casa Cala", stars:4, text:"Buena onda y cumplió con lo pactado."},
+    ];
+    const r1 = reviewPool[seed % reviewPool.length];
+    const r2 = reviewPool[(seed + 1) % reviewPool.length];
+    const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+    document.getElementById('soOtherReviews').innerHTML = [r1, r2].map(r => `
+      <div class="other-review">
+        <div class="or-top"><span class="or-brand">${r.brand}</span><span class="or-stars">${stars(r.stars)}</span></div>
+        <div class="or-text">${r.text}</div>
+      </div>`).join('');
+
+    // Reset del selector de invitación
+    const inviteBtn = document.getElementById('soInviteBtn');
+    inviteBtn.textContent = 'Enviar invitación';
+    inviteBtn.disabled = false;
+    inviteBtn.style.opacity = '1';
+
+    document.getElementById('slideover').classList.add('is-open');
+    document.getElementById('soBackdrop').classList.add('is-open');
+  }
+
+  function sendInvite(btn){
+    const evName = document.getElementById('soInviteSelect').value;
+    btn.textContent = '✓ Invitación enviada';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  }
+
+  function closeCreator(){
+    document.getElementById('slideover').classList.remove('is-open');
+    document.getElementById('soBackdrop').classList.remove('is-open');
+  }
+
+  // ---------- MAIN TABS ----------
+  document.querySelectorAll('.main-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('is-active');
+    });
+  });
+
+  // ---------- SUB TABS ----------
+  document.querySelectorAll('.sub-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.querySelectorAll('.sub-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('sub-' + tab.dataset.sub).style.display = 'block';
+    });
+  });
+
+  // ---------- APPLICANTS DATA ----------
+  const avatarColors = ['#6F6AE0','#9C98EC','#4C4894','#8683CC','#3E3A85'];
+  const pending = [
+    {handle:"@juli.crea", followers:"24.500", cat:"Gastronomía", match:96, worked:true},
+    {handle:"@nachodiaz", followers:"18.200", cat:"Lifestyle", match:91, worked:false},
+    {handle:"@lu.moda", followers:"41.800", cat:"Moda", match:87, worked:false},
+    {handle:"@fede.viajes", followers:"12.100", cat:"Lifestyle", match:85, worked:true},
+    {handle:"@martucomida", followers:"9.600", cat:"Gastronomía", match:83, worked:false},
+    {handle:"@rociofit", followers:"33.400", cat:"Fitness", match:79, worked:false},
+    {handle:"@tomifilma", followers:"7.900", cat:"Arte", match:76, worked:false},
+    {handle:"@sole.beauty", followers:"56.200", cat:"Lifestyle", match:74, worked:false},
+    {handle:"@brunodj", followers:"15.300", cat:"Lifestyle", match:70, worked:false},
+    {handle:"@cami.arte", followers:"5.400", cat:"Arte", match:65, worked:false},
+  ];
+  const approved = [
+    {handle:"@male.ferreyra", followers:"29.100", cat:"Gastronomía", worked:true},
+    {handle:"@juanpa.streetfood", followers:"44.700", cat:"Gastronomía", worked:false},
+    {handle:"@vale.eats", followers:"19.800", cat:"Lifestyle", worked:true},
+    {handle:"@nico.lens", followers:"22.300", cat:"Arte", worked:false},
+    {handle:"@flor.gourmet", followers:"37.600", cat:"Gastronomía", worked:false},
+  ];
+  const rejected = [
+    {handle:"@random.acc", followers:"1.200", cat:"Gastronomía"},
+    {handle:"@spam.creator", followers:"430", cat:"Lifestyle"},
+    {handle:"@bajo.match", followers:"2.900", cat:"Fitness"},
+  ];
+
+  function initials(handle){
+    return handle.replace('@','').slice(0,2).toUpperCase();
+  }
+
+  function pendingRow(p, idx){
+    const color = avatarColors[idx % avatarColors.length];
+    return `<div class="applicant-row">
+      <input type="checkbox" class="applicant-check">
+      <div class="applicant-avatar" style="background:${color}">${initials(p.handle)}</div>
+      <div class="applicant-info">
+        <div class="name-row">
+          <h5>${p.handle}</h5>
+          ${p.worked ? '<span class="worked-badge">Ya trabajó con vos</span>' : ''}
+        </div>
+        <div class="meta"><span>${p.followers} seguidores</span><span>${p.cat}</span></div>
+      </div>
+      <div class="match-score"><b>${p.match}%</b><span>Match</span></div>
+      <div class="applicant-actions">
+        <button class="icon-btn save" title="Guardar para después">☆</button>
+        <button class="icon-btn reject" title="Rechazar">✕</button>
+        <button class="icon-btn approve" title="Aceptar">✓</button>
+      </div>
+    </div>`;
+  }
+
+  function approvedRow(p, idx){
+    const color = avatarColors[idx % avatarColors.length];
+    return `<div class="applicant-row is-approved">
+      <div class="applicant-avatar" style="background:${color}">${initials(p.handle)}</div>
+      <div class="applicant-info">
+        <div class="name-row">
+          <h5>${p.handle}</h5>
+          ${p.worked ? '<span class="worked-badge">Ya trabajó con vos</span>' : ''}
+        </div>
+        <div class="meta"><span>${p.followers} seguidores</span><span>${p.cat}</span></div>
+      </div>
+      <button class="review-btn">Dejar reseña</button>
+    </div>`;
+  }
+
+  function rejectedRow(p, idx){
+    return `<div class="applicant-row is-rejected">
+      <div class="applicant-avatar" style="background:#B9B7C9">${initials(p.handle)}</div>
+      <div class="applicant-info">
+        <h5>${p.handle}</h5>
+        <div class="meta"><span>${p.followers} seguidores</span><span>${p.cat}</span></div>
+      </div>
+      <span class="rejected-note">Rechazada</span>
+    </div>`;
+  }
+
+  document.getElementById('pendingList').innerHTML = pending.map(pendingRow).join('');
+  document.getElementById('approvedList').innerHTML = approved.map(approvedRow).join('');
+  document.getElementById('rejectedList').innerHTML = rejected.map(rejectedRow).join('');
+
+  // ---------- BULK SELECTION ----------
+  const bulkBar = document.getElementById('bulkBar');
+  const bulkCount = document.getElementById('bulkCount');
+  document.getElementById('pendingList').addEventListener('change', () => {
+    const checked = document.querySelectorAll('#pendingList .applicant-check:checked').length;
+    bulkCount.textContent = `${checked} seleccionado${checked === 1 ? '' : 's'}`;
+    bulkBar.classList.toggle('is-visible', checked > 0);
+  });
+
+  // ---------- WORKED FILTER (visual toggle) ----------
+  document.getElementById('workedFilter').addEventListener('click', function(){
+    this.classList.toggle('is-active');
+  });
+
+  // ---------- RESEÑAS: tabs ----------
+  document.querySelectorAll('[data-rvtab]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('[data-rvtab]').forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.getElementById('rv-pending').style.display = tab.dataset.rvtab === 'pending' ? 'block' : 'none';
+      document.getElementById('rv-received').style.display = tab.dataset.rvtab === 'received' ? 'block' : 'none';
+    });
+  });
+
+  // ---------- RESEÑAS: selector de estrellas ----------
+  document.querySelectorAll('.star-input').forEach(group => {
+    const stars = group.querySelectorAll('span');
+    stars.forEach((star, idx) => {
+      star.addEventListener('click', () => {
+        stars.forEach((s, i) => s.classList.toggle('is-filled', i <= idx));
+      });
+    });
+  });
+
+  // ---------- CONFIGURACIÓN: selector de plan ----------
+  function selectPlan(el){
+    document.querySelectorAll('.plan-card').forEach(p => p.classList.remove('is-selected'));
+    el.classList.add('is-selected');
+  }
+</script>
+
+</body>
+</html>
