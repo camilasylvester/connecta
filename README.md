@@ -1,20 +1,57 @@
-# CONNECTA — Mockups
+# CONNECTA
 
-Mockups interactivos en HTML/CSS/JS. Cada archivo es autocontenido (sin dependencias de build, solo abrirlo en el navegador).
+Plataforma real para que marcas publiquen eventos con link privado e influencers se postulen.
 
-## Archivos
+## Stack
 
-### `connecta_landing_v2.html`
-Landing principal de CONNECTA. Identidad visual basada en el pitch deck (negro, violeta, isotipo de las dos "o"). Hero, problema, propuesta para creadores y marcas, cómo funciona, ejemplo real y CTA final.
+- Next.js (App Router) + TypeScript + Tailwind
+- **Neon** (Postgres)
+- **Clerk** (auth / magic link / email)
+- Drizzle ORM
+- Deploy: Vercel
 
-### `connecta_creadores_eventos.html`
-Landing para creadores: feed de eventos publicados por marcas, inspirada en la estructura de wearebombo.com. Incluye filtros por categoría (Gastronomía, Fitness, Moda, Arte, Lifestyle).
+## Setup
 
-### `connecta_dashboard_marca_1.html`
-Dashboard interno para marcas. Secciones: Resumen, Mis eventos (con Solicitudes y gestión del evento), Creadores (Mi CRM + Descubrir), Reseñas, Configuración. Totalmente interactivo con datos mock.
+### 1. Neon
 
-## Cómo verlos
-Descargar el archivo y abrirlo con doble clic — se abre directo en el navegador (Chrome, Edge, Safari). No requiere servidor ni instalación.
+1. Creá un proyecto en https://console.neon.tech
+2. Copiá el connection string → `DATABASE_URL`
+3. En el SQL Editor de Neon, corré [`drizzle/0000_init.sql`](drizzle/0000_init.sql)
 
-## Cómo editarlos
-Son archivos HTML planos. Se pueden abrir y editar con cualquier editor de código (VS Code, Sublime, etc.). Todo el CSS y JS está inline en el mismo archivo.
+### 2. Clerk
+
+1. Creá una app en https://dashboard.clerk.com
+2. Copiá Publishable Key + Secret Key
+3. En Clerk → Paths: Sign-in `/login`, Sign-up `/registro`
+4. Habilitá Email (OTP / magic link)
+
+### 3. Env
+
+```bash
+cp .env.local.example .env.local
+# completá DATABASE_URL + Clerk keys + SITE_URL
+npm install
+npm run dev
+```
+
+### 4. Admin
+
+Los admins salen de la variable `ADMIN_EMAILS` (emails separados por coma) en `.env.local` / Vercel. No se elige “soy admin” desde el formulario.
+
+## Roles
+
+| Rol | Entrada | Ve |
+|-----|---------|-----|
+| **Admin** | Login → Admin | Todo (`/admin`) |
+| **Marca** | Login → Marca | Eventos y solicitudes (`/dashboard`) |
+| **Influencer** | Login / link `/aplicar/...` | Postulaciones (`/mis-postulaciones`) |
+
+## Deploy
+
+Ver [DEPLOY.md](DEPLOY.md). Producción: https://www.connectainf.com
+
+Guía para entender el proyecto: [ENTENDER_PROYECTO.md](ENTENDER_PROYECTO.md).
+
+## Mockups
+
+Referencia visual en [`mockups/`](mockups/).
