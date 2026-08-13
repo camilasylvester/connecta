@@ -12,7 +12,16 @@ const isPublic = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublic(req)) {
-    await auth.protect();
+    const { userId } = await auth();
+    if (!userId) {
+      // Avoid Clerk protect-rewrite → opaque 404/error on /after-auth/*
+      const login = new URL("/login", req.url);
+      const next = `${req.nextUrl.pathname}${req.nextUrl.search}`;
+      if (next.startsWith("/") && !next.startsWith("//")) {
+        login.searchParams.set("next", next);
+      }
+      return NextResponse.redirect(login);
+    }
   }
 
   // Role-based redirects happen in layouts after profile load

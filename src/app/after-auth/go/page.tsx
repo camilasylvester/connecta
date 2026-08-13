@@ -3,7 +3,17 @@ import { redirectIfPasswordMissing } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import { destinationForProfile } from "@/lib/roles";
 
-/** Server hop after client Instagram sync. */
+function isNextRedirect(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "digest" in err &&
+    typeof (err as { digest?: unknown }).digest === "string" &&
+    String((err as { digest: string }).digest).startsWith("NEXT_REDIRECT")
+  );
+}
+
+/** Server hop after client auth sync. */
 export default async function AfterAuthGoPage({
   searchParams,
 }: {
@@ -15,6 +25,7 @@ export default async function AfterAuthGoPage({
   try {
     profile = await ensureProfile();
   } catch (err) {
+    if (isNextRedirect(err)) throw err;
     console.error("after-auth ensureProfile failed", err);
     redirect("/login?error=profile");
   }
