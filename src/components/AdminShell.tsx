@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { AdminSearchBox } from "@/components/AdminSearchBox";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 
@@ -49,9 +48,6 @@ export function AdminShell({
         <aside className={`sidebar${open ? " is-open" : ""}`}>
           <Logo href="/admin" className="logo" />
           <span className="admin-badge">Vista admin</span>
-          <div className="admin-sidebar-search">
-            <AdminSearchBox compact />
-          </div>
           <nav className="sidebar-nav">
             {LINKS.map((link) => (
               <Link
