@@ -22,8 +22,8 @@ const FILTERS = [
   { id: "gastronomia", label: "Gastronomía" },
   { id: "fitness", label: "Fitness" },
   { id: "moda", label: "Moda" },
-  { id: "arte", label: "Arte" },
   { id: "lifestyle", label: "Lifestyle" },
+  { id: "arte", label: "Arte" },
 ] as const;
 
 const statusMap = {
