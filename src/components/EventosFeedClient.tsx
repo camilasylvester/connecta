@@ -8,6 +8,7 @@ export type FeedEventCard = {
   title: string;
   brand: string;
   cat: string;
+  catSlugs: string[];
   catLabel: string;
   place: string;
   status: "open" | "soon" | "full";
@@ -36,7 +37,7 @@ export function EventosFeedClient({ events }: { events: FeedEventCard[] }) {
 
   const filtered = useMemo(() => {
     if (filter === "todos") return events;
-    return events.filter((e) => e.cat === filter);
+    return events.filter((e) => e.catSlugs.includes(filter));
   }, [events, filter]);
 
   return (

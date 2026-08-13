@@ -14,15 +14,35 @@ const CAT_MAP: Record<string, { slug: string; label: string }> = {
   gastronomia: { slug: "gastronomia", label: "Gastronomía" },
   gastronomía: { slug: "gastronomia", label: "Gastronomía" },
   fitness: { slug: "fitness", label: "Fitness" },
+  running: { slug: "fitness", label: "Fitness" },
   moda: { slug: "moda", label: "Moda" },
   arte: { slug: "arte", label: "Arte" },
   lifestyle: { slug: "lifestyle", label: "Lifestyle" },
 };
 
-function normalizeCat(raw: string | null): { slug: string; label: string } {
-  if (!raw) return { slug: "lifestyle", label: "Lifestyle" };
-  const key = raw.trim().toLowerCase();
-  return CAT_MAP[key] || { slug: "lifestyle", label: raw };
+function parseCategorySlugs(raw: string | null): string[] {
+  if (!raw?.trim()) return ["lifestyle"];
+
+  const parts = raw
+    .split(/[,/|;\-–—]+/)
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+
+  const slugs = new Set<string>();
+  for (const part of parts) {
+    const mapped = CAT_MAP[part];
+    if (mapped) {
+      slugs.add(mapped.slug);
+      continue;
+    }
+    for (const [key, value] of Object.entries(CAT_MAP)) {
+      if (part.includes(key) || key.includes(part)) {
+        slugs.add(value.slug);
+      }
+    }
+  }
+
+  return slugs.size > 0 ? Array.from(slugs) : ["lifestyle"];
 }
 
 function formatPlace(location: string | null, eventDate: string | null): string {
@@ -97,7 +117,7 @@ export default async function EventosPage() {
   );
 
   const cards: FeedEventCard[] = rows.map((row, i) => {
-    const cat = normalizeCat(row.category);
+    const catSlugs = parseCategorySlugs(row.category);
     const brand = row.brandName || row.displayName || "Marca";
     const approved = approvedMap.get(row.id) || 0;
     const images = Array.isArray(row.imageUrls) ? row.imageUrls : [];
@@ -105,8 +125,9 @@ export default async function EventosPage() {
       id: row.id,
       title: row.title,
       brand,
-      cat: cat.slug,
-      catLabel: cat.label,
+      cat: catSlugs[0],
+      catSlugs,
+      catLabel: row.category?.trim() || "Lifestyle",
       place: formatPlace(row.location, row.eventDate),
       status: resolveStatus(approved, row.quota, row.eventDate),
       poster: POSTERS[i % POSTERS.length],
