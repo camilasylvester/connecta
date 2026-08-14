@@ -176,7 +176,10 @@ export function validateOnboarding(
   if (!data.fullName.trim()) return { ok: false, error: "Nombre y apellido es obligatorio" };
   if (!data.instagram.trim()) return { ok: false, error: "Usuario de Instagram es obligatorio" };
   if (!data.province) return { ok: false, error: "Provincia es obligatoria" };
-  if (!data.contactEmail.trim() || !data.contactEmail.includes("@")) {
+  if (
+    data.role !== "creator" &&
+    (!data.contactEmail.trim() || !data.contactEmail.includes("@"))
+  ) {
     return { ok: false, error: "Email de contacto válido es obligatorio" };
   }
   if (data.role !== "brand" && data.role !== "creator") {

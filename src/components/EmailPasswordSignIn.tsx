@@ -10,8 +10,10 @@ type Mode = "signin" | "set-password";
 
 export function EmailPasswordSignIn({
   next = "",
+  initialEmail = "",
 }: {
   next?: string;
+  initialEmail?: string;
 }) {
   const { signIn, errors, fetchStatus } = useSignIn();
   const { isLoaded: authLoaded, isSignedIn, signOut } = useAuth();
@@ -21,7 +23,9 @@ export function EmailPasswordSignIn({
   const [mode, setMode] = useState<Mode>(() =>
     searchParams.get("setPassword") === "1" ? "set-password" : "signin"
   );
-  const [email, setEmail] = useState(() => searchParams.get("email") || "");
+  const [email, setEmail] = useState(
+    () => initialEmail || searchParams.get("email") || ""
+  );
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [code, setCode] = useState("");

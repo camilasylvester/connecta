@@ -3,9 +3,14 @@
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { profiles } from "@/db/schema";
+import { normalizeInstagramHandle } from "@/lib/instagram";
 
 export type LoginAccountHint = {
   accountStatus: "pending" | "rejected";
+};
+
+export type LoginHandleLookup = {
+  email: string;
 };
 
 const RATE_WINDOW_MS = 15 * 60 * 1000;
@@ -74,5 +79,30 @@ export async function getLoginAccountHint(
     return finish(null);
   } catch {
     return finish(null);
+  }
+}
+
+/** Resolve a creator login identifier (Instagram handle) to account email. */
+export async function getLoginEmailByHandle(
+  rawHandle: string
+): Promise<LoginHandleLookup | null> {
+  const handle = normalizeInstagramHandle(rawHandle)?.slice(1).toLowerCase();
+  if (!handle || handle.length > 64) return null;
+
+  try {
+    const db = getDb();
+    const rows = await db
+      .select({ email: profiles.email })
+      .from(profiles)
+      .where(
+        sql`lower(replace(coalesce(${profiles.handle}, ''), '@', '')) = ${handle}`
+      )
+      .limit(1);
+
+    const email = rows[0]?.email?.trim().toLowerCase();
+    if (!email || !email.includes("@")) return null;
+    return { email };
+  } catch {
+    return null;
   }
 }
