@@ -472,7 +472,27 @@
   margin-top: 22px;
 }
 .registro-next-btn { width: auto; margin-top: 0; }
-.registro-clerk-wrap { margin-top: 24px; }
+.registro-clerk-wrap { margin-top: 8px; }
+
+/* Clerk Google / social buttons: Google mandates dark text, so keep a white chip. */
+.cl-socialButtonsBlockButton,
+.cl-socialButtonsBlockButton[class] {
+  background: #ffffff !important;
+  color: #1f1f1f !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: none !important;
+}
+.cl-socialButtonsBlockButton:hover,
+.cl-socialButtonsBlockButton[class]:hover {
+  background: #f2f2f2 !important;
+  filter: none !important;
+}
+.cl-socialButtonsBlockButton span,
+.cl-socialButtonsBlockButtonText,
+.cl-socialButtonsBlockButtonText[class] {
+  color: #1f1f1f !important;
+  font-weight: 600 !important;
+}
 
 @media (max-width: 640px) {
   .auth-profile-grid { grid-template-columns: 1fr; }

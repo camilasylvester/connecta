@@ -2,39 +2,7 @@
 
 import { SignUp, useAuth } from "@clerk/nextjs";
 import { useState } from "react";
-import { afterAuthPath } from "@/lib/clerk-auth";
-
-const appearance = {
-  variables: {
-    colorPrimary: "#6f6ae0",
-    colorBackground: "#0d0d10",
-    colorInputBackground: "#0a0a0c",
-    colorInputText: "#f4f3ef",
-    colorText: "#f4f3ef",
-    colorTextSecondary: "rgba(244, 243, 239, 0.56)",
-    colorDanger: "#f87171",
-    borderRadius: "8px",
-    fontFamily: "var(--font-inter), sans-serif",
-  },
-  elements: {
-    rootBox: "w-full",
-    cardBox: "w-full shadow-none",
-    card: "bg-transparent shadow-none border-0 p-0",
-    headerTitle: "hidden",
-    headerSubtitle: "hidden",
-    socialButtonsBlockButton:
-      "border border-[rgba(244,243,239,0.14)] bg-[#0d0d10] text-[#f4f3ef] hover:bg-white/5",
-    formButtonPrimary:
-      "bg-[#6f6ae0] hover:bg-[#9c98ec] text-white shadow-none",
-    formFieldInput:
-      "border border-[rgba(244,243,239,0.14)] bg-[#0a0a0c] text-[#f4f3ef]",
-    footerActionLink: "text-[#9c98ec] hover:text-white",
-    identityPreviewEditButton: "text-[#9c98ec]",
-    formFieldLabel: "text-[rgba(244,243,239,0.56)]",
-    dividerLine: "bg-[rgba(244,243,239,0.14)]",
-    dividerText: "text-[rgba(244,243,239,0.56)]",
-  },
-} as const;
+import { afterAuthPath, clerkAppearance } from "@/lib/clerk-auth";
 
 /**
  * Prebuilt Clerk SignUp — handles Turnstile/captcha correctly (custom
@@ -43,9 +11,13 @@ const appearance = {
 export function RegistroClerkSignUp({
   role,
   next = "",
+  extraMetadata,
+  initialEmail,
 }: {
   role: "brand" | "creator";
   next?: string;
+  extraMetadata?: Record<string, string>;
+  initialEmail?: string;
 }) {
   const { isSignedIn, isLoaded, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
@@ -85,11 +57,12 @@ export function RegistroClerkSignUp({
   return (
     <SignUp
       routing="hash"
-      unsafeMetadata={{ role }}
+      unsafeMetadata={{ role, ...extraMetadata }}
+      initialValues={initialEmail ? { emailAddress: initialEmail } : undefined}
       forceRedirectUrl={redirectUrl}
       fallbackRedirectUrl={redirectUrl}
       signInUrl={signInUrl}
-      appearance={appearance}
+      appearance={clerkAppearance}
       fallback={<p className="auth-hint">Preparando el registro…</p>}
     />
   );

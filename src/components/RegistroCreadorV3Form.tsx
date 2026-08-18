@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
 import { Logo } from "@/components/Logo";
 import {
@@ -12,6 +12,7 @@ import {
   PLATAFORMA_OPTIONS,
   UBICACION_OPTIONS,
   emptyCreatorDraft,
+  loadCreatorDraft,
   saveCreatorDraft,
   type CreatorRegistroV3Draft,
 } from "@/lib/creator-registro-v3";
@@ -57,12 +58,26 @@ export function RegistroCreadorV3Form({
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [profile, setProfile] = useState<CreatorRegistroV3Draft>(() =>
-    emptyCreatorDraft(normalizeInstagramHandle(initialInstagram) || initialInstagram)
-  );
+  const [profile, setProfile] = useState<CreatorRegistroV3Draft>(() => {
+    const instagram =
+      normalizeInstagramHandle(initialInstagram) || initialInstagram;
+    const draft = loadCreatorDraft();
+    if (draft) {
+      return {
+        ...emptyCreatorDraft(instagram),
+        ...draft,
+        instagram: draft.instagram || instagram,
+      };
+    }
+    return emptyCreatorDraft(instagram);
+  });
   const [error, setError] = useState<string | null>(null);
   const [catSearch, setCatSearch] = useState("");
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    saveCreatorDraft(profile);
+  }, [profile]);
 
   const totalSubs = useMemo(
     () => Object.values(CATEGORY_TREE).reduce((acc, subs) => acc + subs.length, 0),
@@ -73,10 +88,17 @@ export function RegistroCreadorV3Form({
     if (current === 1) {
       const ok =
         profile.nombre.trim().length > 0 &&
+        Boolean(
+          normalizeInstagramHandle(profile.instagram) ||
+            profile.instagram.trim()
+        ) &&
         !!profile.ubicacion &&
         !!profile.genero &&
         profile.idiomas.length > 0;
-      if (!ok) setError("Completá tu nombre, ubicación, género e idioma antes de continuar.");
+      if (!ok)
+        setError(
+          "Completá tu nombre, Instagram, ubicación, género e idioma antes de continuar."
+        );
       return ok;
     }
     if (current === 2) {
@@ -98,15 +120,18 @@ export function RegistroCreadorV3Form({
     setError(null);
     if (step < 4) {
       if (!validate(step)) return;
-      const nextStep = step + 1;
-      if (nextStep === 4) saveCreatorDraft(profile);
-      setStep(nextStep);
+      setStep(step + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    if (variant === "profile") {
+    if (step === 4) {
       saveCreatorDraft(profile);
-      void onComplete?.(profile);
+      if (variant === "profile") {
+        void onComplete?.(profile);
+        return;
+      }
+      setStep(5);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
 
@@ -179,14 +204,16 @@ export function RegistroCreadorV3Form({
           <div className="registro-stepper">
             {STEPS.map((s, i) => {
               const n = i + 1;
+              const visual = Math.min(step, 4);
+              const allDone = step >= 5;
               const state =
-                n < step ? "done" : n === step ? "active" : "";
+                allDone || n < visual ? "done" : n === visual ? "active" : "";
               return (
                 <div key={s.label} className="registro-step-dot-wrap">
                   <div className={`registro-step-dot ${state}`}>
-                    {n < step ? "✓" : n}
+                    {allDone || n < visual ? "✓" : n}
                   </div>
-                  <span className={`registro-step-label${n === step ? " is-active" : ""}`}>
+                  <span className={`registro-step-label${n === visual && !allDone ? " is-active" : ""}`}>
                     {s.label}
                   </span>
                 </div>
@@ -210,6 +237,18 @@ export function RegistroCreadorV3Form({
                       setProfile((p) => ({ ...p, nombre: e.target.value }))
                     }
                     placeholder="Tu nombre o el de tu marca personal"
+                  />
+                </div>
+                <div className="auth-field">
+                  <label htmlFor="instagram">Instagram</label>
+                  <input
+                    id="instagram"
+                    value={profile.instagram}
+                    onChange={(e) =>
+                      setProfile((p) => ({ ...p, instagram: e.target.value }))
+                    }
+                    placeholder="@tu.usuario"
+                    autoComplete="off"
                   />
                 </div>
                 <div className="auth-field">
@@ -311,12 +350,14 @@ export function RegistroCreadorV3Form({
                           <button
                             type="button"
                             className={`registro-tree-chevron${expanded ? " is-expanded" : ""}`}
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               setExpandedCats((prev) => ({
                                 ...prev,
                                 [cat]: !expanded,
-                              }))
-                            }
+                              }));
+                            }}
                           >
                             ▾
                           </button>
@@ -456,21 +497,26 @@ export function RegistroCreadorV3Form({
                     <div className="registro-review-empty">Sin cargar</div>
                   )}
                 </div>
+              </>
+            ) : null}
+
+            {step === 5 ? (
+              <>
+                <h2 className="registro-step-title">Creá tu acceso</h2>
+                <p className="registro-step-sub">
+                  Usá Google o tu email para guardar este perfil y enviar la solicitud.
+                </p>
                 <div className="registro-clerk-wrap">
-                  {variant === "signup" ? (
-                    <RegistroClerkSignUp role="creator" next={next} />
-                  ) : (
-                    <button
-                      type="button"
-                      className="auth-primary"
-                      onClick={() => {
-                        saveCreatorDraft(profile);
-                        void onComplete?.(profile);
-                      }}
-                    >
-                      Enviar solicitud
-                    </button>
-                  )}
+                  <RegistroClerkSignUp
+                    role="creator"
+                    next={next}
+                    extraMetadata={{
+                      handle:
+                        normalizeInstagramHandle(profile.instagram) ||
+                        profile.instagram.trim(),
+                      display_name: profile.nombre.trim(),
+                    }}
+                  />
                 </div>
               </>
             ) : null}
@@ -478,19 +524,17 @@ export function RegistroCreadorV3Form({
             {error ? <p className="auth-error">{error}</p> : null}
           </div>
 
-          {step < 4 ? (
+          {step < 5 ? (
             <div className="registro-step-nav">
               <button type="button" className="auth-alt-btn" onClick={goBack}>
                 {step === 1 ? "Cancelar" : "Atrás"}
               </button>
               <button type="button" className="auth-primary registro-next-btn" onClick={goNext}>
-                Continuar
-              </button>
-            </div>
-          ) : variant === "profile" ? (
-            <div className="registro-step-nav">
-              <button type="button" className="auth-alt-btn" onClick={goBack}>
-                Atrás
+                {step === 4
+                  ? variant === "signup"
+                    ? "Crear cuenta"
+                    : "Enviar solicitud"
+                  : "Continuar"}
               </button>
             </div>
           ) : (

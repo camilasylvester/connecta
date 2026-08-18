@@ -272,12 +272,24 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
 
 export function saveCreatorDraft(draft: CreatorRegistroV3Draft) {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(CREATOR_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  const payload = JSON.stringify(draft);
+  try {
+    localStorage.setItem(CREATOR_DRAFT_STORAGE_KEY, payload);
+  } catch {
+    /* quota / private mode */
+  }
+  try {
+    sessionStorage.setItem(CREATOR_DRAFT_STORAGE_KEY, payload);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function loadCreatorDraft(): CreatorRegistroV3Draft | null {
   if (typeof window === "undefined") return null;
-  const raw = sessionStorage.getItem(CREATOR_DRAFT_STORAGE_KEY);
+  const raw =
+    sessionStorage.getItem(CREATOR_DRAFT_STORAGE_KEY) ||
+    localStorage.getItem(CREATOR_DRAFT_STORAGE_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as CreatorRegistroV3Draft;
@@ -289,4 +301,5 @@ export function loadCreatorDraft(): CreatorRegistroV3Draft | null {
 export function clearCreatorDraft() {
   if (typeof window === "undefined") return;
   sessionStorage.removeItem(CREATOR_DRAFT_STORAGE_KEY);
+  localStorage.removeItem(CREATOR_DRAFT_STORAGE_KEY);
 }

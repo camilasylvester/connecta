@@ -13,7 +13,8 @@ function CrearContrasenaInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "";
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -29,34 +30,31 @@ function CrearContrasenaInner() {
     }
     if (user.passwordEnabled) {
       router.replace(afterAuthPath(next || null));
-      return;
     }
-    const fromClerk =
-      user.primaryEmailAddress?.emailAddress ||
-      user.emailAddresses?.[0]?.emailAddress ||
-      "";
-    if (fromClerk) setEmail(fromClerk);
   }, [isLoaded, user, router, next]);
 
-  async function startEmailFlow(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !trimmed.includes("@")) {
-      setError("Escribí tu email. Ahí te mandamos el código.");
+    if (!user) return;
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
     setBusy(true);
     setError(null);
     try {
-      const q = new URLSearchParams({
-        setPassword: "1",
-        email: trimmed,
-        next: next || "/after-auth",
+      await user.updatePassword({
+        newPassword: password,
+        signOutOfOtherSessions: false,
       });
-      await signOut({ redirectUrl: `/login?${q.toString()}` });
+      router.replace(afterAuthPath(next || null));
     } catch (err) {
-      setError(clerkErrorMessage(err));
+      setError(clerkErrorMessage(err, "No pudimos guardar la contraseña."));
       setBusy(false);
     }
   }
@@ -69,33 +67,77 @@ function CrearContrasenaInner() {
     );
   }
 
+  const email =
+    user.primaryEmailAddress?.emailAddress ||
+    user.emailAddresses?.[0]?.emailAddress ||
+    "";
+
   return (
     <AuthFrame
       eyebrow="Seguridad"
       title="Creá tu contraseña"
-      description="Tenés que crear una contraseña para poder entrar. Primero tu email: te mandamos un código."
+      description={
+        email
+          ? `Elegí una contraseña para ${email}. Así vas a poder entrar después sin Google.`
+          : "Elegí una contraseña para poder entrar después a CONNECTA."
+      }
     >
-      <form onSubmit={startEmailFlow}>
+      <form onSubmit={onSubmit}>
         <label>
-          <span className="auth-field-label">Tu email</span>
+          <span className="auth-field-label">Nueva contraseña</span>
           <input
-            type="email"
+            type="password"
             required
-            autoComplete="email"
+            minLength={8}
+            autoComplete="new-password"
             autoFocus
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="auth-input"
-            placeholder="vos@email.com"
+            placeholder="Mínimo 8 caracteres"
+          />
+        </label>
+        <label style={{ display: "block", marginTop: 14 }}>
+          <span className="auth-field-label">Repetir contraseña</span>
+          <input
+            type="password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            className="auth-input"
           />
         </label>
         {error ? <p className="auth-error">{error}</p> : null}
-        <button type="submit" disabled={busy || !email.trim()} className="auth-primary">
-          {busy ? "Continuando…" : "Enviar código a este email"}
+        <button type="submit" disabled={busy} className="auth-primary">
+          {busy ? "Guardando…" : "Guardar contraseña y continuar"}
         </button>
       </form>
+      <button
+        type="button"
+        className="auth-secondary"
+        style={{ display: "block", margin: "16px auto 0" }}
+        onClick={() => router.replace(afterAuthPath(next || null))}
+      >
+        Continuar sin contraseña
+      </button>
       <p className="auth-hint" style={{ marginTop: 16, textAlign: "center" }}>
-        Usá el mismo email con el que te registraste en CONNECTA.
+        Si Clerk pide otra verificación, cerrá sesión y creala desde el login.{" "}
+        <button
+          type="button"
+          className="auth-secondary"
+          onClick={() => {
+            const q = new URLSearchParams({
+              setPassword: "1",
+              email,
+              next: next || "/after-auth",
+            });
+            void signOut({ redirectUrl: `/login?${q.toString()}` });
+          }}
+        >
+          Preferís verificar por email
+        </button>
       </p>
     </AuthFrame>
   );

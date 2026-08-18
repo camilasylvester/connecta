@@ -32,10 +32,6 @@ export default async function AfterAuthGoPage({
 
   if (!profile) redirect("/login");
 
-  await redirectIfPasswordMissing(
-    next && next.startsWith("/") && !next.startsWith("//") ? next : undefined
-  );
-
   if (profile.role === "admin") {
     redirect("/admin");
   }
@@ -55,6 +51,10 @@ export default async function AfterAuthGoPage({
   ) {
     redirect(destinationForProfile(profile));
   }
+
+  await redirectIfPasswordMissing(
+    next && next.startsWith("/") && !next.startsWith("//") ? next : undefined
+  );
 
   if (next && next.startsWith("/") && !next.startsWith("//")) {
     redirect(next);

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { CompletarPerfilForm } from "@/components/CompletarPerfilForm";
 import { ensureProfile } from "@/lib/auth";
-import { redirectIfPasswordMissing } from "@/lib/account-gate";
 import { destinationForProfile } from "@/lib/roles";
 import { profileToOnboarding } from "@/lib/onboarding";
 import "../auth.css";
@@ -14,8 +13,6 @@ export default async function CompletarPerfilPage({
   const { next } = await searchParams;
   const profile = await ensureProfile();
   if (!profile) redirect("/login?next=/completar-perfil");
-
-  await redirectIfPasswordMissing("/completar-perfil");
 
   if (profile.role === "admin") {
     redirect("/admin");

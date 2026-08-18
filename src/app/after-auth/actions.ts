@@ -49,6 +49,10 @@ export async function syncOnboarding(raw: OnboardingPayload) {
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: raw.phone.trim() || null,
       email: raw.contactEmail.trim().toLowerCase() || existing[0].email,
+      followers:
+        Number(String(raw.followers || "").replace(/\D/g, "")) || 0,
+      tiktokFollowers:
+        Number(String(raw.tiktokFollowers || "").replace(/\D/g, "")) || null,
       brandName:
         raw.role === "brand" ? raw.brandName.trim() || null : existing[0].brandName,
       industry: raw.role === "brand" ? raw.industry || null : null,

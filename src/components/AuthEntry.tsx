@@ -181,7 +181,12 @@ export function AuthEntry() {
         >
           ← Volver
         </button>
-        <RegistroClerkSignUp role="brand" next={next} />
+        <RegistroClerkSignUp
+          role="brand"
+          next={next}
+          initialEmail={email}
+          extraMetadata={{ brand_name: brandName.trim() }}
+        />
       </AuthFrame>
     );
   }

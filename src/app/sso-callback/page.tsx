@@ -3,7 +3,12 @@ import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
 export default function SsoCallbackPage() {
   return (
     <div className="flex min-h-screen items-center justify-center text-muted-dark">
-      <AuthenticateWithRedirectCallback />
+      <AuthenticateWithRedirectCallback
+        signInFallbackRedirectUrl="/after-auth"
+        signUpFallbackRedirectUrl="/after-auth"
+        signInForceRedirectUrl="/after-auth"
+        signUpForceRedirectUrl="/after-auth"
+      />
       <p className="mt-2 text-sm text-muted-dark">
         Conectando tu cuenta…
       </p>
