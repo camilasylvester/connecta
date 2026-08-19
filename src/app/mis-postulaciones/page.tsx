@@ -12,7 +12,9 @@ import { destinationForProfile } from "@/lib/roles";
 export default async function MisPostulacionesPage() {
   const profile = await ensureProfile();
   if (!profile) redirect("/login?role=creator");
-  redirectIfNotApproved(profile);
+  if (!profile.onboardingCompleted || profile.accountStatus === "rejected") {
+    redirectIfNotApproved(profile);
+  }
   await redirectIfPasswordMissing("/mis-postulaciones");
   if (profile.role !== "creator" && profile.role !== "admin") {
     redirect(destinationForProfile(profile));

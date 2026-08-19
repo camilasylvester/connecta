@@ -52,7 +52,14 @@ export default async function ApplyPage({
 
   const { userId } = await auth();
   const profile = userId ? await ensureProfile() : null;
-  if (profile) redirectIfNotApproved(profile);
+  if (profile) {
+    // Pending creators must still be able to apply; only block incomplete/rejected.
+    if (!profile.onboardingCompleted) {
+      redirectIfNotApproved(profile);
+    } else if (profile.accountStatus === "rejected") {
+      redirectIfNotApproved(profile);
+    }
+  }
 
   let existingApp = null;
   if (profile) {

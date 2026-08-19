@@ -45,19 +45,22 @@ export default async function AfterAuthGoPage({
     redirect(`/completar-perfil${qs ? `?${qs}` : ""}`);
   }
 
-  if (
-    profile.accountStatus === "pending" ||
-    profile.accountStatus === "rejected"
-  ) {
+  const safeNext =
+    next && next.startsWith("/") && !next.startsWith("//") ? next : undefined;
+  const applyingToEvent = Boolean(safeNext?.startsWith("/aplicar/"));
+
+  if (profile.accountStatus === "rejected") {
     redirect(destinationForProfile(profile));
   }
 
-  await redirectIfPasswordMissing(
-    next && next.startsWith("/") && !next.startsWith("//") ? next : undefined
-  );
+  if (profile.accountStatus === "pending" && !applyingToEvent) {
+    redirect(destinationForProfile(profile));
+  }
 
-  if (next && next.startsWith("/") && !next.startsWith("//")) {
-    redirect(next);
+  await redirectIfPasswordMissing(safeNext);
+
+  if (safeNext) {
+    redirect(safeNext);
   }
 
   redirect(destinationForProfile(profile));
