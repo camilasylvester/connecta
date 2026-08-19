@@ -292,7 +292,22 @@ export function loadCreatorDraft(): CreatorRegistroV3Draft | null {
     localStorage.getItem(CREATOR_DRAFT_STORAGE_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as CreatorRegistroV3Draft;
+    const parsed = JSON.parse(raw) as Partial<CreatorRegistroV3Draft>;
+    const instagram =
+      typeof parsed.instagram === "string" ? parsed.instagram : "";
+    return {
+      ...emptyCreatorDraft(instagram),
+      nombre: typeof parsed.nombre === "string" ? parsed.nombre : "",
+      ubicacion: parsed.ubicacion || null,
+      genero: parsed.genero || null,
+      idiomas: Array.isArray(parsed.idiomas) ? parsed.idiomas : [],
+      categoriaSet: Array.isArray(parsed.categoriaSet)
+        ? parsed.categoriaSet
+        : [],
+      redes:
+        parsed.redes && typeof parsed.redes === "object" ? parsed.redes : {},
+      instagram,
+    };
   } catch {
     return null;
   }

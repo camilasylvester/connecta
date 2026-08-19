@@ -37,8 +37,15 @@ function Chip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       className={`registro-chip${active ? " is-selected" : ""}`}
       onClick={onClick}
+      style={{
+        background: active ? "#6f6ae0" : "transparent",
+        border: "1.5px solid",
+        borderColor: active ? "#6f6ae0" : "rgba(244, 243, 239, 0.22)",
+        color: active ? "#f4f3ef" : "rgba(244, 243, 239, 0.72)",
+      }}
     >
       {children}
     </button>

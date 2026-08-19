@@ -1,4 +1,5 @@
-.auth-page {
+.auth-page,
+.registro-v3-page {
   --auth-white: #f4f3ef;
   --auth-purple: #6f6ae0;
   --auth-purple-light: #9c98ec;
@@ -6,6 +7,9 @@
   --auth-muted-soft: rgba(244, 243, 239, .36);
   --auth-border: rgba(244, 243, 239, .14);
   --auth-border-soft: rgba(244, 243, 239, .08);
+}
+
+.auth-page {
   min-height: 100svh;
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -14,7 +18,8 @@
   font-family: var(--font-inter), sans-serif;
 }
 
-.auth-page :focus-visible { outline: 2px solid var(--auth-purple-light); outline-offset: 3px; }
+.auth-page :focus-visible,
+.registro-v3-page :focus-visible { outline: 2px solid var(--auth-purple-light); outline-offset: 3px; }
 .auth-header {
   min-height: 74px;
   padding: 20px max(32px, calc((100vw - 1180px) / 2 + 32px));
@@ -331,16 +336,26 @@
 .registro-step-sub { font-size: 13.5px; color: var(--auth-muted); margin-bottom: 26px; }
 .registro-chip-row { display: flex; flex-wrap: wrap; gap: 9px; }
 .registro-chip {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
   padding: 9px 16px;
   border-radius: 999px;
-  border: 1.5px solid var(--auth-border);
+  border: 1.5px solid rgba(244, 243, 239, 0.22);
   background: transparent;
-  color: var(--auth-muted);
+  color: rgba(244, 243, 239, 0.72);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
-.registro-chip.is-selected { background: var(--auth-purple); border-color: var(--auth-purple); color: var(--auth-white); }
+.registro-chip.is-selected {
+  background: #6f6ae0;
+  border-color: #6f6ae0;
+  color: #f4f3ef;
+}
 .registro-tree-search {
   width: 100%;
   padding: 11px 14px;
