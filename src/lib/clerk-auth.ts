@@ -16,10 +16,16 @@ export const clerkAppearance = {
   },
   elements: {
     rootBox: "w-full",
-    cardBox: "w-full shadow-none",
+    cardBox: "w-full bg-transparent shadow-none border-0",
     card: "bg-transparent shadow-none border-0 p-0",
     headerTitle: "hidden",
     headerSubtitle: "hidden",
+    identityPreview: "hidden",
+    identityPreviewText: "text-[#f4f3ef]",
+    identityPreviewIdentifier: "text-[#f4f3ef]",
+    footer: "hidden",
+    footerAction: "hidden",
+    badge: "hidden",
     socialButtonsBlockButton: {
       backgroundColor: "#ffffff",
       color: "#1f1f1f",

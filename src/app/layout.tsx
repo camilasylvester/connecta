@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { esES } from "@clerk/localizations";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
 import { IdleSessionGuard } from "@/components/IdleSessionGuard";
 import "./globals.css";
@@ -33,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={esES}>
       <html
         lang="es"
         className={`${inter.variable} ${ibmPlexMono.variable} h-full`}

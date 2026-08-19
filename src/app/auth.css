@@ -509,6 +509,27 @@
   font-weight: 600 !important;
 }
 
+/* Clerk password step: keep one chrome, readable text, no nested grey card. */
+.cl-cardBox,
+.cl-card,
+.cl-main {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.cl-identityPreview,
+.cl-identityPreviewText,
+.cl-identityPreviewIdentifier {
+  color: #f4f3ef !important;
+}
+.cl-formFieldLabel,
+.cl-footerActionText {
+  color: #f4f3ef !important;
+}
+.cl-footer {
+  display: none !important;
+}
+
 @media (max-width: 640px) {
   .auth-profile-grid { grid-template-columns: 1fr; }
   .registro-v3-wrap, .registro-v3-header { padding-inline: 20px; }

@@ -181,7 +181,7 @@ export function AuthEntry() {
       <AuthFrame
         eyebrow="Iniciar sesión"
         title="Ingresá tu contraseña"
-        description={`Continuá como ${credentialsEmail}`}
+        description={`Vas a entrar con ${credentialsEmail}.`}
       >
         <button
           type="button"
