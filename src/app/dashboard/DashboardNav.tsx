@@ -11,7 +11,7 @@ const LINKS = [
     match: (p: string) => p.startsWith("/dashboard/eventos"),
   },
   {
-    href: "/dashboard/creadores",
+    href: "/dashboard/explorar",
     label: "Creadores",
     match: (p: string) =>
       p.startsWith("/dashboard/creadores") || p.startsWith("/dashboard/explorar"),

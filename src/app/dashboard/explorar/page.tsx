@@ -44,7 +44,7 @@ export default async function ExplorarPage() {
     <>
       <div className="topbar">
         <div>
-          <h1>Explorar</h1>
+          <h1>Creadores</h1>
           <div className="sub">
             Buscá creadores con los 8 filtros. AND entre bloques, OR adentro de
             cada uno.

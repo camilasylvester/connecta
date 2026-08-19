@@ -49,7 +49,7 @@ export default async function CreatorPublicPage({
     <div className="brand-app" style={{ minHeight: "auto", background: "transparent" }}>
       <div className="topbar">
         <div>
-          <Link href="/dashboard/creadores" className="back-link">
+          <Link href="/dashboard/explorar" className="back-link">
             ← Creadores
           </Link>
           <h1>Portfolio</h1>
