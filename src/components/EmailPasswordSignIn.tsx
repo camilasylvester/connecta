@@ -33,13 +33,21 @@ export function EmailPasswordSignIn({
   const [localError, setLocalError] = useState<string | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [checkingHint, setCheckingHint] = useState(false);
+  const [clerkTimedOut, setClerkTimedOut] = useState(false);
   const busy = fetchStatus === "fetching" || signingOut || checkingHint;
+  const clerkReady = Boolean(authLoaded && userLoaded);
 
   const fieldError =
     errors?.fields?.identifier?.message ||
     errors?.fields?.password?.message ||
     errors?.fields?.code?.message ||
     null;
+
+  useEffect(() => {
+    if (clerkReady) return;
+    const t = window.setTimeout(() => setClerkTimedOut(true), 8000);
+    return () => window.clearTimeout(t);
+  }, [clerkReady]);
 
   // Prefill email from Clerk once, but keep the field editable.
   useEffect(() => {
@@ -313,7 +321,27 @@ export function EmailPasswordSignIn({
     Boolean(isSignedIn && user && !user.passwordEnabled) &&
     searchParams.get("setPassword") !== "1";
 
-  if (!authLoaded || !userLoaded) {
+  if (!clerkReady) {
+    if (clerkTimedOut) {
+      return (
+        <div>
+          <p className="auth-error" style={{ marginTop: 0 }}>
+            El login no terminó de cargar. Abrí la web en{" "}
+            <a href="https://www.connectainf.com/login" style={{ color: "#9c98ec", fontWeight: 700 }}>
+              www.connectainf.com
+            </a>{" "}
+            (no uses el link de vercel.app) y recargá.
+          </p>
+          <button
+            type="button"
+            className="auth-primary"
+            onClick={() => window.location.reload()}
+          >
+            Recargar
+          </button>
+        </div>
+      );
+    }
     return (
       <p className="auth-hint" style={{ marginTop: 0, textAlign: "center" }}>
         Cargando…

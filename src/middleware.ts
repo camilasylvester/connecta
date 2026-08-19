@@ -11,6 +11,18 @@ const isPublic = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const host = req.headers.get("host") || "";
+  if (
+    process.env.VERCEL_ENV === "production" &&
+    host.endsWith(".vercel.app")
+  ) {
+    const dest = new URL(req.url);
+    dest.protocol = "https:";
+    dest.host = "www.connectainf.com";
+    dest.port = "";
+    return NextResponse.redirect(dest, 308);
+  }
+
   if (!isPublic(req)) {
     const { userId } = await auth();
     if (!userId) {
