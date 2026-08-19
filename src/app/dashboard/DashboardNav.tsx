@@ -13,7 +13,8 @@ const LINKS = [
   {
     href: "/dashboard/creadores",
     label: "Creadores",
-    match: (p: string) => p.startsWith("/dashboard/creadores"),
+    match: (p: string) =>
+      p.startsWith("/dashboard/creadores") || p.startsWith("/dashboard/explorar"),
   },
   {
     href: "/dashboard/resenas",

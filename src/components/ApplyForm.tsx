@@ -14,6 +14,7 @@ export function ApplyForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const readyProfile = Boolean(profile?.handle);
 
   async function action(formData: FormData) {
     setError(null);
@@ -33,6 +34,42 @@ export function ApplyForm({
       setError(message);
       setSending(false);
     }
+  }
+
+  if (readyProfile) {
+    return (
+      <form action={action} className="space-y-4">
+        <h2 className="text-lg font-bold">Postulate</h2>
+        <p className="text-sm text-muted-dark">
+          Vamos a enviar tu ficha de Connecta ({profile?.handle}). Podés sumar un
+          mensaje para la marca.
+        </p>
+        <input type="hidden" name="display_name" value={profile?.displayName || ""} />
+        <input type="hidden" name="handle" value={profile?.handle || ""} />
+        <input type="hidden" name="category" value={profile?.category || ""} />
+        <input type="hidden" name="followers" value={String(profile?.followers || 0)} />
+        <input type="hidden" name="city" value={profile?.city || ""} />
+        <label className="block text-sm">
+          <span className="mb-1.5 block text-muted-dark">Mensaje (opcional)</span>
+          <textarea
+            name="message"
+            rows={3}
+            placeholder="Contale a la marca por qué encajás…"
+            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-purple"
+          />
+        </label>
+        {error ? (
+          <p className="text-sm font-semibold text-red-400">{error}</p>
+        ) : null}
+        <button
+          type="submit"
+          disabled={sending}
+          className="w-full rounded-full bg-purple py-3 text-sm font-bold text-white hover:bg-purple-2 disabled:opacity-60"
+        >
+          {sending ? "Enviando…" : "Enviar postulación"}
+        </button>
+      </form>
+    );
   }
 
   return (

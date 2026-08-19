@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { and, eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ApplyForm } from "@/components/ApplyForm";
 import { Logo } from "@/components/Logo";
 import { getDb } from "@/db";
@@ -53,10 +53,14 @@ export default async function ApplyPage({
   const { userId } = await auth();
   const profile = userId ? await ensureProfile() : null;
   if (profile) {
-    // Pending creators must still be able to apply; only block incomplete/rejected.
+    // Pending creators can apply. Incomplete fichas finish onboarding, then
+    // come back to this event.
     if (!profile.onboardingCompleted) {
-      redirectIfNotApproved(profile);
-    } else if (profile.accountStatus === "rejected") {
+      redirect(
+        `/completar-perfil?next=${encodeURIComponent(`/aplicar/${token}`)}`
+      );
+    }
+    if (profile.accountStatus === "rejected") {
       redirectIfNotApproved(profile);
     }
   }

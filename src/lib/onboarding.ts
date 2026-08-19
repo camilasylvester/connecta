@@ -141,6 +141,12 @@ export type OnboardingPayload = {
   followers: string;
   /** TikTok followers (manual). */
   tiktokFollowers: string;
+  /** Wizard v3 — alimenta el buscador de creadores. */
+  ubicacion?: string | null;
+  genero?: string | null;
+  idiomas?: string[];
+  categoriaSet?: string[];
+  redes?: Record<string, number>;
 };
 
 export function emptyOnboarding(
@@ -167,6 +173,11 @@ export function emptyOnboarding(
     avatarUrl: "",
     followers: "",
     tiktokFollowers: "",
+    ubicacion: null,
+    genero: null,
+    idiomas: [],
+    categoriaSet: [],
+    redes: {},
   };
 }
 
@@ -242,6 +253,13 @@ export function profileToOnboarding(profile: {
   avatarUrl?: string | null;
   followers?: number | null;
   tiktokFollowers?: number | null;
+  creatorMeta?: {
+    ubicacion: string | null;
+    genero: string | null;
+    idiomas: string[];
+    categoriaSet: string[];
+    redes: Record<string, number>;
+  } | null;
 }): OnboardingPayload {
   const role: OnboardingRole =
     profile.role === "brand" ? "brand" : "creator";
@@ -274,5 +292,10 @@ export function profileToOnboarding(profile: {
       profile.tiktokFollowers != null && profile.tiktokFollowers > 0
         ? String(profile.tiktokFollowers)
         : "",
+    ubicacion: profile.creatorMeta?.ubicacion || null,
+    genero: profile.creatorMeta?.genero || null,
+    idiomas: profile.creatorMeta?.idiomas || [],
+    categoriaSet: profile.creatorMeta?.categoriaSet || [],
+    redes: profile.creatorMeta?.redes || {},
   };
 }

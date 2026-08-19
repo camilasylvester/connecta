@@ -12,6 +12,7 @@ import {
   type OnboardingPayload,
   validateOnboarding,
 } from "@/lib/onboarding";
+import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
 import { isAllowedStoredImageUrl, parseImageUrlsField } from "@/lib/image-compress";
 import {
   detectPostPlatform,
@@ -270,7 +271,10 @@ export async function applyToEvent(eventId: string, formData: FormData) {
     throw new Error("Este evento no está abierto a postulaciones");
   }
 
-  await updateCreatorProfile(formData);
+  const incomingHandle = String(formData.get("handle") || "").trim();
+  if (incomingHandle || !profile.handle) {
+    await updateCreatorProfile(formData);
+  }
 
   try {
     await db.insert(applications).values({
@@ -369,6 +373,8 @@ async function applyProfilePayload(
             ? ttFollowers
             : null
           : target.tiktokFollowers,
+      creatorMeta:
+        formRole === "creator" ? payloadToCreatorMeta(effective) : target.creatorMeta,
       onboardingCompleted: true,
       updatedAt: new Date(),
     })
@@ -391,6 +397,7 @@ export async function updateSelfProfile(raw: OnboardingPayload) {
   revalidatePath("/mis-postulaciones");
   revalidatePath("/eventos");
   revalidatePath("/admin/usuarios");
+  revalidatePath("/dashboard/explorar");
   return { ok: true as const };
 }
 
@@ -426,6 +433,7 @@ export async function adminUpdateProfile(
   revalidatePath("/dashboard/config");
   revalidatePath("/eventos");
   revalidatePath("/dashboard/creadores");
+  revalidatePath("/dashboard/explorar");
   return { ok: true as const };
 }
 
@@ -545,6 +553,9 @@ export async function adminSetAccountStatus(
   if (!target) throw new Error("Registro no encontrado");
   if (target.role === "admin") {
     throw new Error("No se puede cambiar el estado de un admin");
+  }
+  if (status === "approved" && !target.onboardingCompleted) {
+    throw new Error("La ficha está incompleta. No se puede aceptar todavía.");
   }
 
   const [updated] = await db

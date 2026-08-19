@@ -2,7 +2,7 @@
 
 import { SignIn, useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { afterAuthPath, clerkAppearance } from "@/lib/clerk-auth";
+import { afterAuthPath, clerkAppearance, persistAuthNext } from "@/lib/clerk-auth";
 
 /**
  * Prebuilt Clerk SignIn — the custom password form stays on "Cargando…"
@@ -20,6 +20,10 @@ export function LoginClerkSignIn({
   const [waited, setWaited] = useState(false);
   const redirectUrl = afterAuthPath(next || null);
   const signUpUrl = `/login?tab=signup${next ? `&next=${encodeURIComponent(next)}` : ""}`;
+
+  useEffect(() => {
+    persistAuthNext(next);
+  }, [next]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setWaited(true), 4000);

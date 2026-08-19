@@ -267,6 +267,102 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
     avatarUrl: "",
     followers: instagramFollowers > 0 ? String(instagramFollowers) : "",
     tiktokFollowers: tiktokFollowers > 0 ? String(tiktokFollowers) : "",
+    ubicacion: draft.ubicacion,
+    genero: draft.genero,
+    idiomas: draft.idiomas,
+    categoriaSet: draft.categoriaSet,
+    redes: draft.redes,
+  };
+}
+
+export type CreatorMeta = {
+  ubicacion: string | null;
+  genero: string | null;
+  idiomas: string[];
+  categoriaSet: string[];
+  redes: Record<string, number>;
+};
+
+export function emptyCreatorMeta(): CreatorMeta {
+  return {
+    ubicacion: null,
+    genero: null,
+    idiomas: [],
+    categoriaSet: [],
+    redes: {},
+  };
+}
+
+export function themeToCategoriaKey(theme: string): string | null {
+  const trimmed = theme.trim();
+  if (!trimmed) return null;
+  if (trimmed.includes("|")) return trimmed;
+  const parts = trimmed.split(" · ").map((p) => p.trim()).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0]}|${parts.slice(1).join(" · ")}`;
+  return null;
+}
+
+export function payloadToCreatorMeta(data: OnboardingPayload): CreatorMeta {
+  const categoriaSet =
+    Array.isArray(data.categoriaSet) && data.categoriaSet.length > 0
+      ? data.categoriaSet
+      : (data.contentThemes || [])
+          .map(themeToCategoriaKey)
+          .filter((key): key is string => Boolean(key));
+
+  const redes: Record<string, number> =
+    data.redes && Object.keys(data.redes).length > 0
+      ? { ...data.redes }
+      : {};
+  const ig = Number(String(data.followers || "").replace(/\D/g, "")) || 0;
+  const tt = Number(String(data.tiktokFollowers || "").replace(/\D/g, "")) || 0;
+  if (ig > 0 && redes.Instagram == null) redes.Instagram = ig;
+  if (tt > 0 && redes.TikTok == null) redes.TikTok = tt;
+  for (const platform of data.platforms || []) {
+    if (redes[platform] == null) redes[platform] = platform === "Instagram" ? ig : platform === "TikTok" ? tt : 0;
+  }
+
+  return {
+    ubicacion: data.ubicacion || null,
+    genero: data.genero || null,
+    idiomas: Array.isArray(data.idiomas) ? data.idiomas : [],
+    categoriaSet,
+    redes,
+  };
+}
+
+export function profileToCreatorDraft(data: OnboardingPayload): CreatorRegistroV3Draft {
+  const meta = payloadToCreatorMeta(data);
+  return {
+    nombre: data.fullName,
+    instagram: data.instagram,
+    ubicacion: meta.ubicacion,
+    genero: meta.genero,
+    idiomas: meta.idiomas,
+    categoriaSet: meta.categoriaSet,
+    redes: meta.redes,
+  };
+}
+
+export function parseCreatorMeta(raw: unknown): CreatorMeta {
+  const empty = emptyCreatorMeta();
+  if (!raw || typeof raw !== "object") return empty;
+  const value = raw as Partial<CreatorMeta>;
+  return {
+    ubicacion: typeof value.ubicacion === "string" ? value.ubicacion : null,
+    genero: typeof value.genero === "string" ? value.genero : null,
+    idiomas: Array.isArray(value.idiomas)
+      ? value.idiomas.filter((x): x is string => typeof x === "string")
+      : [],
+    categoriaSet: Array.isArray(value.categoriaSet)
+      ? value.categoriaSet.filter((x): x is string => typeof x === "string")
+      : [],
+    redes:
+      value.redes && typeof value.redes === "object" && !Array.isArray(value.redes)
+        ? Object.fromEntries(
+            Object.entries(value.redes).map(([k, v]) => [k, Number(v) || 0])
+          )
+        : {},
   };
 }
 

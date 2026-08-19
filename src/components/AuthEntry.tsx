@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { getLoginEmailByHandle } from "@/app/login/actions";
 import { AuthFrame } from "@/components/AuthFrame";
 import { LoginClerkSignIn } from "@/components/LoginClerkSignIn";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
+import { persistAuthNext } from "@/lib/clerk-auth";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
 
 type AuthMode = "login" | "signup";
@@ -33,7 +34,9 @@ export function AuthEntry() {
   const initialMode: AuthMode =
     searchParams.get("tab") === "signup" ? "signup" : "login";
   const initialProfile: AuthProfile =
-    searchParams.get("as") === "marca" ? "marca" : "creador";
+    searchParams.get("as") === "marca" || searchParams.get("role") === "brand"
+      ? "marca"
+      : "creador";
 
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [profile, setProfile] = useState<AuthProfile>(initialProfile);
@@ -43,7 +46,12 @@ export function AuthEntry() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [credentialsEmail, setCredentialsEmail] = useState<string | null>(null);
+  const [emailLogin, setEmailLogin] = useState(false);
   const [brandSignup, setBrandSignup] = useState(false);
+
+  useEffect(() => {
+    persistAuthNext(next);
+  }, [next]);
 
   const igUrl = useMemo(
     () => instagramUrl(instagram),
@@ -75,6 +83,7 @@ export function AuthEntry() {
     setMode(nextMode);
     setError(null);
     setCredentialsEmail(null);
+    setEmailLogin(false);
     setBrandSignup(false);
     router.replace(buildHref(nextMode, profile, next), { scroll: false });
   }
@@ -83,6 +92,7 @@ export function AuthEntry() {
     setProfile(nextProfile);
     setError(null);
     setCredentialsEmail(null);
+    setEmailLogin(false);
     setBrandSignup(false);
     router.replace(buildHref(mode, nextProfile, next), { scroll: false });
   }
@@ -144,6 +154,26 @@ export function AuthEntry() {
       }
       setCredentialsEmail(email.trim().toLowerCase());
     }
+  }
+
+  if (emailLogin) {
+    return (
+      <AuthFrame
+        eyebrow="Iniciar sesión"
+        title="Ingresá con tu email"
+        description="Seguís como creador o marca, según lo que elegiste."
+      >
+        <button
+          type="button"
+          className="auth-secondary"
+          style={{ marginBottom: 18 }}
+          onClick={() => setEmailLogin(false)}
+        >
+          ← Volver
+        </button>
+        <LoginClerkSignIn next={next} />
+      </AuthFrame>
+    );
   }
 
   if (credentialsEmail) {
@@ -239,7 +269,7 @@ export function AuthEntry() {
           <span className="auth-profile-icon" aria-hidden />
           <strong className="auth-profile-name">Marca</strong>
           <span className="auth-profile-desc">
-            Publicá eventos y encontrá creadores.
+            Publicá eventos cuando te aceptemos.
           </span>
         </button>
       </div>
@@ -310,16 +340,21 @@ export function AuthEntry() {
         </button>
       </form>
 
-      <div className="auth-divider">o</div>
-      <button
-        type="button"
-        className="auth-alt-btn"
-        onClick={() =>
-          switchProfile(profile === "creador" ? "marca" : "creador")
-        }
-      >
-        {profile === "creador" ? "Continuar con email" : "Continuar con Instagram"}
-      </button>
+      {profile === "creador" && mode === "login" ? (
+        <>
+          <div className="auth-divider">o</div>
+          <button
+            type="button"
+            className="auth-alt-btn"
+            onClick={() => {
+              setError(null);
+              setEmailLogin(true);
+            }}
+          >
+            Continuar con email
+          </button>
+        </>
+      ) : null}
 
       <p className="auth-switch">
         {mode === "login" ? "¿Primera vez en Connecta? " : "¿Ya tenés cuenta? "}

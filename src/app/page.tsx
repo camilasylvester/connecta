@@ -104,7 +104,8 @@ export default function HomePage() {
               <li>Historial de colaboraciones anteriores</li>
               <li>Panel claro: aceptar, rechazar, seguimiento</li>
             </ul>
-            <Link href="/registro?role=brand" className="landing-btn landing-btn-outline">Publicar un evento</Link>
+            <Link href="/registro?role=brand" className="landing-btn landing-btn-outline">Solicitar cuenta</Link>
+            <p className="landing-note">Solicitá tu cuenta; cuando te aceptemos, publicás eventos.</p>
           </article>
         </section>
 
@@ -117,7 +118,7 @@ export default function HomePage() {
               <p>El creador que necesitás. El evento que buscás.</p>
             </div>
             <div className="process-grid">
-              <article><span>01</span><h3>Evento</h3><p>La marca describe qué busca y publica.</p></article>
+              <article><span>01</span><h3>Evento</h3><p>La marca solicita cuenta. Cuando CONNECTA la acepta, publica el evento.</p></article>
               <article><span>02</span><h3>Postulación</h3><p>Aparece en el feed. Postulación con un clic.</p></article>
               <article><span>03</span><h3>Selección</h3><p>La marca elige. Coordinación directa.</p></article>
             </div>

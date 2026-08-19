@@ -101,9 +101,12 @@ export default async function CreadoresPage() {
       </div>
       <div className="content">
         <div className="tabs-row">
-          <button type="button" className="tab-pill is-active">
+          <Link href="/dashboard/creadores" className="tab-pill is-active">
             Mi CRM
-          </button>
+          </Link>
+          <Link href="/dashboard/explorar" className="tab-pill">
+            Explorar
+          </Link>
         </div>
 
         {creators.length === 0 ? (

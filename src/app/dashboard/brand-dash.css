@@ -350,6 +350,7 @@
   color: var(--muted);
   background: transparent;
   transition: all 0.15s ease;
+  text-decoration: none;
 }
 .brand-app .tab-pill:hover {
   color: var(--ink);

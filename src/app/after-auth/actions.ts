@@ -9,6 +9,7 @@ import {
   type OnboardingPayload,
   validateOnboarding,
 } from "@/lib/onboarding";
+import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
 
 /** Save full onboarding questionnaire into the profile. */
 export async function syncOnboarding(raw: OnboardingPayload) {
@@ -71,6 +72,8 @@ export async function syncOnboarding(raw: OnboardingPayload) {
       goals: raw.role === "brand" ? raw.goals : [],
       contentThemes: raw.role === "creator" ? raw.contentThemes : [],
       platforms: raw.role === "creator" ? raw.platforms : [],
+      creatorMeta:
+        raw.role === "creator" ? payloadToCreatorMeta(raw) : existing[0].creatorMeta,
       onboardingCompleted: true,
       updatedAt: new Date(),
     })

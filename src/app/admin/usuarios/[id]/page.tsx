@@ -121,9 +121,16 @@ export default async function AdminUserDetailPage({
         {canReview ? (
           <div className="invite-box">
             <h3>Revisar solicitud de acceso</h3>
+            {u.accountStatus === "pending" && !u.onboardingCompleted ? (
+              <p className="cell-sub">
+                Formulario incompleto. Completá o pedile que termine la ficha
+                antes de aceptar.
+              </p>
+            ) : null}
             <AdminAccountStatusButtons
               profileId={u.id}
               currentStatus={u.accountStatus}
+              allowApprove={u.onboardingCompleted}
             />
           </div>
         ) : null}

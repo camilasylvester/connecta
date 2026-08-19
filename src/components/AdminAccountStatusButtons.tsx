@@ -6,9 +6,11 @@ import { adminSetAccountStatus } from "@/app/actions";
 export function AdminAccountStatusButtons({
   profileId,
   currentStatus,
+  allowApprove = true,
 }: {
   profileId: string;
   currentStatus: "pending" | "approved" | "rejected";
+  allowApprove?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -24,7 +26,7 @@ export function AdminAccountStatusButtons({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {currentStatus !== "approved" ? (
+      {currentStatus !== "approved" && allowApprove ? (
         <button
           type="button"
           disabled={pending}

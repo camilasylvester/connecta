@@ -57,6 +57,13 @@ export const profiles = pgTable("profiles", {
   // Creator onboarding
   contentThemes: jsonb("content_themes").$type<string[]>().default([]),
   platforms: jsonb("platforms").$type<string[]>().default([]),
+  creatorMeta: jsonb("creator_meta").$type<{
+    ubicacion: string | null;
+    genero: string | null;
+    idiomas: string[];
+    categoriaSet: string[];
+    redes: Record<string, number>;
+  } | null>(),
   avatarUrl: text("avatar_url"),
   onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })

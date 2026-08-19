@@ -107,3 +107,21 @@ export function afterAuthPath(next?: string | null): string {
   const params = next ? `?next=${encodeURIComponent(next)}` : "";
   return `/after-auth${params}`;
 }
+
+const AUTH_NEXT_KEY = "connecta_auth_next";
+
+export function persistAuthNext(next?: string | null): void {
+  if (typeof window === "undefined") return;
+  if (next && next.startsWith("/") && !next.startsWith("//")) {
+    window.sessionStorage.setItem(AUTH_NEXT_KEY, next);
+  } else {
+    window.sessionStorage.removeItem(AUTH_NEXT_KEY);
+  }
+}
+
+export function readAuthNext(): string {
+  if (typeof window === "undefined") return "";
+  const next = window.sessionStorage.getItem(AUTH_NEXT_KEY) || "";
+  if (next.startsWith("/") && !next.startsWith("//")) return next;
+  return "";
+}

@@ -1,7 +1,8 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { ensureProfile } from "@/lib/auth";
-import { redirect } from "next/navigation";
 
 export default async function PendientePage() {
   const profile = await ensureProfile();
@@ -12,6 +13,8 @@ export default async function PendientePage() {
     redirect(profile.role === "brand" ? "/dashboard" : "/eventos");
   }
   if (profile.accountStatus === "rejected") redirect("/rechazado");
+
+  const isCreator = profile.role === "creator";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-ink px-6">
@@ -24,10 +27,19 @@ export default async function PendientePage() {
           Tu solicitud está en revisión
         </h1>
         <p className="mt-4 text-base leading-relaxed text-muted-dark">
-          Recibimos tu solicitud. El equipo de CONNECTA la está revisando. Te
-          avisamos cuando esté aprobada.
+          {isCreator
+            ? "Ya mandamos tu ficha. El equipo de CONNECTA la está revisando. Mientras tanto podés postularte igual a eventos."
+            : "Ya mandamos tu ficha. Cuando el equipo de CONNECTA la acepte, vas a poder publicar eventos."}
         </p>
-        <div className="mt-10">
+        <div className="mt-10 flex flex-col items-center gap-3">
+          {isCreator ? (
+            <Link
+              href="/eventos"
+              className="inline-flex rounded-full bg-purple px-6 py-3 text-sm font-semibold text-white hover:bg-purple-2"
+            >
+              Ver eventos y postularme
+            </Link>
+          ) : null}
           <LogoutButton className="inline-flex rounded-full border border-white/15 px-6 py-3 text-sm font-semibold hover:border-purple-2" />
         </div>
       </div>

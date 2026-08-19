@@ -1,8 +1,8 @@
 "use client";
 
 import { SignUp, useAuth } from "@clerk/nextjs";
-import { useState } from "react";
-import { afterAuthPath, clerkAppearance } from "@/lib/clerk-auth";
+import { useEffect, useState } from "react";
+import { afterAuthPath, clerkAppearance, persistAuthNext } from "@/lib/clerk-auth";
 
 /**
  * Prebuilt Clerk SignUp — handles Turnstile/captcha correctly (custom
@@ -23,6 +23,10 @@ export function RegistroClerkSignUp({
   const [signingOut, setSigningOut] = useState(false);
   const redirectUrl = afterAuthPath(next || null);
   const signInUrl = `/login${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+
+  useEffect(() => {
+    persistAuthNext(next);
+  }, [next]);
 
   if (!isLoaded) {
     return <p className="auth-hint">Preparando el registro…</p>;

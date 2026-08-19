@@ -47,13 +47,23 @@ export default async function AfterAuthGoPage({
 
   const safeNext =
     next && next.startsWith("/") && !next.startsWith("//") ? next : undefined;
-  const applyingToEvent = Boolean(safeNext?.startsWith("/aplicar/"));
+  const pendingCreatorMayContinue =
+    profile.role === "creator" &&
+    profile.accountStatus === "pending" &&
+    Boolean(
+      safeNext &&
+        (safeNext.startsWith("/aplicar/") ||
+          safeNext === "/eventos" ||
+          safeNext.startsWith("/eventos?") ||
+          safeNext === "/mis-postulaciones" ||
+          safeNext.startsWith("/mis-postulaciones?"))
+    );
 
   if (profile.accountStatus === "rejected") {
     redirect(destinationForProfile(profile));
   }
 
-  if (profile.accountStatus === "pending" && !applyingToEvent) {
+  if (profile.accountStatus === "pending" && !pendingCreatorMayContinue) {
     redirect(destinationForProfile(profile));
   }
 

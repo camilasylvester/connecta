@@ -9,6 +9,7 @@ import { syncOnboarding } from "@/app/after-auth/actions";
 import {
   clearCreatorDraft,
   loadCreatorDraft,
+  profileToCreatorDraft,
   v3DraftToOnboarding,
   type CreatorRegistroV3Draft,
 } from "@/lib/creator-registro-v3";
@@ -107,6 +108,7 @@ export function CompletarPerfilForm({
         ) : null}
         <RegistroCreadorV3Form
           initialInstagram={initial.instagram}
+          initialDraft={profileToCreatorDraft(initial)}
           next={next}
           variant="profile"
           onComplete={async (draft) => {

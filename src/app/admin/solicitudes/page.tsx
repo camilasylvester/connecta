@@ -3,8 +3,95 @@ import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { AdminAccountStatusButtons } from "@/components/AdminAccountStatusButtons";
 import { InstagramLink } from "@/components/InstagramLink";
 import { getDb } from "@/db";
-import { profiles } from "@/db/schema";
+import { profiles, type Profile } from "@/db/schema";
 import { roleLabel } from "@/lib/roles";
+
+function SolicitudRow({
+  u,
+  ready,
+}: {
+  u: Profile;
+  ready: boolean;
+}) {
+  return (
+    <tr>
+      <td>
+        <Link href={`/admin/usuarios/${u.id}`} className="table-link">
+          {u.displayName || u.brandName || "Sin nombre"}
+        </Link>
+        {ready ? null : (
+          <div className="cell-warn">Formulario incompleto</div>
+        )}
+      </td>
+      <td>{roleLabel(u.role)}</td>
+      <td>
+        <div>{u.email || "—"}</div>
+        {u.handle ? (
+          <InstagramLink handle={u.handle} className="cell-link" />
+        ) : u.brandName ? (
+          <div className="cell-sub">{u.brandName}</div>
+        ) : null}
+      </td>
+      <td className="ct-empty">{u.createdAt.toLocaleDateString("es-AR")}</td>
+      <td>
+        <div className="cell-actions">
+          {ready ? (
+            <AdminAccountStatusButtons
+              profileId={u.id}
+              currentStatus={u.accountStatus}
+            />
+          ) : (
+            <span className="cell-sub">Completar ficha antes de aceptar</span>
+          )}
+          <Link href={`/admin/usuarios/${u.id}`} className="cell-link">
+            Ver ficha →
+          </Link>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function SolicitudTable({
+  rows,
+  ready,
+}: {
+  rows: Profile[];
+  ready: boolean;
+}) {
+  if (rows.length === 0) {
+    return (
+      <div className="empty-state">
+        <p>
+          {ready
+            ? "No hay solicitudes listas para aceptar."
+            : "Nadie dejó el formulario a medias."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="table-wrap">
+      <table className="creator-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Contacto</th>
+            <th>Alta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((u) => (
+            <SolicitudRow key={u.id} u={u} ready={ready} />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default async function AdminSolicitudesPage() {
   const db = getDb();
@@ -18,6 +105,9 @@ export default async function AdminSolicitudesPage() {
       )
     )
     .orderBy(desc(profiles.createdAt));
+
+  const ready = pending.filter((u) => u.onboardingCompleted);
+  const incomplete = pending.filter((u) => !u.onboardingCompleted);
 
   const recentDecided = await db
     .select()
@@ -37,79 +127,25 @@ export default async function AdminSolicitudesPage() {
         <div>
           <h1>Solicitudes</h1>
           <div className="sub">
-            Revisá altas de marcas e influencers antes de darles acceso
+            Primero las fichas completas. Las incompletas no se aceptan desde
+            acá.
           </div>
         </div>
       </div>
 
       <div className="content">
         <section>
-          <span className="section-label">Sin revisar ({pending.length})</span>
-          {pending.length === 0 ? (
-            <div className="empty-state">
-              <p>No hay solicitudes pendientes.</p>
-            </div>
-          ) : (
-            <div className="table-wrap">
-              <table className="creator-table">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Contacto</th>
-                    <th>Alta</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pending.map((u) => (
-                    <tr key={u.id}>
-                      <td>
-                        <Link
-                          href={`/admin/usuarios/${u.id}`}
-                          className="table-link"
-                        >
-                          {u.displayName || u.brandName || "Sin nombre"}
-                        </Link>
-                        {u.onboardingCompleted ? null : (
-                          <div className="cell-warn">Formulario incompleto</div>
-                        )}
-                      </td>
-                      <td>{roleLabel(u.role)}</td>
-                      <td>
-                        <div>{u.email || "—"}</div>
-                        {u.handle ? (
-                          <InstagramLink
-                            handle={u.handle}
-                            className="cell-link"
-                          />
-                        ) : u.brandName ? (
-                          <div className="cell-sub">{u.brandName}</div>
-                        ) : null}
-                      </td>
-                      <td className="ct-empty">
-                        {u.createdAt.toLocaleDateString("es-AR")}
-                      </td>
-                      <td>
-                        <div className="cell-actions">
-                          <AdminAccountStatusButtons
-                            profileId={u.id}
-                            currentStatus={u.accountStatus}
-                          />
-                          <Link
-                            href={`/admin/usuarios/${u.id}`}
-                            className="cell-link"
-                          >
-                            Ver ficha →
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <span className="section-label">
+            Listas para aceptar ({ready.length})
+          </span>
+          <SolicitudTable rows={ready} ready />
+        </section>
+
+        <section>
+          <span className="section-label">
+            Formulario incompleto ({incomplete.length})
+          </span>
+          <SolicitudTable rows={incomplete} ready={false} />
         </section>
 
         {recentDecided.length > 0 ? (

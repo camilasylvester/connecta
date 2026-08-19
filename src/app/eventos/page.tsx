@@ -80,7 +80,9 @@ export default async function EventosPage() {
   const { userId } = await auth();
   const profile = userId ? await ensureProfile() : null;
   if (profile) {
-    redirectIfNotApproved(profile);
+    if (!profile.onboardingCompleted || profile.accountStatus === "rejected") {
+      redirectIfNotApproved(profile);
+    }
     await redirectIfPasswordMissing("/eventos");
   }
 
@@ -163,10 +165,16 @@ export default async function EventosPage() {
               <LogoutButton className="feed-btn feed-btn-outline" />
             ) : (
               <>
-                <Link href="/login?role=creator" className="feed-btn feed-btn-outline">
+                <Link
+                  href="/login?role=creator&next=%2Feventos"
+                  className="feed-btn feed-btn-outline"
+                >
                   Ingresar
                 </Link>
-                <Link href="/registro?role=creator" className="feed-btn feed-btn-solid">
+                <Link
+                  href="/registro?role=creator&next=%2Feventos"
+                  className="feed-btn feed-btn-solid"
+                >
                   Crear cuenta
                 </Link>
               </>
@@ -183,8 +191,8 @@ export default async function EventosPage() {
                   </>
                 ) : (
                   <>
-                    <Link href="/login?role=creator">Ingresar</Link>
-                    <Link href="/registro?role=creator">Crear cuenta</Link>
+                    <Link href="/login?role=creator&next=%2Feventos">Ingresar</Link>
+                    <Link href="/registro?role=creator&next=%2Feventos">Crear cuenta</Link>
                   </>
                 )}
               </nav>

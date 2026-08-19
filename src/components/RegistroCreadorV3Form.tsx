@@ -16,6 +16,7 @@ import {
   saveCreatorDraft,
   type CreatorRegistroV3Draft,
 } from "@/lib/creator-registro-v3";
+import { persistAuthNext } from "@/lib/clerk-auth";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 
 const STEPS = [
@@ -54,11 +55,13 @@ function Chip({
 
 export function RegistroCreadorV3Form({
   initialInstagram = "",
+  initialDraft,
   next = "",
   variant = "signup",
   onComplete,
 }: {
   initialInstagram?: string;
+  initialDraft?: CreatorRegistroV3Draft;
   next?: string;
   variant?: "signup" | "profile";
   onComplete?: (draft: CreatorRegistroV3Draft) => void | Promise<void>;
@@ -68,6 +71,13 @@ export function RegistroCreadorV3Form({
   const [profile, setProfile] = useState<CreatorRegistroV3Draft>(() => {
     const instagram =
       normalizeInstagramHandle(initialInstagram) || initialInstagram;
+    if (variant === "profile" && initialDraft) {
+      return {
+        ...emptyCreatorDraft(instagram),
+        ...initialDraft,
+        instagram: initialDraft.instagram || instagram,
+      };
+    }
     const draft = loadCreatorDraft();
     if (draft) {
       return {
@@ -81,6 +91,10 @@ export function RegistroCreadorV3Form({
   const [error, setError] = useState<string | null>(null);
   const [catSearch, setCatSearch] = useState("");
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    persistAuthNext(next);
+  }, [next]);
 
   useEffect(() => {
     saveCreatorDraft(profile);
