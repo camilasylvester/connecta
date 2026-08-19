@@ -256,8 +256,8 @@ export async function applyToEvent(eventId: string, formData: FormData) {
   if (profile.role !== "creator") {
     throw new Error("Solo influencers pueden postularse");
   }
-  if (profile.accountStatus !== "approved") {
-    throw new Error("Tu cuenta aún no está aprobada");
+  if (profile.accountStatus === "rejected") {
+    throw new Error("Tu cuenta fue rechazada");
   }
 
   const db = getDb();

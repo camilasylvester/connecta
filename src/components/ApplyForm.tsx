@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { applyToEvent } from "@/app/actions";
 import { InstagramHandleInput } from "@/components/InstagramHandleInput";
 import type { Profile } from "@/lib/types";
@@ -11,8 +12,27 @@ export function ApplyForm({
   eventId: string;
   profile: Profile | null;
 }) {
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
   async function action(formData: FormData) {
-    await applyToEvent(eventId, formData);
+    setError(null);
+    setSending(true);
+    try {
+      await applyToEvent(eventId, formData);
+    } catch (err) {
+      const digest =
+        typeof err === "object" && err && "digest" in err
+          ? String((err as { digest?: unknown }).digest || "")
+          : "";
+      if (digest.startsWith("NEXT_REDIRECT")) throw err;
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "No se pudo enviar la postulación. Probá de nuevo.";
+      setError(message);
+      setSending(false);
+    }
   }
 
   return (
@@ -73,11 +93,15 @@ export function ApplyForm({
           className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none focus:border-purple"
         />
       </label>
+      {error ? (
+        <p className="text-sm font-semibold text-red-400">{error}</p>
+      ) : null}
       <button
         type="submit"
-        className="w-full rounded-full bg-purple py-3 text-sm font-bold text-white hover:bg-purple-2"
+        disabled={sending}
+        className="w-full rounded-full bg-purple py-3 text-sm font-bold text-white hover:bg-purple-2 disabled:opacity-60"
       >
-        Enviar postulación
+        {sending ? "Enviando…" : "Enviar postulación"}
       </button>
     </form>
   );

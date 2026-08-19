@@ -138,7 +138,11 @@ export function RegistroCreadorV3Form({
   function goBack() {
     setError(null);
     if (step === 1) {
-      router.push("/login?tab=signup&as=creador");
+      const params = new URLSearchParams();
+      params.set("tab", "signup");
+      params.set("as", "creador");
+      if (next) params.set("next", next);
+      router.push(`/login?${params.toString()}`);
       return;
     }
     setStep((s) => s - 1);
