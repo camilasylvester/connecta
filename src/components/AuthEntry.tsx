@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 import { getLoginEmailByHandle } from "@/app/login/actions";
 import { AuthFrame } from "@/components/AuthFrame";
-import { EmailPasswordSignIn } from "@/components/EmailPasswordSignIn";
+import { LoginClerkSignIn } from "@/components/LoginClerkSignIn";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
 
@@ -161,7 +161,7 @@ export function AuthEntry() {
         >
           ← Volver
         </button>
-        <EmailPasswordSignIn next={next} initialEmail={credentialsEmail} />
+        <LoginClerkSignIn next={next} initialEmail={credentialsEmail} />
       </AuthFrame>
     );
   }

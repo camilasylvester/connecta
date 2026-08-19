@@ -35,7 +35,7 @@ export function EmailPasswordSignIn({
   const [checkingHint, setCheckingHint] = useState(false);
   const [clerkTimedOut, setClerkTimedOut] = useState(false);
   const busy = fetchStatus === "fetching" || signingOut || checkingHint;
-  const clerkReady = Boolean(authLoaded && userLoaded);
+  const clerkReady = Boolean(authLoaded);
 
   const fieldError =
     errors?.fields?.identifier?.message ||
