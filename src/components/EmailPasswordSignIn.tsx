@@ -560,7 +560,7 @@ export function EmailPasswordSignIn({
     <form onSubmit={onSignIn}>
       {passwordOnly ? (
         <p className="auth-hint" style={{ marginTop: 0 }}>
-          Escribí la contraseña de esta cuenta.
+          Escribí tu contraseña para entrar.
         </p>
       ) : (
         <label>
