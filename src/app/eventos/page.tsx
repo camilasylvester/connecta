@@ -4,6 +4,7 @@ import { count, desc, eq } from "drizzle-orm";
 import { EventosFeedClient, type FeedEventCard } from "@/components/EventosFeedClient";
 import { LogoWordmark } from "@/components/LogoWordmark";
 import { LogoutButton } from "@/components/LogoutButton";
+import { SiteFooter } from "@/components/SiteFooter";
 import { getDb } from "@/db";
 import { applications, events, profiles } from "@/db/schema";
 import { redirectIfNotApproved, redirectIfPasswordMissing } from "@/lib/account-gate";
@@ -283,19 +284,7 @@ export default async function EventosPage() {
         </div>
       </section>
 
-      <footer className="feed-footer">
-        <div className="feed-wrap feed-footer-row">
-          <div className="feed-logo">
-            <LogoWordmark className="feed-logo-svg" />
-          </div>
-          <span className="feed-footer-meta">CONNECTA / 2026</span>
-          <div className="feed-footer-links">
-            <a href="#">Instagram</a>
-            <a href="#">TikTok</a>
-            <a href="#">Contacto</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter variant="feed" />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LandingProfilePreview } from "@/components/LandingProfilePreview";
 import { LogoWordmark } from "@/components/LogoWordmark";
+import { SiteFooter } from "@/components/SiteFooter";
 import "./landing.css";
 
 function CornerMarks() {
@@ -191,16 +192,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="landing-footer">
-        <div className="landing-wrap">
-          <Link href="#top" aria-label="Volver al inicio"><BrandLogo /></Link>
-          <div>
-            <a href="#">Instagram</a>
-            <a href="#">TikTok</a>
-            <a href="mailto:hola@connectainf.com">Contacto</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

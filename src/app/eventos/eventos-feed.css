@@ -640,7 +640,10 @@
 
 .feed-footer-links {
   display: flex;
-  gap: 22px;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  max-width: 640px;
+  justify-content: flex-end;
 }
 
 .feed-footer-links a {
