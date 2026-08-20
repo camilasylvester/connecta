@@ -11,9 +11,12 @@ type Mode = "signin" | "set-password";
 export function EmailPasswordSignIn({
   next = "",
   initialEmail = "",
+  passwordOnly = false,
 }: {
   next?: string;
   initialEmail?: string;
+  /** When true, email is already chosen — only ask for password. */
+  passwordOnly?: boolean;
 }) {
   const { signIn, errors, fetchStatus } = useSignIn();
   const { isLoaded: authLoaded, isSignedIn, signOut } = useAuth();
@@ -555,24 +558,31 @@ export function EmailPasswordSignIn({
 
   return (
     <form onSubmit={onSignIn}>
-      <label>
-        <span className="auth-field-label">Email</span>
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="auth-input"
-          placeholder="vos@email.com"
-        />
-      </label>
-      <label style={{ display: "block", marginTop: 14 }}>
+      {passwordOnly ? (
+        <p className="auth-hint" style={{ marginTop: 0 }}>
+          Escribí la contraseña de esta cuenta.
+        </p>
+      ) : (
+        <label>
+          <span className="auth-field-label">Email</span>
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="auth-input"
+            placeholder="vos@email.com"
+          />
+        </label>
+      )}
+      <label style={{ display: "block", marginTop: passwordOnly ? 0 : 14 }}>
         <span className="auth-field-label">Contraseña</span>
         <input
           type="password"
           required
           autoComplete="current-password"
+          autoFocus={passwordOnly}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="auth-input"
