@@ -278,23 +278,45 @@ El `@` identifica al creador frente a marcas. La autenticación real sigue siend
 
 ---
 
-### 5.5 Preparado para TikTok (futuro)
+### 5.5 TikTok Connect (Login Kit)
 
-**Qué ya existe**
+**Qué hace (fase 1–2)**  
+Los creadores ya logueados con Clerk pueden **vincular** su cuenta de TikTok desde `/mi-perfil`. No reemplaza el login de Connecta.
 
-- Campos `tiktok_handle` y `tiktok_followers` en la base  
-- Campo opcional en el formulario / perfil  
-- En portfolio de posts: pegar URL de TikTok → detectar plataforma → pedir **miniatura pública** (oEmbed de TikTok, sin login)  
-- Helper `tiktokProfileUrl` en `posts.ts`  
+Flujo: Conectar → OAuth Login Kit → callback → guarda tokens + sincroniza `tiktok_handle` y `tiktok_followers` (+ `creator_meta.redes.TikTok`).
 
-**Qué falta para una integración “de verdad” (OAuth / API)**
+**Qué ya existe en el repo**
 
-- App en TikTok for Developers  
-- Login Kit / tokens de acceso y refresh  
-- Tablas o campos para guardar tokens  
-- Pantallas de “conectar TikTok” y renovar permisos  
+- Columnas OAuth en `profiles`: `tiktok_open_id`, `tiktok_access_token`, `tiktok_refresh_token`, `tiktok_token_expires_at`, `tiktok_connected_at`
+- Migración: `drizzle/0008_tiktok_oauth.sql`
+- `src/lib/tiktok.ts` + `src/lib/tiktok-profile.ts`
+- Rutas: `/api/tiktok/connect`, `/api/tiktok/callback`
+- UI en `/mi-perfil`: Conectar / Volver a sincronizar / Desconectar
+- Campos manuales de TikTok siguen como fallback si no hay conexión
 
-Hoy TikTok es como Instagram: **identidad + links + datos manuales**, no cuenta conectada por API.
+**Variables de entorno** (Vercel + `.env.local`; nunca en el front)
+
+```
+TIKTOK_CLIENT_KEY=
+TIKTOK_CLIENT_SECRET=
+TIKTOK_REDIRECT_URI=https://www.connectainf.com/api/tiktok/callback
+```
+
+**Checklist TikTok for Developers**
+
+1. Producto **Login Kit** activo.
+2. Scopes: `user.info.basic`, `user.info.profile`, `user.info.stats` (aprobados si pide review).
+3. Redirect URIs **HTTPS estáticos** (TikTok no acepta `http://localhost`):
+   - `https://www.connectainf.com/api/tiktok/callback`
+   - `https://local.connectainf.com/api/tiktok/callback` (local con `npm run dev:prod-local`)
+4. Para local: apuntar `TIKTOK_REDIRECT_URI` al callback de `local.connectainf.com` y registrar ese host en TikTok.
+
+**Fuera de esta fase**
+
+- Importar lista de videos (`video.list`)
+- Entrar a Connecta solo con TikTok
+
+También sigue existiendo el portfolio de posts con URL de TikTok → oEmbed (miniatura pública, sin OAuth).
 
 ---
 
@@ -309,13 +331,15 @@ Hoy TikTok es como Instagram: **identidad + links + datos manuales**, no cuenta 
 | Fotos nuevas (avatar, eventos) | **Vercel Blob**; en Neon solo la URL. |
 | Fotos viejas (antes del cambio) | Algunas siguen como data-URL dentro de Neon hasta que se reemplacen. |
 | Quién es admin | Variable `ADMIN_EMAILS` en Vercel (no hardcodeado en el código). |
-| Tokens Instagram/TikTok de API | **No existen** en el proyecto hoy. |
+| Tokens TikTok OAuth | **Neon** (`tiktok_access_token` / `tiktok_refresh_token`), solo servidor; nunca al front. |
+| Tokens Instagram | **No existen** (solo handle manual). |
 
 ### Contraseñas — ¿está bien?
 **Sí, el enfoque es el correcto para este tipo de app:** no reinventar login. Clerk es un proveedor especializado. CONNECTA no debería (y no lo hace) guardar la contraseña en texto plano en Neon.
 
 ### Instagram/TikTok — ¿hay tokens expuestos?
-**No hay tokens de red social que filtrar**, porque no hay OAuth todavía. Solo handles públicos.
+Instagram: no hay OAuth; solo handles públicos.  
+TikTok: los tokens viven en Neon y solo se usan en rutas/actions de servidor. No se envían al cliente.
 
 ### Riesgos que conviene conocer (sin alarmismo)
 
@@ -325,8 +349,9 @@ Hoy TikTok es como Instagram: **identidad + links + datos manuales**, no cuenta 
 4. **Fotos públicas en Blob:** las URLs de imagen son accesibles si alguien tiene el link (normal en fotos de eventos).  
 5. **Email de bienvenida:** todavía es un stub (no manda mail real).  
 6. **Carpeta `supabase/`:** no confundirla con la base real (Neon).
+7. **Tokens TikTok:** si se filtra `DATABASE_URL`, también se filtran refresh tokens; rotá Client Secret en TikTok si hay incidente.
 
-En resumen: la base de auth está bien encaminada; los riesgos grandes de producto son más de **proceso** (quién aprueba, qué datos pedís) y de **futuras** APIs de redes, no de “contraseñas en claro en el código”.
+En resumen: la base de auth está bien encaminada; los riesgos grandes de producto son más de **proceso** (quién aprueba, qué datos pedís) y del cuidado de secretos OAuth, no de “contraseñas en claro en el código”.
 
 ---
 

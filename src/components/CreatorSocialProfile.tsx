@@ -4,7 +4,9 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   createCreatorPost,
+  disconnectTikTok,
   previewCreatorPostUrl,
+  syncTikTokProfile,
   updateSelfProfile,
 } from "@/app/actions";
 import { CreatorFeed } from "@/components/CreatorFeed";
@@ -90,9 +92,15 @@ function formatCount(n: number): string {
 export function CreatorSocialProfile({
   initial,
   posts: initialPosts,
+  tiktokConnected = false,
+  tiktokConfigured = false,
+  tiktokFlash = null,
 }: {
   initial: OnboardingPayload;
   posts: CreatorPost[];
+  tiktokConnected?: boolean;
+  tiktokConfigured?: boolean;
+  tiktokFlash?: "connected" | "error" | null;
 }) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -103,6 +111,18 @@ export function CreatorSocialProfile({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [connected, setConnected] = useState(tiktokConnected);
+  const [tiktokMsg, setTiktokMsg] = useState<string | null>(() => {
+    if (tiktokFlash === "connected") {
+      return "TikTok conectado. Username y seguidores sincronizados.";
+    }
+    if (tiktokFlash === "error") {
+      return "No se pudo conectar TikTok. Intentá de nuevo.";
+    }
+    return null;
+  });
+  const [tiktokBusy, setTiktokBusy] = useState(false);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     if (!editing) setData(initial);
@@ -112,6 +132,10 @@ export function CreatorSocialProfile({
     setPosts(initialPosts);
   }, [initialPosts]);
 
+  useEffect(() => {
+    setConnected(tiktokConnected);
+  }, [tiktokConnected]);
+
   const handle =
     normalizeInstagramHandle(data.instagram) ||
     (data.instagram.trim()
@@ -119,9 +143,57 @@ export function CreatorSocialProfile({
       : "");
   const igLink = instagramUrl(handle);
   const ttLink = tiktokProfileUrl(data.tiktok);
-  const igFollowers = Number(String(data.followers || "").replace(/\D/g, "")) || 0;
+  const igFollowers =
+    Number(String(data.followers || "").replace(/\D/g, "")) || 0;
   const ttFollowers =
     Number(String(data.tiktokFollowers || "").replace(/\D/g, "")) || 0;
+
+  async function onSyncTikTok() {
+    setTiktokBusy(true);
+    setTiktokMsg(null);
+    setError(null);
+    try {
+      const res = await syncTikTokProfile();
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setTiktokMsg("Seguidores de TikTok actualizados.");
+      startTransition(() => router.refresh());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al sincronizar");
+    } finally {
+      setTiktokBusy(false);
+    }
+  }
+
+  async function onDisconnectTikTok() {
+    if (
+      !confirm(
+        "¿Desconectar TikTok? Se mantienen el @ y los seguidores guardados."
+      )
+    ) {
+      return;
+    }
+    setTiktokBusy(true);
+    setTiktokMsg(null);
+    setError(null);
+    try {
+      const res = await disconnectTikTok();
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setConnected(false);
+      setTiktokMsg("TikTok desconectado.");
+      startTransition(() => router.refresh());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al desconectar");
+    } finally {
+      setTiktokBusy(false);
+    }
+  }
+
   const collabs = posts.filter((p) => p.brandLabel).length;
   const bio =
     data.contentThemes.slice(0, 3).join(" · ") ||
@@ -202,6 +274,85 @@ export function CreatorSocialProfile({
           Perfil actualizado.
         </p>
       ) : null}
+
+      {tiktokMsg ? (
+        <p
+          className={`mb-5 rounded-xl border px-4 py-3 text-sm font-semibold ${
+            tiktokFlash === "error" &&
+            tiktokMsg.startsWith("No se pudo")
+              ? "border-red-400/40 bg-red-500/10 text-red-200"
+              : "border-ok/40 bg-ok/10 text-ok"
+          }`}
+        >
+          {tiktokMsg}
+        </p>
+      ) : null}
+
+      <section className="mb-7 rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-muted-dark">
+              TikTok
+            </h2>
+            {connected ? (
+              <p className="mt-1 text-sm text-white">
+                Conectado
+                {data.tiktok ? (
+                  <>
+                    {" "}
+                    como{" "}
+                    <span className="font-bold text-purple-2">{data.tiktok}</span>
+                  </>
+                ) : null}
+                {ttFollowers > 0 ? (
+                  <span className="text-muted-dark">
+                    {" "}
+                    · {formatCount(ttFollowers)} seguidores
+                  </span>
+                ) : null}
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-muted-dark">
+                Conectá tu cuenta para sincronizar @ y seguidores
+                automáticamente.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {connected ? (
+              <>
+                <button
+                  type="button"
+                  disabled={tiktokBusy || !tiktokConfigured}
+                  onClick={onSyncTikTok}
+                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white hover:border-purple-2 disabled:opacity-50"
+                >
+                  {tiktokBusy ? "Sincronizando…" : "Volver a sincronizar"}
+                </button>
+                <button
+                  type="button"
+                  disabled={tiktokBusy}
+                  onClick={onDisconnectTikTok}
+                  className="rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-muted-dark hover:text-white disabled:opacity-50"
+                >
+                  Desconectar
+                </button>
+              </>
+            ) : tiktokConfigured ? (
+              <a
+                href="/api/tiktok/connect"
+                className="rounded-full bg-purple px-4 py-2 text-sm font-bold text-white hover:bg-purple-2"
+              >
+                Conectar TikTok
+              </a>
+            ) : (
+              <span className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-muted-dark">
+                OAuth no configurado
+              </span>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-5 border-b border-white/10 pb-7 sm:gap-7">
@@ -368,12 +519,22 @@ export function CreatorSocialProfile({
                 />
               </label>
               <label className="block">
-                <span className={labelCls}>Usuario de TikTok (opcional)</span>
+                <span className={labelCls}>
+                  Usuario de TikTok
+                  {connected ? " (sincronizado)" : " (opcional)"}
+                </span>
                 <input
                   className={field}
                   value={data.tiktok}
                   onChange={(e) => set("tiktok", e.target.value)}
+                  disabled={connected}
                 />
+                {connected ? (
+                  <span className="mt-1 block text-xs text-muted-dark">
+                    Viene de la cuenta conectada. Desconectá para editarlo a
+                    mano.
+                  </span>
+                ) : null}
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
@@ -397,15 +558,19 @@ export function CreatorSocialProfile({
                   ) : null}
                 </label>
                 <label className="block">
-                  <span className={labelCls}>Seguidores TikTok</span>
+                  <span className={labelCls}>
+                    Seguidores TikTok
+                    {connected ? " (sincronizado)" : ""}
+                  </span>
                   <input
                     className={field}
                     inputMode="numeric"
                     value={data.tiktokFollowers}
                     onChange={(e) => set("tiktokFollowers", e.target.value)}
                     placeholder="ej. 12000"
+                    disabled={connected}
                   />
-                  {ttLink ? (
+                  {!connected && ttLink ? (
                     <a
                       href={ttLink}
                       target="_blank"

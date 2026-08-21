@@ -677,3 +677,123 @@ export async function deleteCreatorPost(postId: string) {
   revalidatePath("/admin/usuarios");
   return { ok: true as const };
 }
+
+/** Creator: refresh TikTok username + followers using stored tokens. */
+export async function syncTikTokProfile() {
+  const profile = await requireProfile();
+  if (profile.role !== "creator" && profile.role !== "admin") {
+    return { ok: false as const, error: "No autorizado" };
+  }
+  if (!profile.tiktokAccessToken && !profile.tiktokRefreshToken) {
+    return { ok: false as const, error: "TikTok no está conectado" };
+  }
+
+  const {
+    fetchTikTokUserInfo,
+    isTikTokConfigured,
+    refreshTikTokToken,
+  } = await import("@/lib/tiktok");
+  const { applyTikTokUserToProfile } = await import("@/lib/tiktok-profile");
+
+  if (!isTikTokConfigured()) {
+    return {
+      ok: false as const,
+      error: "TikTok no está configurado en el servidor",
+    };
+  }
+
+  try {
+    let accessToken = profile.tiktokAccessToken;
+    let refreshToken = profile.tiktokRefreshToken;
+    let openId = profile.tiktokOpenId;
+    let expiresAt = profile.tiktokTokenExpiresAt;
+    let tokensToPersist:
+      | {
+          openId: string;
+          accessToken: string;
+          refreshToken: string | null;
+          expiresAt: Date;
+        }
+      | undefined;
+
+    const needsRefresh =
+      !accessToken ||
+      !expiresAt ||
+      expiresAt.getTime() < Date.now() + 60_000;
+
+    if (needsRefresh) {
+      if (!refreshToken) {
+        return {
+          ok: false as const,
+          error: "Sesión de TikTok vencida. Volvé a conectar.",
+        };
+      }
+      const refreshed = await refreshTikTokToken(refreshToken);
+      accessToken = refreshed.accessToken;
+      refreshToken = refreshed.refreshToken || refreshToken;
+      openId = refreshed.openId || openId;
+      expiresAt = new Date(Date.now() + refreshed.expiresIn * 1000);
+      tokensToPersist = {
+        openId: openId || refreshed.openId,
+        accessToken,
+        refreshToken,
+        expiresAt,
+      };
+    }
+
+    if (!accessToken) {
+      return {
+        ok: false as const,
+        error: "Sesión de TikTok vencida. Volvé a conectar.",
+      };
+    }
+
+    const info = await fetchTikTokUserInfo(accessToken);
+    await applyTikTokUserToProfile({
+      profileId: profile.id,
+      info,
+      tokens: tokensToPersist,
+      creatorMeta: profile.creatorMeta,
+      platforms: profile.platforms,
+    });
+
+    revalidatePath("/mi-perfil");
+    revalidatePath("/dashboard/explorar");
+    revalidatePath("/dashboard/creadores");
+    return { ok: true as const };
+  } catch (e) {
+    return {
+      ok: false as const,
+      error: e instanceof Error ? e.message : "No se pudo sincronizar TikTok",
+    };
+  }
+}
+
+/** Creator: unlink TikTok OAuth (keeps handle / followers as manual data). */
+export async function disconnectTikTok() {
+  const profile = await requireProfile();
+  if (profile.role !== "creator" && profile.role !== "admin") {
+    return { ok: false as const, error: "No autorizado" };
+  }
+
+  const { isTikTokConfigured, revokeTikTokToken } = await import("@/lib/tiktok");
+  if (profile.tiktokAccessToken && isTikTokConfigured()) {
+    await revokeTikTokToken(profile.tiktokAccessToken);
+  }
+
+  const db = getDb();
+  await db
+    .update(profiles)
+    .set({
+      tiktokOpenId: null,
+      tiktokAccessToken: null,
+      tiktokRefreshToken: null,
+      tiktokTokenExpiresAt: null,
+      tiktokConnectedAt: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.id, profile.id));
+
+  revalidatePath("/mi-perfil");
+  return { ok: true as const };
+}

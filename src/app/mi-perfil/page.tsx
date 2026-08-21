@@ -8,10 +8,15 @@ import { redirectIfNotApproved, redirectIfPasswordMissing } from "@/lib/account-
 import { ensureProfile } from "@/lib/auth";
 import { profileToOnboarding } from "@/lib/onboarding";
 import { destinationForProfile } from "@/lib/roles";
+import { isTikTokConfigured } from "@/lib/tiktok";
 import { getDb } from "@/db";
 import { creatorPosts } from "@/db/schema";
 
-export default async function MiPerfilPage() {
+export default async function MiPerfilPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tiktok?: string }>;
+}) {
   const profile = await ensureProfile();
   if (!profile) redirect("/login");
   redirectIfNotApproved(profile);
@@ -24,6 +29,12 @@ export default async function MiPerfilPage() {
     redirect(destinationForProfile(profile));
   }
 
+  const params = await searchParams;
+  const tiktokFlash =
+    params.tiktok === "connected" || params.tiktok === "error"
+      ? params.tiktok
+      : null;
+
   const db = getDb();
   const posts = await db
     .select()
@@ -32,6 +43,9 @@ export default async function MiPerfilPage() {
     .orderBy(desc(creatorPosts.createdAt));
 
   const initial = profileToOnboarding(profile);
+  const tiktokConnected = Boolean(
+    profile.tiktokAccessToken || profile.tiktokRefreshToken
+  );
 
   return (
     <div className="min-h-screen bg-ink px-4 py-8 text-white sm:px-6">
@@ -56,7 +70,13 @@ export default async function MiPerfilPage() {
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-ink-2 p-5 sm:p-8">
-          <CreatorSocialProfile initial={initial} posts={posts} />
+          <CreatorSocialProfile
+            initial={initial}
+            posts={posts}
+            tiktokConnected={tiktokConnected}
+            tiktokConfigured={isTikTokConfigured()}
+            tiktokFlash={tiktokFlash}
+          />
         </div>
       </div>
     </div>

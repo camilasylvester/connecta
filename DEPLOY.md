@@ -15,7 +15,7 @@ insert into admin_allowlist (email) values ('tu@email.com');
 1. https://dashboard.clerk.com → Create application
 2. Email auth ON
 3. Paths: Sign-in URL `/login`, Sign-up `/registro`
-4. Allowed redirect: `https://connecta-tau.vercel.app` y `http://localhost:3000`
+4. Allowed redirect / domains: `https://www.connectainf.com`, `https://local.connectainf.com` (dev), y localhost. **No uses solo `*.vercel.app`** para links que compartís.
 5. Copiá `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` y `CLERK_SECRET_KEY`
 
 ## 3. Vercel env vars
@@ -27,7 +27,8 @@ En el proyecto `connecta`:
 - `CLERK_SECRET_KEY`
 - `NEXT_PUBLIC_CLERK_SIGN_IN_URL` = `/login`
 - `NEXT_PUBLIC_CLERK_SIGN_UP_URL` = `/registro`
-- `NEXT_PUBLIC_SITE_URL` = `https://www.connectainf.com`
+- `NEXT_PUBLIC_SITE_URL` = `https://www.connectainf.com`  
+  (importante: **no** pongas `connecta-tau.vercel.app`; los links de “aplicar” salen de acá)
 - `ADMIN_EMAILS` = emails de admin separados por coma (ej. `vos@email.com,otro@email.com`)
 - `BLOB_READ_WRITE_TOKEN` = token de Vercel Blob (Storage → Blob store `connecta-media`)
 

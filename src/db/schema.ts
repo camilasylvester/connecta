@@ -38,6 +38,13 @@ export const profiles = pgTable("profiles", {
   displayName: text("display_name"),
   handle: text("handle"),
   tiktokHandle: text("tiktok_handle"),
+  tiktokOpenId: text("tiktok_open_id"),
+  tiktokAccessToken: text("tiktok_access_token"),
+  tiktokRefreshToken: text("tiktok_refresh_token"),
+  tiktokTokenExpiresAt: timestamp("tiktok_token_expires_at", {
+    withTimezone: true,
+  }),
+  tiktokConnectedAt: timestamp("tiktok_connected_at", { withTimezone: true }),
   category: text("category"),
   followers: integer("followers").default(0),
   tiktokFollowers: integer("tiktok_followers"),

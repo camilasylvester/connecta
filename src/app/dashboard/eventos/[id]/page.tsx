@@ -13,6 +13,7 @@ import {
   formatEventDate,
   statusMeta,
 } from "@/app/dashboard/brand-helpers";
+import { absolutePublicUrl } from "@/lib/site-url";
 
 export default async function EventDetailPage({
   params,
@@ -92,8 +93,7 @@ export default async function EventDetailPage({
     },
   }));
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const inviteUrl = `${siteUrl}/aplicar/${ev.inviteToken}`;
+  const inviteUrl = absolutePublicUrl(`/aplicar/${ev.inviteToken}`);
   const meta = statusMeta(ev.status);
   const initialTab =
     tab === "evento" || (isAdmin && tab !== "solicitudes")
