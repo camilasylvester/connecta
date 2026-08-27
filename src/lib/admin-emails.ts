@@ -1,6 +1,6 @@
 /**
- * Admin allowlist — emails come ONLY from ADMIN_EMAILS (comma-separated).
- * Set in Vercel / .env.local. Never commit real admin emails in source.
+ * Admin allowlist — emails come from ADMIN_EMAILS (Vercel / .env.local)
+ * plus rows in admin_allowlist. Never commit real admin emails in source.
  */
 export function getAdminEmails(): string[] {
   const fromEnv = (process.env.ADMIN_EMAILS || "")
@@ -29,12 +29,19 @@ function normalizeEmail(email: string): string {
   return trimmed;
 }
 
-export function isAdminEmail(email: string | null | undefined): boolean {
+export function isAdminEmail(
+  email: string | null | undefined,
+  extraAllowed: string[] = []
+): boolean {
   if (!email) return false;
   const normalized = normalizeEmail(email);
-  return getAdminEmails().some((allowed) => normalizeEmail(allowed) === normalized);
+  const allowed = [...getAdminEmails(), ...extraAllowed];
+  return allowed.some((candidate) => normalizeEmail(candidate) === normalized);
 }
 
-export function isAdminEmailList(emails: Array<string | null | undefined>): boolean {
-  return emails.some((e) => isAdminEmail(e));
+export function isAdminEmailList(
+  emails: Array<string | null | undefined>,
+  extraAllowed: string[] = []
+): boolean {
+  return emails.some((e) => isAdminEmail(e, extraAllowed));
 }

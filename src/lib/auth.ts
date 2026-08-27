@@ -1,7 +1,7 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { profiles, type Profile } from "@/db/schema";
+import { adminAllowlist, profiles, type Profile } from "@/db/schema";
 import { isAdminEmailList } from "@/lib/admin-emails";
 import type { UserRole } from "@/lib/types";
 
@@ -24,7 +24,7 @@ function emailsFromClerkUser(user: NonNullable<Awaited<ReturnType<typeof current
   return [...new Set(list)];
 }
 
-/** Create or refresh profile. Admin is ONLY by authorized email, never via UI. */
+/** Create or refresh profile. Admin is by allowlisted email, never via UI. */
 export async function ensureProfile(): Promise<Profile | null> {
   const { userId } = await auth();
   if (!userId) return null;
@@ -35,7 +35,11 @@ export async function ensureProfile(): Promise<Profile | null> {
 
   const emails = emailsFromClerkUser(user);
   const email = emails[0] || null;
-  const shouldBeAdmin = isAdminEmailList(emails);
+  const allowlisted = await db.select({ email: adminAllowlist.email }).from(adminAllowlist);
+  const shouldBeAdmin = isAdminEmailList(
+    emails,
+    allowlisted.map((row) => row.email)
+  );
 
   const existing = await db
     .select()
