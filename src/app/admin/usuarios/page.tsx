@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { AdminExportCreatorsButton } from "@/components/AdminExportCreatorsButton";
 import { AdminSearchBox } from "@/components/AdminSearchBox";
 import { InstagramLink } from "@/components/InstagramLink";
 import { getDb } from "@/db";
@@ -70,6 +71,26 @@ export default async function AdminUsersPage({
         <div className="toolbar" style={{ marginBottom: 14 }}>
           <AdminSearchBox initialQuery={q} />
         </div>
+
+        {roleFilter === "creator" || !roleFilter ? (
+          <div
+            className="attention-box"
+            style={{ marginBottom: 14, padding: "14px 16px" }}
+          >
+            <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>
+              Exportar creadoras (newsletter)
+            </h3>
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--faint)" }}>
+              CSV con nombre, email, teléfono, Instagram y TikTok. Solo admins.
+              Usalo con consentimiento (privacidad).
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <AdminExportCreatorsButton status="approved" compact />
+              <AdminExportCreatorsButton status="pending" compact />
+              <AdminExportCreatorsButton status="all" compact />
+            </div>
+          </div>
+        ) : null}
 
         <div className="tabs-row">
           {(
