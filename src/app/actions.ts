@@ -193,7 +193,12 @@ export async function updateApplicationStatus(
   await db
     .update(applications)
     .set({ status, updatedAt: new Date() })
-    .where(eq(applications.id, applicationId));
+    .where(
+      and(
+        eq(applications.id, applicationId),
+        eq(applications.eventId, eventId)
+      )
+    );
 
   revalidatePath(`/dashboard/eventos/${eventId}`);
   revalidatePath(`/dashboard/eventos/${eventId}/solicitudes`);
