@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { profiles } from "@/db/schema";
@@ -15,27 +16,53 @@ export type LoginHandleLookup = {
 
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_MAX = 8;
+const RATE_MAX_HANDLE_LOOKUPS = 8;
 const MIN_RESPONSE_MS = 350;
 
 /** Best-effort rate limit (per server instance). Slows casual email probing. */
-const hitsByEmail = new Map<string, number[]>();
+const hitsByKey = new Map<string, number[]>();
 
-function allowLookup(email: string): boolean {
+function allowRateLimit(key: string, max = RATE_MAX): boolean {
   const now = Date.now();
-  const prev = (hitsByEmail.get(email) || []).filter(
+  const prev = (hitsByKey.get(key) || []).filter(
     (t) => now - t < RATE_WINDOW_MS
   );
-  if (prev.length >= RATE_MAX) {
-    hitsByEmail.set(email, prev);
+  if (prev.length >= max) {
+    hitsByKey.set(key, prev);
     return false;
   }
   prev.push(now);
-  hitsByEmail.set(email, prev);
+  hitsByKey.set(key, prev);
   return true;
+}
+
+function allowLookup(email: string): boolean {
+  return allowRateLimit(`email:${email}`);
 }
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function clientIp(): Promise<string> {
+  const h = await headers();
+  const forwarded = h.get("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return h.get("x-real-ip")?.trim() || "unknown";
+}
+
+async function withMinDelay<T>(
+  started: number,
+  value: T
+): Promise<T> {
+  const elapsed = Date.now() - started;
+  if (elapsed < MIN_RESPONSE_MS) {
+    await sleep(MIN_RESPONSE_MS - elapsed);
+  }
+  return value;
 }
 
 /**
@@ -50,11 +77,8 @@ export async function getLoginAccountHint(
   const started = Date.now();
   const email = rawEmail.trim().toLowerCase();
 
-  const finish = async (value: LoginAccountHint | null) => {
-    const elapsed = Date.now() - started;
-    if (elapsed < MIN_RESPONSE_MS) await sleep(MIN_RESPONSE_MS - elapsed);
-    return value;
-  };
+  const finish = (value: LoginAccountHint | null) =>
+    withMinDelay(started, value);
 
   if (!email || !email.includes("@") || email.length > 254) {
     return finish(null);
@@ -86,8 +110,22 @@ export async function getLoginAccountHint(
 export async function getLoginEmailByHandle(
   rawHandle: string
 ): Promise<LoginHandleLookup | null> {
+  const started = Date.now();
+  const finish = (value: LoginHandleLookup | null) =>
+    withMinDelay(started, value);
+
   const handle = normalizeInstagramHandle(rawHandle)?.slice(1).toLowerCase();
-  if (!handle || handle.length > 64) return null;
+  if (!handle || handle.length > 64) {
+    return finish(null);
+  }
+
+  const ip = await clientIp();
+  if (
+    !allowRateLimit(`handle-ip:${ip}`, RATE_MAX_HANDLE_LOOKUPS) ||
+    !allowRateLimit(`handle:${handle}`, RATE_MAX_HANDLE_LOOKUPS)
+  ) {
+    return finish(null);
+  }
 
   try {
     const db = getDb();
@@ -100,9 +138,9 @@ export async function getLoginEmailByHandle(
       .limit(1);
 
     const email = rows[0]?.email?.trim().toLowerCase();
-    if (!email || !email.includes("@")) return null;
-    return { email };
+    if (!email || !email.includes("@")) return finish(null);
+    return finish({ email });
   } catch {
-    return null;
+    return finish(null);
   }
 }
