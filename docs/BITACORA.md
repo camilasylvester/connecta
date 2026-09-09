@@ -31,7 +31,7 @@ Reglas de la entrada:
 - **En castellano.** La bitácora la leen todos, no solo quien programa.
 - **Sin jerga innecesaria.** "Arreglé el login que se quedaba cargando" es mejor que "fix async race en el auth provider".
 - **Una entrada por cambio con sentido propio**, no una por commit. Si hiciste 4 commits para una misma cosa, es una sola entrada.
-- **El hash lo ponés después de commitear.** Hacé el commit, corré `git log -1 --format=%h` y pegalo con `git commit --amend`.
+- **El hash lo ponés después de commitear.** Hacé el commit, corré `git log -1 --format=%h` y anotalo en la entrada. **No uses `git commit --amend` para eso:** amend crea un commit nuevo con otro hash, así que el que acabás de pegar queda viejo. Va en un commit chiquito aparte.
 - **Si tocaste la base de datos, decilo con todas las letras** y nombrá la migración. Es el cambio que más caro sale de revertir.
 
 ---
@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-09 — Amadeo
+## 2026-09-09 — `f5ab301` — Amadeo
 
 **Qué cambié:** escribí [TAREAS.md](TAREAS.md) con las 33 tareas del pedido de correcciones y mejoras, priorizadas y estimadas. Armé el mismo contenido en un Excel para pasarlo afuera del repo.
 
@@ -62,7 +62,7 @@ De paso ubiqué la causa de tres problemas que venían reportados sin diagnósti
 
 ---
 
-## 2026-09-09 — Amadeo
+## 2026-09-09 — `f5ab301` — Amadeo
 
 **Qué cambié:** armé esta bitácora y escribí [REGLAS-DE-ORO.md](REGLAS-DE-ORO.md) con las normas de trabajo del equipo.
 

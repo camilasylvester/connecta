@@ -229,7 +229,7 @@ npm run dev                             # levantar en localhost:3000
 # --- Guardar ---
 git add -p                              # revisar cambio por cambio antes de agregar
 git commit                              # abre el editor: título + por qué + cómo se probó
-git log -1 --format=%h                  # el hash, para la bitácora
+git log -1 --format=%h                  # el hash, para anotarlo en la bitácora
 
 # --- Subir ---
 npm run build && npm run lint           # que no explote en Vercel
