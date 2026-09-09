@@ -2,6 +2,18 @@
 
 Plataforma real para que marcas publiquen eventos con link privado e influencers se postulen.
 
+## Si vas a programar acá, leé esto primero
+
+- **[docs/REGLAS-DE-ORO.md](docs/REGLAS-DE-ORO.md)** — cómo trabajamos: commits, comentarios,
+  ramas y qué mirar antes de traer cambios para no pisar el trabajo de otro. **Obligatorio
+  antes del primer commit.**
+- **[docs/BITACORA.md](docs/BITACORA.md)** — qué se cambió, cuándo y por qué. Empezá por acá
+  para saber en qué estado está el proyecto.
+- **[docs/TAREAS.md](docs/TAREAS.md)** — qué falta hacer, priorizado y estimado. Cada tarea
+  tiene un ID (`T-01`…) para usar en los commits.
+
+> `main` se despliega solo a producción (www.connectainf.com). No hay staging.
+
 ## Stack
 
 - Next.js (App Router) + TypeScript + Tailwind
