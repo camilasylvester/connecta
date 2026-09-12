@@ -111,7 +111,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Depende de:** conviene hacerla junto con T-12 (reordenar el onboarding), es el mismo formulario.
 
-**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `86696df`. Celular AR obligatorio en registro/onboarding (creador y marca); bloqueo al entrar si falta; link WhatsApp en perfil.
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `86696df`. Celular AR obligatorio en registro/onboarding (creador y marca); bloqueo al entrar si falta (`0664b40`); link WhatsApp en perfil.
 
 ---
 

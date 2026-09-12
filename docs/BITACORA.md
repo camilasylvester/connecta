@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-12 — `PENDIENTE` — Camila Sylvester
+## 2026-09-12 — `0664b40` — Camila Sylvester
 
 **Qué cambié:** el celular pasó a ser **bloqueo al entrar**: si un creador o marca ya tiene la ficha pero no tiene celular argentino válido, lo mandamos a `/completar-telefono` y no puede usar la app hasta cargarlo. También quedó obligatorio al editar el perfil.
 
