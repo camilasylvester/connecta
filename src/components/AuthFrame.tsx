@@ -35,9 +35,6 @@ export function AuthFrame({
           className="auth-logo"
           aria-label="Connecta, ir al inicio"
         />
-        <Link href="/" className="auth-back">
-          ← Volver a la landing
-        </Link>
       </header>
 
       <div className={`auth-shell${wide ? " auth-shell-wide" : ""}`}>

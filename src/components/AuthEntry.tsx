@@ -248,22 +248,14 @@ export function AuthEntry() {
               className={`auth-profile-card${profile === "creador" ? " is-selected" : ""}`}
               onClick={() => switchProfile("creador")}
             >
-              <span className="auth-profile-icon" aria-hidden />
               <strong className="auth-profile-name">Creador</strong>
-              <span className="auth-profile-desc">
-                Postulate a eventos y campañas de marcas.
-              </span>
             </button>
             <button
               type="button"
               className={`auth-profile-card${profile === "marca" ? " is-selected" : ""}`}
               onClick={() => switchProfile("marca")}
             >
-              <span className="auth-profile-icon" aria-hidden />
               <strong className="auth-profile-name">Marca</strong>
-              <span className="auth-profile-desc">
-                Publicá eventos cuando te aceptemos.
-              </span>
             </button>
           </div>
         </div>
