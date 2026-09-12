@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
         "/after-auth",
         "/completar-perfil",
         "/completar-telefono",
+        "/aceptar-terminos",
         "/crear-contrasena",
         "/pendiente",
         "/rechazado",

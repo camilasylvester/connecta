@@ -5,6 +5,7 @@ import {
 } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import { destinationForProfile } from "@/lib/roles";
+import { profileHasAcceptedTerms } from "@/lib/terms";
 
 function isNextRedirect(err: unknown): boolean {
   return (
@@ -55,6 +56,15 @@ export default async function AfterAuthGoPage({
     }
     const qs = params.toString();
     redirect(`/completar-telefono${qs ? `?${qs}` : ""}`);
+  }
+
+  if (!profileHasAcceptedTerms(profile)) {
+    const params = new URLSearchParams();
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      params.set("next", next);
+    }
+    const qs = params.toString();
+    redirect(`/aceptar-terminos${qs ? `?${qs}` : ""}`);
   }
 
   const safeNext =

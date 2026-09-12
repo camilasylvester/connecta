@@ -117,15 +117,15 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 ### T-05 · Aceptar Términos y Condiciones en el registro — `M`
 
-**Hoy:** las páginas legales existen (`/terminos`, `/privacidad`) y están en el footer, pero **en ningún momento se le pide al usuario que las acepte**.
+**Hoy (cerrado en código):** checkbox obligatorio en registro creador (revisión) y marca; se guarda `terms_accepted_at` + `terms_version` (`v1`). Cuentas viejas sin aceptación van a `/aceptar-terminos`. Admin ve la aceptación en la ficha del usuario.
 
-**Hacer:** checkbox obligatorio en el registro (creador y marca), con link que abra los términos en una pestaña nueva. Guardar en la base **cuándo** aceptó y **qué versión** — sin eso, el checkbox no sirve como prueba.
+**Pedido original:** checkbox obligatorio en el registro (creador y marca), con link que abra los términos en una pestaña nueva. Guardar en la base **cuándo** aceptó y **qué versión**.
 
-**Requiere migración:** `0009_terms_accepted.sql` → `terms_accepted_at`, `terms_version`.
+**Requiere migración:** `0009_terms_accepted.sql` → `terms_accepted_at`, `terms_version`. **Hay que correrla en Neon** antes de que producción use el deploy.
 
 **Es urgente por obligación legal**, no por producto: hoy se están procesando datos personales (teléfono, email, redes) sin consentimiento registrado.
 
-**Hecho:** ⬜
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — pendiente hash. Un checkbox Términos+Privacidad; versión `v1`; gate `/aceptar-terminos`.
 
 ---
 

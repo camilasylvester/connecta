@@ -10,6 +10,8 @@ import { LoginClerkSignIn } from "@/components/LoginClerkSignIn";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
 import { persistAuthNext } from "@/lib/clerk-auth";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
+import { TERMS_VERSION } from "@/lib/terms";
+import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 
 type AuthMode = "login" | "signup";
 type AuthProfile = "creador" | "marca";
@@ -49,6 +51,7 @@ export function AuthEntry() {
   const [credentialsEmail, setCredentialsEmail] = useState<string | null>(null);
   const [emailLogin, setEmailLogin] = useState(false);
   const [brandSignup, setBrandSignup] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     persistAuthNext(next);
@@ -122,6 +125,10 @@ export function AuthEntry() {
       }
       if (!email.trim() || !email.includes("@")) {
         setError("Escribí un email válido.");
+        return;
+      }
+      if (!termsAccepted) {
+        setError("Tenés que aceptar los Términos y la Política de privacidad.");
         return;
       }
       setBrandSignup(true);
@@ -223,7 +230,11 @@ export function AuthEntry() {
           role="brand"
           next={next}
           initialEmail={email}
-          extraMetadata={{ brand_name: brandName.trim() }}
+          extraMetadata={{
+            brand_name: brandName.trim(),
+            terms_accepted: "true",
+            terms_version: TERMS_VERSION,
+          }}
         />
       </AuthFrame>
     );
@@ -329,6 +340,15 @@ export function AuthEntry() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="hola@tumarca.com"
               autoComplete="email"
+            />
+          </div>
+        ) : null}
+
+        {mode === "signup" && profile === "marca" ? (
+          <div className="auth-field">
+            <TermsAcceptCheckbox
+              checked={termsAccepted}
+              onChange={setTermsAccepted}
             />
           </div>
         ) : null}

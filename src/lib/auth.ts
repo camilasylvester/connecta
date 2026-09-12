@@ -110,11 +110,26 @@ export async function ensureProfile(): Promise<Profile | null> {
       return demoted;
     }
 
-    // Keep email in sync
-    if (email && existing[0].email !== email) {
+    const meta = user.unsafeMetadata || {};
+    const termsAccepted =
+      meta.terms_accepted === "true" || meta.terms_accepted === true;
+    const { TERMS_VERSION } = await import("@/lib/terms");
+    const termsVersion =
+      typeof meta.terms_version === "string" && meta.terms_version.trim()
+        ? meta.terms_version.trim()
+        : TERMS_VERSION;
+
+    const patch: Partial<typeof profiles.$inferInsert> = {};
+    if (email && existing[0].email !== email) patch.email = email;
+    if (!existing[0].termsAcceptedAt && termsAccepted) {
+      patch.termsAcceptedAt = new Date();
+      patch.termsVersion = termsVersion;
+    }
+
+    if (Object.keys(patch).length > 0) {
       const [synced] = await db
         .update(profiles)
-        .set({ email, updatedAt: new Date() })
+        .set({ ...patch, updatedAt: new Date() })
         .where(eq(profiles.id, userId))
         .returning();
       return synced;
@@ -128,6 +143,7 @@ export async function ensureProfile(): Promise<Profile | null> {
   const brandName =
     typeof meta.brand_name === "string" ? meta.brand_name : null;
   const { normalizeInstagramHandle } = await import("@/lib/instagram");
+  const { TERMS_VERSION } = await import("@/lib/terms");
   const handle =
     typeof meta.handle === "string"
       ? normalizeInstagramHandle(meta.handle)
@@ -142,6 +158,13 @@ export async function ensureProfile(): Promise<Profile | null> {
         email?.split("@")[0] ||
         "Usuario";
 
+  const termsAccepted =
+    meta.terms_accepted === "true" || meta.terms_accepted === true;
+  const termsVersion =
+    typeof meta.terms_version === "string" && meta.terms_version.trim()
+      ? meta.terms_version.trim()
+      : TERMS_VERSION;
+
   const [created] = await db
     .insert(profiles)
     .values({
@@ -152,6 +175,12 @@ export async function ensureProfile(): Promise<Profile | null> {
       displayName,
       handle,
       brandName: role === "brand" ? brandName || displayName : null,
+      ...(termsAccepted
+        ? {
+            termsAcceptedAt: new Date(),
+            termsVersion,
+          }
+        : {}),
     })
     .onConflictDoNothing({ target: profiles.id })
     .returning();
@@ -163,7 +192,23 @@ export async function ensureProfile(): Promise<Profile | null> {
     .from(profiles)
     .where(eq(profiles.id, userId))
     .limit(1);
-  return again[0] || null;
+
+  // Backfill terms from Clerk metadata if the profile was created without them.
+  const row = again[0];
+  if (row && !row.termsAcceptedAt && termsAccepted) {
+    const [updated] = await db
+      .update(profiles)
+      .set({
+        termsAcceptedAt: new Date(),
+        termsVersion,
+        updatedAt: new Date(),
+      })
+      .where(eq(profiles.id, userId))
+      .returning();
+    return updated || row;
+  }
+
+  return row || null;
 }
 
 export async function requireProfile(): Promise<Profile> {

@@ -14,6 +14,7 @@ import {
   validateOnboarding,
 } from "@/lib/onboarding";
 import { normalizeInstagramHandle } from "@/lib/instagram";
+import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 
 const field =
   "w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none focus:border-purple";
@@ -84,6 +85,7 @@ export function OnboardingForm({
   initial,
   lockRole = false,
   requirePhone = true,
+  requireTermsAcceptance = false,
   submitLabel = "Continuar al registro",
   variant = "dark",
   onComplete,
@@ -93,6 +95,8 @@ export function OnboardingForm({
   lockRole?: boolean;
   /** Nuevos registros: true. Edición de perfiles existentes: false. */
   requirePhone?: boolean;
+  /** Primera ficha / completar perfil: true. Edición: false. */
+  requireTermsAcceptance?: boolean;
   submitLabel?: string;
   variant?: "dark" | "light";
   onComplete: (data: OnboardingPayload) => void | Promise<void>;
@@ -104,6 +108,7 @@ export function OnboardingForm({
   const [saving, setSaving] = useState(false);
   // Profile edit: themes start as read-only summary; signup stays interactive
   const [editingThemes, setEditingThemes] = useState(!lockRole);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const light = variant === "light";
   const fieldCls = light
@@ -144,6 +149,10 @@ export function OnboardingForm({
     const result = validateOnboarding(normalized, { requirePhone });
     if (!result.ok) {
       setError(result.error);
+      return;
+    }
+    if (requireTermsAcceptance && !termsAccepted) {
+      setError("Tenés que aceptar los Términos y la Política de privacidad.");
       return;
     }
     setError(null);
@@ -565,6 +574,16 @@ export function OnboardingForm({
           </div>
         </section>
       )}
+
+      {requireTermsAcceptance ? (
+        <TermsAcceptCheckbox
+          checked={termsAccepted}
+          onChange={setTermsAccepted}
+          className={
+            light ? "text-[rgba(10,10,10,0.72)]" : "text-muted-dark"
+          }
+        />
+      ) : null}
 
       {error ? (
         <p className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">

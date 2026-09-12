@@ -19,6 +19,9 @@ import {
 import { persistAuthNext } from "@/lib/clerk-auth";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
+import { TERMS_VERSION } from "@/lib/terms";
+import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
+import { syncTermsAcceptance } from "@/app/after-auth/actions";
 
 const STEPS = [
   { label: "Datos básicos" },
@@ -93,6 +96,7 @@ export function RegistroCreadorV3Form({
   const [error, setError] = useState<string | null>(null);
   const [catSearch, setCatSearch] = useState("");
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     persistAuthNext(next);
@@ -144,6 +148,13 @@ export function RegistroCreadorV3Form({
       if (!ok) setError("Elegí al menos un subnicho para continuar.");
       return ok;
     }
+    if (current === 5) {
+      if (!termsAccepted) {
+        setError("Tenés que aceptar los Términos y la Política de privacidad.");
+        return false;
+      }
+      return true;
+    }
     return true;
   }
 
@@ -156,9 +167,17 @@ export function RegistroCreadorV3Form({
       return;
     }
     if (step === 5) {
+      if (!validate(5)) return;
       saveCreatorDraft(profile);
       if (variant === "profile") {
-        void onComplete?.(profile);
+        void (async () => {
+          const termsRes = await syncTermsAcceptance();
+          if (!termsRes.ok) {
+            setError(termsRes.error || "No se pudo guardar la aceptación.");
+            return;
+          }
+          void onComplete?.(profile);
+        })();
         return;
       }
       setStep(6);
@@ -566,6 +585,12 @@ export function RegistroCreadorV3Form({
                     <div className="registro-review-empty">Sin cargar</div>
                   )}
                 </div>
+                <div className="registro-review-section">
+                  <TermsAcceptCheckbox
+                    checked={termsAccepted}
+                    onChange={setTermsAccepted}
+                  />
+                </div>
               </>
             ) : null}
 
@@ -584,6 +609,8 @@ export function RegistroCreadorV3Form({
                         normalizeInstagramHandle(profile.instagram) ||
                         profile.instagram.trim(),
                       display_name: profile.nombre.trim(),
+                      terms_accepted: "true",
+                      terms_version: TERMS_VERSION,
                     }}
                   />
                 </div>

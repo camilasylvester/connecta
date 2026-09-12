@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** en el registro (creador y marca) hay que aceptar Términos + Privacidad con un solo checkbox (tarea **T-05**). Guardamos en la base `terms_accepted_at` y `terms_version` (`v1`). Quien ya tenía cuenta y nunca aceptó queda bloqueado en `/aceptar-terminos` hasta hacerlo. En admin se ve si aceptó y con qué versión.
+
+**Por qué:** obligación legal — se procesaban datos personales sin consentimiento registrado.
+
+**Dónde:** `drizzle/0009_terms_accepted.sql`, `src/db/schema.ts`, `src/lib/terms.ts`, `src/lib/auth.ts`, `src/lib/account-gate.ts`, `src/components/TermsAcceptCheckbox.tsx`, `src/components/AceptarTerminosForm.tsx`, `src/app/aceptar-terminos/`, registro creador/marca, completar perfil marca, admin usuario.
+
+**Cómo probarlo:** (1) Correr en Neon el SQL de `drizzle/0009_terms_accepted.sql`. (2) Registro marca/creador: sin checkbox no avanza; con checkbox se crea la cuenta y el perfil tiene fecha/versión. (3) Usuario viejo sin términos → `/aceptar-terminos`. (4) Admin → ficha usuario muestra la aceptación.
+
+**Riesgo / qué mirar:** **alto si no corre la migración** — el deploy falla o tira error al leer columnas nuevas. Después de migrar, riesgo medio: cuentas existentes quedan bloqueadas hasta aceptar (intencional).
+
+---
+
 ## 2026-09-12 — `0664b40` — Camila Sylvester
 
 **Qué cambié:** el celular pasó a ser **bloqueo al entrar** (tarea **T-13**, decisión b): si un creador o marca ya tiene la ficha pero no tiene celular argentino válido, lo mandamos a `/completar-telefono` y no puede usar la app hasta cargarlo. También quedó obligatorio al editar el perfil. Esto **reemplaza** la versión anterior donde las cuentas viejas podían seguir sin teléfono.

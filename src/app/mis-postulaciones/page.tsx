@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { getDb } from "@/db";
 import { applications, events } from "@/db/schema";
-import { redirectIfNotApproved, redirectIfPasswordMissing, redirectIfPhoneMissing } from "@/lib/account-gate";
+import { redirectIfNotApproved, redirectIfPasswordMissing, redirectIfPhoneMissing, redirectIfTermsMissing } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import { destinationForProfile } from "@/lib/roles";
 
@@ -13,6 +13,7 @@ export default async function MisPostulacionesPage() {
   const profile = await ensureProfile();
   if (!profile) redirect("/login?role=creator");
   redirectIfPhoneMissing(profile);
+  redirectIfTermsMissing(profile);
   if (!profile.onboardingCompleted || profile.accountStatus === "rejected") {
     redirectIfNotApproved(profile);
   }

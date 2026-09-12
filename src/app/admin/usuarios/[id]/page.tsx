@@ -171,6 +171,14 @@ export default async function AdminUserDetailPage({
           <Row label="Edad" value={u.age != null ? String(u.age) : null} />
           <Row label="Teléfono" value={u.phone} />
           <Row label="Email de contacto" value={u.email} />
+          <Row
+            label="Términos aceptados"
+            value={
+              u.termsAcceptedAt
+                ? `${u.termsVersion || "—"} · ${u.termsAcceptedAt.toLocaleString("es-AR")}`
+                : "No"
+            }
+          />
           <Row label="Perfil" value={roleLabel(u.role)} />
           <Row label="Estado de cuenta" value={statusLabel} />
         </Section>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AuthFrame } from "@/components/AuthFrame";
 import { OnboardingForm } from "@/components/OnboardingForm";
 import { RegistroCreadorV3Form } from "@/components/RegistroCreadorV3Form";
-import { syncOnboarding } from "@/app/after-auth/actions";
+import { syncOnboarding, syncTermsAcceptance } from "@/app/after-auth/actions";
 import {
   clearCreatorDraft,
   loadCreatorDraft,
@@ -76,6 +76,11 @@ export function CompletarPerfilForm({
   function onComplete(data: OnboardingPayload) {
     setError(null);
     startTransition(async () => {
+      const termsRes = await syncTermsAcceptance();
+      if (!termsRes.ok) {
+        setError(termsRes.error || "No se pudo guardar la aceptación.");
+        return;
+      }
       const res = await syncOnboarding(data);
       if (!res.ok) {
         setError(res.error || "No se pudo guardar el perfil.");
@@ -147,6 +152,7 @@ export function CompletarPerfilForm({
         initialRole={initialRole}
         initial={initial}
         lockRole
+        requireTermsAcceptance
         submitLabel="Enviar solicitud"
         onComplete={onComplete}
       />

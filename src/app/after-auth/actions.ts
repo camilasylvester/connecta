@@ -108,3 +108,34 @@ export async function syncPhone(rawPhone: string) {
 
   return { ok: true as const };
 }
+
+/** Aceptación de Términos + Privacidad (versión vigente). */
+export async function syncTermsAcceptance() {
+  const userId = await requireUserId();
+  await ensureProfile();
+  const { TERMS_VERSION } = await import("@/lib/terms");
+  const db = getDb();
+
+  const existing = await db
+    .select({
+      termsAcceptedAt: profiles.termsAcceptedAt,
+    })
+    .from(profiles)
+    .where(eq(profiles.id, userId))
+    .limit(1);
+
+  if (!existing[0]) return { ok: false as const, error: "Perfil no encontrado" };
+
+  if (!existing[0].termsAcceptedAt) {
+    await db
+      .update(profiles)
+      .set({
+        termsAcceptedAt: new Date(),
+        termsVersion: TERMS_VERSION,
+        updatedAt: new Date(),
+      })
+      .where(eq(profiles.id, userId));
+  }
+
+  return { ok: true as const };
+}
