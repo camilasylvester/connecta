@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `9f2c81a` — Camila Sylvester
+
+**Qué cambié:** en `/eventos` mobile, **Ingresar** (y Crear cuenta) quedaron fijos en la barra de arriba; ya no van adentro del menú desplegable (tarea **T-01**). El menú solo deja los links de navegación. Si hay sesión, Cerrar sesión también se ve en la barra.
+
+**Por qué:** en mobile el login estaba escondido en el desplegable y en desktop ya se veía bien. Pedido de producto para que se pueda entrar sin abrir el Menú.
+
+**Dónde:** `src/app/eventos/page.tsx`, `src/app/eventos/eventos-feed.css`.
+
+**Cómo probarlo:** abrir `/eventos` con viewport ≤860px, sin sesión: tienen que verse Ingresar y Crear cuenta en la barra, y el Menú sin esos links. Con sesión: Cerrar sesión en la barra; Mis postulaciones / perfil en el Menú.
+
+**Riesgo / qué mirar:** bajo. Solo layout del header del feed; desktop no cambia la lógica.
+
+---
+
 ## 2026-09-12 — `570a7fc` — Camila Sylvester
 
 **Qué cambié:** rediseñé el inicio de sesión / crear cuenta **solo en mobile** (tarea **T-34**): logo Connecta grande que vuelve al inicio, sin botón “Volver a la landing”, primero el toggle Creador/Marca y después Iniciar sesión/Crear cuenta. La estética sigue el manual de marca (fondo de la landing, Inter, morado). Desktop no se tocó.

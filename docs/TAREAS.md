@@ -79,17 +79,15 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Hecho:** ✅ 2026-09-12 — Camila Sylvester — `b5e8a4c`. Se desmontó `IdleSessionGuard` del layout (no se subió el timeout: se sacó el cierre por inactividad en cliente). Pendiente revisar Inactivity timeout / Session lifetime en Clerk Dashboard.
 
-**Hoy:** en mobile el "Ingresar" está adentro de un `<details className="feed-mobile-menu">`, o sea escondido en el desplegable (`src/app/eventos/page.tsx:183-199`). En desktop sí está a la vista.
+### T-01 · Login visible en mobile — `XS`
+
+**Hoy:** en mobile el "Ingresar" está adentro de un `<details className="feed-mobile-menu">`, o sea escondido en el desplegable (`src/app/eventos/page.tsx`). En desktop sí está a la vista.
 
 **Hacer:** sacar el botón de sesión del desplegable y dejarlo fijo en la barra de navegación en mobile.
 
 **Archivos:** `src/app/eventos/page.tsx`, `src/app/eventos/eventos-feed.css`.
 
-**Hecho:** ⬜
-
----
-
-### T-26 · Corregir el scroll en publicaciones — `S`
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `9f2c81a`. Ingresar y Crear cuenta quedan fijos en la barra en mobile; el menú solo tiene los links de la página (Eventos / Cómo postularte). Si hay sesión, Cerrar sesión también queda en la barra.
 
 **Hoy:** reportado como "problemas de scrolleo durante la carga/visualización de publicaciones". Lo más probable es el modal de `CreatorFeed.tsx:131` (`max-h-[85vh] overflow-auto`), que se queda con el scroll o no bloquea el del fondo.
 
