@@ -31,7 +31,7 @@ Antes de estimar, revisé el código. Lo que encontré:
 
 **Las tres causas concretas de los problemas reportados:**
 
-1. **La sesión se cierra sola** → `src/components/IdleSessionGuard.tsx` tiene `IDLE_TIMEOUT_MINUTES = 30`. Es una función puesta a propósito, no un bug. Se arregla cambiando una constante.
+1. **La sesión se cierra sola** → ~~`IdleSessionGuard` a 30 min~~ **Resuelto 2026-09-12** (`b5e8a4c`): el guard se desmontó. Queda revisar timeouts en Clerk Dashboard.
 2. **Las imágenes de eventos aparecen enmarcadas** → `eventos-feed.css:365` fuerza `aspect-ratio: 4/5` con `object-fit: contain`. De ahí los bordes.
 3. **El mail de bienvenida no llega** → `src/lib/welcome-email.ts` es un stub vacío con un `TODO`. Nunca se conectó un proveedor de mail.
 
@@ -77,11 +77,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Ojo:** el guard lo agregó alguien por algún motivo. Si fue por seguridad (sesiones abiertas en compus compartidas), esa decisión no la tomo yo solo. Lo pregunto antes de tocarlo.
 
-**Hecho:** ⬜
-
----
-
-### T-01 · Inicio de sesión visible en mobile — `S`
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `b5e8a4c`. Se desmontó `IdleSessionGuard` del layout (no se subió el timeout: se sacó el cierre por inactividad en cliente). Pendiente revisar Inactivity timeout / Session lifetime en Clerk Dashboard.
 
 **Hoy:** en mobile el "Ingresar" está adentro de un `<details className="feed-mobile-menu">`, o sea escondido en el desplegable (`src/app/eventos/page.tsx:183-199`). En desktop sí está a la vista.
 

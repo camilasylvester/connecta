@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `b5e8a4c` — Camila Sylvester
+
+**Qué cambié:** saqué el cierre automático de sesión por inactividad (tarea **T-02**). `IdleSessionGuard` ya no se monta en el layout; el archivo queda por si hay que reactivarlo. La sesión no se cierra sola a los 30 minutos con la pestaña abierta.
+
+**Por qué:** pedido de producto: mantener la sesión iniciada. Amadeo había diagnosticado en TAREAS que el timeout de 30 min era a propósito (seguridad), no un bug de Clerk. Se decidió desactivarlo.
+
+**Dónde:** `src/app/layout.tsx`, `src/components/IdleSessionGuard.tsx`, `ENTENDER_PROYECTO.md`.
+
+**Cómo probarlo:** iniciar sesión, dejar la pestaña abierta más de 30 minutos sin tocar nada, volver: tiene que seguir logueada. (Revisar también Clerk Dashboard → Sessions: inactivity / lifetime, que es aparte.)
+
+**Riesgo / qué mirar:** bajo en código. En PCs compartidas la sesión puede quedar abierta más tiempo; si hace falta política de seguridad, se reactiva el guard o se configura en Clerk.
+
+---
+
 ## 2026-09-09 — `f5ab301` — Amadeo
 
 **Qué cambié:** escribí [TAREAS.md](TAREAS.md) con las 33 tareas del pedido de correcciones y mejoras, priorizadas y estimadas. Armé el mismo contenido en un Excel para pasarlo afuera del repo.
