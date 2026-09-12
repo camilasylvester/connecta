@@ -52,7 +52,7 @@ Reglas de la entrada:
 
 **Cómo probarlo:** (1) Correr en Neon el SQL de `drizzle/0009_terms_accepted.sql`. (2) Registro marca/creador: sin checkbox no avanza; con checkbox se crea la cuenta y el perfil tiene fecha/versión. (3) Usuario viejo sin términos → `/aceptar-terminos`. (4) Admin → ficha usuario muestra la aceptación.
 
-**Riesgo / qué mirar:** **alto si no corre la migración** — el deploy falla o tira error al leer columnas nuevas. Después de migrar, riesgo medio: cuentas existentes quedan bloqueadas hasta aceptar (intencional).
+**Riesgo / qué mirar:** migración `0009` ya corrida en Neon. Cuentas existentes quedan bloqueadas hasta aceptar (intencional).
 
 ---
 
