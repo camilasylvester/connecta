@@ -20,6 +20,7 @@ import {
 } from "@/lib/onboarding";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
 import { uploadConnectaImage } from "@/lib/blob-upload";
+import { formatArMobileDisplay, whatsappUrl } from "@/lib/phone";
 import { platformLabel, tiktokProfileUrl } from "@/lib/posts";
 import type { CreatorPost, PostPlatform } from "@/db/schema";
 
@@ -143,6 +144,7 @@ export function CreatorSocialProfile({
       : "");
   const igLink = instagramUrl(handle);
   const ttLink = tiktokProfileUrl(data.tiktok);
+  const waLink = whatsappUrl(data.phone);
   const igFollowers =
     Number(String(data.followers || "").replace(/\D/g, "")) || 0;
   const ttFollowers =
@@ -239,7 +241,7 @@ export function CreatorSocialProfile({
       fullName: data.fullName.trim(),
       contactEmail: data.contactEmail.trim().toLowerCase(),
     };
-    const result = validateOnboarding(normalized);
+    const result = validateOnboarding(normalized, { requirePhone: false });
     if (!result.ok) {
       setError(result.error);
       return;
@@ -416,6 +418,16 @@ export function CreatorSocialProfile({
                 className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-muted-dark hover:border-purple-2 hover:text-white"
               >
                 TikTok
+              </a>
+            ) : null}
+            {waLink ? (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-muted-dark hover:border-purple-2 hover:text-white"
+              >
+                WhatsApp
               </a>
             ) : null}
           </div>
@@ -609,12 +621,23 @@ export function CreatorSocialProfile({
                   />
                 </label>
                 <label className="block">
-                  <span className={labelCls}>Teléfono</span>
+                  <span className={labelCls}>Celular (WhatsApp)</span>
                   <input
                     className={field}
+                    type="tel"
+                    inputMode="tel"
                     value={data.phone}
                     onChange={(e) => set("phone", e.target.value)}
+                    placeholder="+54 9 11 1234-5678"
+                    autoComplete="tel"
                   />
+                  <p className="mt-1 text-xs text-muted-dark">
+                    Opcional. Si lo cargás, las marcas pueden escribirte por WhatsApp
+                    {data.phone && waLink
+                      ? ` · ${formatArMobileDisplay(data.phone)}`
+                      : ""}
+                    .
+                  </p>
                 </label>
               </div>
               <label className="block">

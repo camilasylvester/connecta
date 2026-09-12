@@ -47,6 +47,7 @@ export function ProfileEditClient({
       <OnboardingForm
         initial={initial}
         lockRole
+        requirePhone={false}
         variant={variant}
         submitLabel="Guardar cambios"
         onComplete={async (data) => {

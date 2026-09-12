@@ -307,10 +307,11 @@ async function applyProfilePayload(
     role: formRole,
   };
 
-  const check = validateOnboarding(effective);
+  const check = validateOnboarding(effective, { requirePhone: false });
   if (!check.ok) throw new Error(check.error);
 
   const { normalizeInstagramHandle } = await import("@/lib/instagram");
+  const { formatArMobileDisplay } = await import("@/lib/phone");
   const handle = normalizeInstagramHandle(effective.instagram);
   const ageNum = effective.age ? Number(effective.age) : null;
   const igFollowers = Number(String(effective.followers || "").replace(/\D/g, ""));
@@ -331,7 +332,9 @@ async function applyProfilePayload(
           ? effective.companyLocation.trim() || effective.province || null
           : effective.province || null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
-      phone: effective.phone.trim() || null,
+      phone: effective.phone.trim()
+        ? formatArMobileDisplay(effective.phone) || effective.phone.trim()
+        : null,
       email: effective.contactEmail.trim().toLowerCase() || target.email,
       brandName:
         formRole === "brand"

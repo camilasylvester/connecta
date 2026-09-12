@@ -10,6 +10,7 @@ import {
   validateOnboarding,
 } from "@/lib/onboarding";
 import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
+import { formatArMobileDisplay } from "@/lib/phone";
 
 /** Save full onboarding questionnaire into the profile. */
 export async function syncOnboarding(raw: OnboardingPayload) {
@@ -48,7 +49,9 @@ export async function syncOnboarding(raw: OnboardingPayload) {
           ? raw.companyLocation.trim() || raw.province || null
           : raw.province || null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
-      phone: raw.phone.trim() || null,
+      phone: raw.phone.trim()
+        ? formatArMobileDisplay(raw.phone) || raw.phone.trim()
+        : null,
       email: raw.contactEmail.trim().toLowerCase() || existing[0].email,
       followers:
         Number(String(raw.followers || "").replace(/\D/g, "")) || 0,

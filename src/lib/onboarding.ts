@@ -1,3 +1,5 @@
+import { arMobileValidationError } from "@/lib/phone";
+
 export const PROVINCES = [
   "Buenos Aires",
   "CABA",
@@ -182,8 +184,11 @@ export function emptyOnboarding(
 }
 
 export function validateOnboarding(
-  data: OnboardingPayload
+  data: OnboardingPayload,
+  options?: { requirePhone?: boolean }
 ): { ok: true } | { ok: false; error: string } {
+  const requirePhone = options?.requirePhone !== false;
+
   if (!data.fullName.trim()) return { ok: false, error: "Nombre y apellido es obligatorio" };
   if (!data.instagram.trim()) return { ok: false, error: "Usuario de Instagram es obligatorio" };
   if (!data.province) return { ok: false, error: "Provincia es obligatoria" };
@@ -195,6 +200,14 @@ export function validateOnboarding(
   }
   if (data.role !== "brand" && data.role !== "creator") {
     return { ok: false, error: "Elegí un perfil" };
+  }
+
+  if (requirePhone) {
+    const phoneErr = arMobileValidationError(data.phone);
+    if (phoneErr) return { ok: false, error: phoneErr };
+  } else if (data.phone.trim()) {
+    const phoneErr = arMobileValidationError(data.phone);
+    if (phoneErr) return { ok: false, error: phoneErr };
   }
 
   if (data.role === "brand") {

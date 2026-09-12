@@ -7,6 +7,7 @@ import { applications, creatorPosts, profiles } from "@/db/schema";
 import { ensureProfile } from "@/lib/auth";
 import { hydrateCreatorMeta } from "@/lib/creator-search";
 import { instagramUrl } from "@/lib/instagram";
+import { whatsappUrl } from "@/lib/phone";
 import { tiktokProfileUrl } from "@/lib/posts";
 import { avatarColor, initialsFromName } from "@/app/dashboard/brand-helpers";
 
@@ -52,6 +53,7 @@ export default async function CreatorPublicPage({
   const display = u.displayName || handle;
   const ig = instagramUrl(u.handle);
   const tt = tiktokProfileUrl(u.tiktokHandle);
+  const wa = whatsappUrl(u.phone);
   const color = avatarColor(u.id);
   const initials = initialsFromName(display);
   const themes =
@@ -135,6 +137,16 @@ export default async function CreatorPublicPage({
                   className="btn btn-sm btn-outline"
                 >
                   TikTok →
+                </a>
+              ) : null}
+              {wa ? (
+                <a
+                  href={wa}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-outline"
+                >
+                  WhatsApp →
                 </a>
               ) : null}
             </div>

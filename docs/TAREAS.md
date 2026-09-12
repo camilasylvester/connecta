@@ -111,7 +111,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Depende de:** conviene hacerla junto con T-12 (reordenar el onboarding), es el mismo formulario.
 
-**Hecho:** ⬜
+**Hecho:** ✅
 
 ---
 
@@ -157,7 +157,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Hacer:** pasar a Datos básicos → Redes sociales → Sobre vos → Categorías → Revisión. Implica partir el paso "Sobre vos" actual en dos y subir "Tus redes".
 
-**Hecho:** ⬜
+**Hecho:** ✅
 
 ---
 

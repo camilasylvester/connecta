@@ -44,6 +44,7 @@ export function CompletarPerfilForm({
       ...draft,
       instagram: draft.instagram || initial.instagram,
       nombre: draft.nombre || initial.fullName,
+      phone: draft.phone || initial.phone,
     };
 
     startTransition(async () => {
@@ -118,6 +119,7 @@ export function CompletarPerfilForm({
                 ...draft,
                 instagram: draft.instagram || initial.instagram,
                 nombre: draft.nombre || initial.fullName,
+                phone: draft.phone || initial.phone,
               };
               const res = await syncOnboarding(v3DraftToOnboarding(merged));
               if (!res.ok) {

@@ -199,6 +199,7 @@ export const CATEGORY_TREE: Record<string, string[]> = {
 
 export type CreatorRegistroV3Draft = {
   nombre: string;
+  phone: string;
   ubicacion: string | null;
   genero: string | null;
   idiomas: string[];
@@ -212,6 +213,7 @@ export const CREATOR_DRAFT_STORAGE_KEY = "connecta-creator-draft";
 export function emptyCreatorDraft(instagram = ""): CreatorRegistroV3Draft {
   return {
     nombre: "",
+    phone: "",
     ubicacion: null,
     genero: null,
     idiomas: [],
@@ -252,7 +254,7 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
     tiktok: "",
     province,
     age: "",
-    phone: "",
+    phone: draft.phone.trim(),
     contactEmail: "",
     role: "creator",
     brandName: "",
@@ -335,6 +337,7 @@ export function profileToCreatorDraft(data: OnboardingPayload): CreatorRegistroV
   const meta = payloadToCreatorMeta(data);
   return {
     nombre: data.fullName,
+    phone: data.phone || "",
     instagram: data.instagram,
     ubicacion: meta.ubicacion,
     genero: meta.genero,
@@ -394,6 +397,7 @@ export function loadCreatorDraft(): CreatorRegistroV3Draft | null {
     return {
       ...emptyCreatorDraft(instagram),
       nombre: typeof parsed.nombre === "string" ? parsed.nombre : "",
+      phone: typeof parsed.phone === "string" ? parsed.phone : "",
       ubicacion: parsed.ubicacion || null,
       genero: parsed.genero || null,
       idiomas: Array.isArray(parsed.idiomas) ? parsed.idiomas : [],

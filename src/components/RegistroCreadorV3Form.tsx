@@ -18,11 +18,13 @@ import {
 } from "@/lib/creator-registro-v3";
 import { persistAuthNext } from "@/lib/clerk-auth";
 import { normalizeInstagramHandle } from "@/lib/instagram";
+import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
 
 const STEPS = [
+  { label: "Datos básicos" },
+  { label: "Redes" },
   { label: "Sobre vos" },
   { label: "Categorías" },
-  { label: "Tus redes" },
   { label: "Revisión" },
 ] as const;
 
@@ -107,31 +109,39 @@ export function RegistroCreadorV3Form({
 
   function validate(current: number): boolean {
     if (current === 1) {
+      const phoneErr = arMobileValidationError(profile.phone);
       const ok =
         profile.nombre.trim().length > 0 &&
         Boolean(
           normalizeInstagramHandle(profile.instagram) ||
             profile.instagram.trim()
         ) &&
-        !!profile.ubicacion &&
-        !!profile.genero &&
-        profile.idiomas.length > 0;
-      if (!ok)
+        !phoneErr &&
+        !!profile.ubicacion;
+      if (!ok) {
         setError(
-          "Completá tu nombre, Instagram, ubicación, género e idioma antes de continuar."
+          phoneErr ||
+            "Completá tu nombre, Instagram, teléfono y ubicación antes de continuar."
         );
+      }
       return ok;
     }
     if (current === 2) {
-      const ok = profile.categoriaSet.length > 0;
-      if (!ok) setError("Elegí al menos un subnicho para continuar.");
-      return ok;
-    }
-    if (current === 3) {
       const ok =
         Object.keys(profile.redes).length > 0 &&
         Object.values(profile.redes).some((v) => v > 0);
       if (!ok) setError("Activá al menos una red y cargá tus seguidores.");
+      return ok;
+    }
+    if (current === 3) {
+      const ok = !!profile.genero && profile.idiomas.length > 0;
+      if (!ok)
+        setError("Elegí género e al menos un idioma antes de continuar.");
+      return ok;
+    }
+    if (current === 4) {
+      const ok = profile.categoriaSet.length > 0;
+      if (!ok) setError("Elegí al menos un subnicho para continuar.");
       return ok;
     }
     return true;
@@ -139,19 +149,19 @@ export function RegistroCreadorV3Form({
 
   function goNext() {
     setError(null);
-    if (step < 4) {
+    if (step < 5) {
       if (!validate(step)) return;
       setStep(step + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    if (step === 4) {
+    if (step === 5) {
       saveCreatorDraft(profile);
       if (variant === "profile") {
         void onComplete?.(profile);
         return;
       }
-      setStep(5);
+      setStep(6);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
@@ -229,8 +239,8 @@ export function RegistroCreadorV3Form({
           <div className="registro-stepper">
             {STEPS.map((s, i) => {
               const n = i + 1;
-              const visual = Math.min(step, 4);
-              const allDone = step >= 5;
+              const visual = Math.min(step, 5);
+              const allDone = step >= 6;
               const state =
                 allDone || n < visual ? "done" : n === visual ? "active" : "";
               return (
@@ -249,9 +259,9 @@ export function RegistroCreadorV3Form({
           <div className="registro-step-card">
             {step === 1 ? (
               <>
-                <h2 className="registro-step-title">Sobre vos</h2>
+                <h2 className="registro-step-title">Datos básicos</h2>
                 <p className="registro-step-sub">
-                  Estos datos ayudan a las marcas a encontrarte con precisión.
+                  Lo esencial para que las marcas puedan contactarte.
                 </p>
                 <div className="auth-field">
                   <label htmlFor="nombre">Nombre</label>
@@ -277,6 +287,23 @@ export function RegistroCreadorV3Form({
                   />
                 </div>
                 <div className="auth-field">
+                  <label htmlFor="phone">Celular *</label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={profile.phone}
+                    onChange={(e) =>
+                      setProfile((p) => ({ ...p, phone: e.target.value }))
+                    }
+                    placeholder="+54 9 11 1234-5678"
+                    autoComplete="tel"
+                  />
+                  <p className="auth-hint">
+                    Solo celular argentino. Va a aparecer como link a WhatsApp en tu perfil.
+                  </p>
+                </div>
+                <div className="auth-field">
                   <label>Ubicación</label>
                   <div className="registro-chip-row">
                     {UBICACION_OPTIONS.map((u) => (
@@ -290,6 +317,57 @@ export function RegistroCreadorV3Form({
                     ))}
                   </div>
                 </div>
+              </>
+            ) : null}
+
+            {step === 2 ? (
+              <>
+                <h2 className="registro-step-title">Tus redes</h2>
+                <p className="registro-step-sub">
+                  Activá las plataformas donde creás contenido y cargá tu cantidad de seguidores en cada una.
+                </p>
+                {PLATAFORMA_OPTIONS.map((platform) => {
+                  const active = Object.hasOwn(profile.redes, platform);
+                  return (
+                    <div
+                      key={platform}
+                      className={`registro-red-row${active ? " is-active" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        className="registro-red-left"
+                        onClick={() => toggleRed(platform)}
+                      >
+                        <span className="registro-red-check">{active ? "✓" : ""}</span>
+                        <span className="registro-red-name">{platform}</span>
+                      </button>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        className={`registro-red-input${active ? " is-visible" : ""}`}
+                        placeholder="Seguidores"
+                        value={active ? String(profile.redes[platform] || "") : ""}
+                        onChange={(e) => {
+                          const num =
+                            parseInt(e.target.value.replace(/\D/g, ""), 10) || 0;
+                          setProfile((p) => ({
+                            ...p,
+                            redes: { ...p.redes, [platform]: num },
+                          }));
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </>
+            ) : null}
+
+            {step === 3 ? (
+              <>
+                <h2 className="registro-step-title">Sobre vos</h2>
+                <p className="registro-step-sub">
+                  Estos datos ayudan a las marcas a encontrarte con precisión.
+                </p>
                 <div className="auth-field">
                   <label>Género</label>
                   <div className="registro-chip-row">
@@ -328,7 +406,7 @@ export function RegistroCreadorV3Form({
               </>
             ) : null}
 
-            {step === 2 ? (
+            {step === 4 ? (
               <>
                 <h2 className="registro-step-title">Tus categorías</h2>
                 <p className="registro-step-sub">
@@ -411,49 +489,7 @@ export function RegistroCreadorV3Form({
               </>
             ) : null}
 
-            {step === 3 ? (
-              <>
-                <h2 className="registro-step-title">Tus redes</h2>
-                <p className="registro-step-sub">
-                  Activá las plataformas donde creás contenido y cargá tu cantidad de seguidores en cada una.
-                </p>
-                {PLATAFORMA_OPTIONS.map((platform) => {
-                  const active = Object.hasOwn(profile.redes, platform);
-                  return (
-                    <div
-                      key={platform}
-                      className={`registro-red-row${active ? " is-active" : ""}`}
-                    >
-                      <button
-                        type="button"
-                        className="registro-red-left"
-                        onClick={() => toggleRed(platform)}
-                      >
-                        <span className="registro-red-check">{active ? "✓" : ""}</span>
-                        <span className="registro-red-name">{platform}</span>
-                      </button>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        className={`registro-red-input${active ? " is-visible" : ""}`}
-                        placeholder="Seguidores"
-                        value={active ? String(profile.redes[platform] || "") : ""}
-                        onChange={(e) => {
-                          const num =
-                            parseInt(e.target.value.replace(/\D/g, ""), 10) || 0;
-                          setProfile((p) => ({
-                            ...p,
-                            redes: { ...p.redes, [platform]: num },
-                          }));
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </>
-            ) : null}
-
-            {step === 4 ? (
+            {step === 5 ? (
               <>
                 <h2 className="registro-step-title">Revisá tu perfil</h2>
                 <p className="registro-step-sub">
@@ -468,6 +504,14 @@ export function RegistroCreadorV3Form({
                 <div className="registro-review-section">
                   <div className="registro-review-label">Nombre</div>
                   <div className="registro-review-value">{profile.nombre || "—"}</div>
+                </div>
+                <div className="registro-review-section">
+                  <div className="registro-review-label">Celular / WhatsApp</div>
+                  <div className="registro-review-value">
+                    {profile.phone
+                      ? formatArMobileDisplay(profile.phone)
+                      : "—"}
+                  </div>
                 </div>
                 <div className="registro-review-section">
                   <div className="registro-review-label">Ubicación · Género</div>
@@ -525,7 +569,7 @@ export function RegistroCreadorV3Form({
               </>
             ) : null}
 
-            {step === 5 ? (
+            {step === 6 ? (
               <>
                 <h2 className="registro-step-title">Creá tu acceso</h2>
                 <p className="registro-step-sub">
@@ -549,13 +593,13 @@ export function RegistroCreadorV3Form({
             {error ? <p className="auth-error">{error}</p> : null}
           </div>
 
-          {step < 5 ? (
+          {step < 6 ? (
             <div className="registro-step-nav">
               <button type="button" className="auth-alt-btn" onClick={goBack}>
                 {step === 1 ? "Cancelar" : "Atrás"}
               </button>
               <button type="button" className="auth-primary registro-next-btn" onClick={goNext}>
-                {step === 4
+                {step === 5
                   ? variant === "signup"
                     ? "Crear cuenta"
                     : "Enviar solicitud"

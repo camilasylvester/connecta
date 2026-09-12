@@ -83,6 +83,7 @@ export function OnboardingForm({
   initialRole = "creator",
   initial,
   lockRole = false,
+  requirePhone = true,
   submitLabel = "Continuar al registro",
   variant = "dark",
   onComplete,
@@ -90,6 +91,8 @@ export function OnboardingForm({
   initialRole?: OnboardingRole;
   initial?: OnboardingPayload;
   lockRole?: boolean;
+  /** Nuevos registros: true. Edición de perfiles existentes: false. */
+  requirePhone?: boolean;
   submitLabel?: string;
   variant?: "dark" | "light";
   onComplete: (data: OnboardingPayload) => void | Promise<void>;
@@ -138,7 +141,7 @@ export function OnboardingForm({
       fullName: data.fullName.trim(),
       contactEmail: data.contactEmail.trim().toLowerCase(),
     };
-    const result = validateOnboarding(normalized);
+    const result = validateOnboarding(normalized, { requirePhone });
     if (!result.ok) {
       setError(result.error);
       return;
@@ -242,13 +245,25 @@ export function OnboardingForm({
               />
             </label>
             <label className="block">
-              <span className={labelClass}>Número de teléfono</span>
+              <span className={labelClass}>
+                Celular (WhatsApp){requirePhone ? " *" : ""}
+              </span>
               <input
                 className={fieldCls}
+                type="tel"
+                inputMode="tel"
                 value={data.phone}
                 onChange={(e) => set("phone", e.target.value)}
-                placeholder="+54 9 11 …"
+                placeholder="+54 9 11 1234-5678"
+                autoComplete="tel"
+                required={requirePhone}
               />
+              <span className={hintClass}>
+                Solo celular argentino
+                {requirePhone
+                  ? ". Se muestra como link a WhatsApp en el perfil."
+                  : " (opcional). Si lo cargás, se linkea a WhatsApp."}
+              </span>
             </label>
           </div>
 

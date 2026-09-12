@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** teléfono celular argentino obligatorio en registro/onboarding (creadores y marcas), opcional al editar perfiles que ya existen; reordené el onboarding del creador (Datos básicos → Redes → Sobre vos → Categorías → Revisión); en el perfil del creador hay link directo a WhatsApp (`wa.me`) cuando hay número válido (tareas **T-12** + **T-13**).
+
+**Por qué:** hace falta el celular para contactar, y conviene pedir el teléfono junto con el reorder del formulario. Quienes ya están en la plataforma pueden cargarlo sin quedar bloqueados.
+
+**Dónde:** `src/lib/phone.ts`, `src/lib/onboarding.ts`, `src/lib/creator-registro-v3.ts`, `src/components/RegistroCreadorV3Form.tsx`, `src/components/OnboardingForm.tsx`, `src/components/CreatorSocialProfile.tsx`, `src/components/ProfileEditClient.tsx`, `src/components/CompletarPerfilForm.tsx`, `src/app/after-auth/actions.ts`, `src/app/actions.ts`, `src/app/dashboard/creadores/[id]/page.tsx`.
+
+**Cómo probarlo:** (1) registro creador: paso 1 pide celular AR válido y el orden de pasos es el nuevo; (2) onboarding marca: mismo campo obligatorio; (3) editar perfil existente: celular opcional; (4) con teléfono cargado, en perfil social y en `/dashboard/creadores/[id]` aparece “WhatsApp” y abre `wa.me`.
+
+**Riesgo / qué mirar:** bajo. Usuarios viejos sin teléfono pueden seguir editando; altas nuevas sí lo necesitan. Revisar que números con `15` viejo o fijos no pasen (solo móvil 10 dígitos nacionales).
+
+---
+
 ## 2026-09-12 — `0b94740` — Camila Sylvester
 
 **Qué cambié:** unifiqué el login de desktop con el formato acordado (tarea **T-35**): layout de escritorio (aside + formulario), primero Creador/Marca en chips más quietos, después Iniciar sesión/Crear cuenta en pill, solo logo (sin “Volver a la landing”), y el texto de la izquierda ya no salta al cambiar de Creador a Marca.
