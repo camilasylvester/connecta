@@ -664,8 +664,11 @@
     display: block;
   }
 
-  .feed-nav-ctas .feed-btn-outline {
-    display: none;
+  /* T-01: Ingresar / Cerrar sesión quedan fijos en la barra (no solo en el menú). */
+  .feed-nav-ctas .feed-btn {
+    min-height: 36px;
+    padding: 8px 14px;
+    font-size: 12px;
   }
 
   .feed-how-steps {

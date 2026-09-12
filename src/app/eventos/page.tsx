@@ -190,12 +190,7 @@ export default async function EventosPage() {
                     <Link href="/mis-postulaciones">Mis postulaciones</Link>
                     <Link href={profileCta.href}>{profileCta.label}</Link>
                   </>
-                ) : (
-                  <>
-                    <Link href="/login?role=creator&next=%2Feventos">Ingresar</Link>
-                    <Link href="/registro?role=creator&next=%2Feventos">Crear cuenta</Link>
-                  </>
-                )}
+                ) : null}
               </nav>
             </details>
           </div>
