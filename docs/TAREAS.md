@@ -125,7 +125,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Es urgente por obligación legal**, no por producto: hoy se están procesando datos personales (teléfono, email, redes) sin consentimiento registrado.
 
-**Hecho:** ✅ 2026-09-12 — Camila Sylvester — pendiente hash. Un checkbox Términos+Privacidad; versión `v1`; gate `/aceptar-terminos`.
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `f28012a`. Un checkbox Términos+Privacidad; versión `v1`; gate `/aceptar-terminos`.
 
 ---
 

@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-12 — `PENDIENTE` — Camila Sylvester
+## 2026-09-12 — `f28012a` — Camila Sylvester
 
 **Qué cambié:** en el registro (creador y marca) hay que aceptar Términos + Privacidad con un solo checkbox (tarea **T-05**). Guardamos en la base `terms_accepted_at` y `terms_version` (`v1`). Quien ya tenía cuenta y nunca aceptó queda bloqueado en `/aceptar-terminos` hasta hacerlo. En admin se ve si aceptó y con qué versión.
 
