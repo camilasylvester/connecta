@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-12 — `PENDIENTE` — Camila Sylvester
+## 2026-09-12 — `86696df` — Camila Sylvester
 
 **Qué cambié:** teléfono celular argentino obligatorio en registro/onboarding (creadores y marcas), opcional al editar perfiles que ya existen; reordené el onboarding del creador (Datos básicos → Redes → Sobre vos → Categorías → Revisión); en el perfil del creador hay link directo a WhatsApp (`wa.me`) cuando hay número válido (tareas **T-12** + **T-13**).
 
