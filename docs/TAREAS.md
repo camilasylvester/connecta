@@ -371,6 +371,18 @@ El pedido dice "siempre que técnicamente sea posible" — esta es la respuesta 
 
 > Se ve, lo piden, se resuelve rápido — pero no cambia el negocio. Ideal para meter entre tareas grandes o para alguien que recién entra al proyecto.
 
+### T-34 · Login mobile: formato y marca — `S`
+
+**Hoy:** en mobile el login se veía genérico / apretado; el botón “Volver a la landing” competía con el logo; el orden de Creador/Marca vs Iniciar sesión/Crear cuenta no era el pedido.
+
+**Hacer:** solo mobile (≤640px): logo Connecta grande que vuelve al inicio, ocultar “Volver a la landing”, primero Creador/Marca y después Iniciar sesión/Crear cuenta, más aire entre bloques. Estética de marca (fondo landing, Inter, morado). Desktop sin cambios.
+
+**Archivos:** `src/app/auth.css`, `src/components/AuthEntry.tsx`, `src/components/AuthFrame.tsx`, `src/components/Logo.tsx`.
+
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `570a7fc`. Formato mobile con estética de marca; desktop intacto.
+
+---
+
 ### T-11 · Rediseñar el footer — `S`
 
 **Hoy:** `SiteFooter.tsx` ya tiene los cinco links legales, en dos variantes (landing y feed).

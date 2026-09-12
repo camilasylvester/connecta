@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `570a7fc` — Camila Sylvester
+
+**Qué cambié:** rediseñé el inicio de sesión / crear cuenta **solo en mobile** (tarea **T-34**): logo Connecta grande que vuelve al inicio, sin botón “Volver a la landing”, primero el toggle Creador/Marca y después Iniciar sesión/Crear cuenta. La estética sigue el manual de marca (fondo de la landing, Inter, morado). Desktop no se tocó.
+
+**Por qué:** pedido de producto para ordenar el flujo en el celular y alinear la pantalla de auth con la marca, sin copiar la estética del mock de referencia (solo el formato).
+
+**Dónde:** `src/app/auth.css`, `src/components/AuthEntry.tsx`, `src/components/AuthFrame.tsx`, `src/components/Logo.tsx`.
+
+**Cómo probarlo:** abrir `/login` en viewport ≤640px (o el celular). Verificar logo grande → home, orden de toggles, tipografía/colores como la landing. En desktop (≥641px) el layout anterior debe seguir igual.
+
+**Riesgo / qué mirar:** bajo. Solo CSS y orden de controles en mobile; los flujos de Clerk / Instagram no cambian.
+
+---
+
 ## 2026-09-12 — `b5e8a4c` — Camila Sylvester
 
 **Qué cambié:** saqué el cierre automático de sesión por inactividad (tarea **T-02**). `IdleSessionGuard` ya no se monta en el layout; el archivo queda por si hay que reactivarlo. La sesión no se cierra sola a los 30 minutos con la pestaña abierta.
