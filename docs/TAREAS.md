@@ -103,15 +103,15 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 ### T-13 · Teléfono obligatorio — `S`
 
-**Hoy:** la columna `phone` **ya existe** en `profiles`. No se pide en el registro del creador, así que está vacía para todos.
+**Hoy (cerrado):** el celular AR es obligatorio en registro/onboarding (creador y marca). Cuentas viejas sin teléfono quedan bloqueadas en `/completar-telefono` hasta cargarlo. En edición también es obligatorio. En el perfil del creador hay link a WhatsApp.
 
-**Hacer:** agregar el campo al onboarding y hacerlo obligatorio, con validación de formato argentino.
+**Pedido original:** agregar el campo al onboarding y hacerlo obligatorio, con validación de formato argentino.
 
 **Es urgente** porque cada día que pasa entran creadores sin teléfono y después hay que salir a pedirlo uno por uno.
 
 **Depende de:** conviene hacerla junto con T-12 (reordenar el onboarding), es el mismo formulario.
 
-**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `86696df`. Celular AR obligatorio en registro/onboarding (creador y marca); bloqueo al entrar si falta (`0664b40`); link WhatsApp en perfil.
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `86696df` (campo + WhatsApp) + `0664b40` (bloqueo al entrar). Decisión de producto: **obligatorio a completar al entrar**, no opcional para cuentas existentes.
 
 ---
 

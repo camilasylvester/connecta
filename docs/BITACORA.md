@@ -44,11 +44,11 @@ Reglas de la entrada:
 
 ## 2026-09-12 — `0664b40` — Camila Sylvester
 
-**Qué cambié:** el celular pasó a ser **bloqueo al entrar**: si un creador o marca ya tiene la ficha pero no tiene celular argentino válido, lo mandamos a `/completar-telefono` y no puede usar la app hasta cargarlo. También quedó obligatorio al editar el perfil.
+**Qué cambié:** el celular pasó a ser **bloqueo al entrar** (tarea **T-13**, decisión b): si un creador o marca ya tiene la ficha pero no tiene celular argentino válido, lo mandamos a `/completar-telefono` y no puede usar la app hasta cargarlo. También quedó obligatorio al editar el perfil. Esto **reemplaza** la versión anterior donde las cuentas viejas podían seguir sin teléfono.
 
-**Por qué:** pediste la opción de campos obligatorios a completar al entrar (no solo opcionales para cuentas viejas).
+**Por qué:** pediste campos obligatorios a completar al entrar (no opcionales para quien ya estaba adentro).
 
-**Dónde:** `src/lib/account-gate.ts`, `src/lib/roles.ts`, `src/app/completar-telefono/`, `src/components/CompletarTelefonoForm.tsx`, `src/app/after-auth/actions.ts` (`syncPhone`), gates en eventos / postulaciones / aplicar / pendiente / after-auth, formularios de edición.
+**Dónde:** `src/lib/account-gate.ts`, `src/lib/roles.ts`, `src/app/completar-telefono/`, `src/components/CompletarTelefonoForm.tsx`, `src/app/after-auth/actions.ts` (`syncPhone`), gates en eventos / postulaciones / aplicar / pendiente / after-auth, formularios de edición. Notas en `docs/TAREAS.md` (T-13).
 
 **Cómo probarlo:** entrar con una cuenta sin `phone` (o borrarlo en admin): tiene que ir a `/completar-telefono` y no a eventos/dashboard. Después de guardar un número válido, sigue el flujo normal. Editar perfil sin teléfono no deja guardar.
 
@@ -58,15 +58,15 @@ Reglas de la entrada:
 
 ## 2026-09-12 — `86696df` — Camila Sylvester
 
-**Qué cambié:** teléfono celular argentino obligatorio en registro/onboarding (creadores y marcas), opcional al editar perfiles que ya existen; reordené el onboarding del creador (Datos básicos → Redes → Sobre vos → Categorías → Revisión); en el perfil del creador hay link directo a WhatsApp (`wa.me`) cuando hay número válido (tareas **T-12** + **T-13**).
+**Qué cambié:** teléfono celular argentino obligatorio en registro/onboarding (creadores y marcas); reordené el onboarding del creador (Datos básicos → Redes → Sobre vos → Categorías → Revisión); en el perfil del creador hay link directo a WhatsApp (`wa.me`) cuando hay número válido (tareas **T-12** + **T-13**). *Nota: en ese momento las cuentas viejas podían omitir el teléfono; eso se cambió el mismo día en `0664b40` (bloqueo al entrar).*
 
-**Por qué:** hace falta el celular para contactar, y conviene pedir el teléfono junto con el reorder del formulario. Quienes ya están en la plataforma pueden cargarlo sin quedar bloqueados.
+**Por qué:** hace falta el celular para contactar, y conviene pedir el teléfono junto con el reorder del formulario.
 
 **Dónde:** `src/lib/phone.ts`, `src/lib/onboarding.ts`, `src/lib/creator-registro-v3.ts`, `src/components/RegistroCreadorV3Form.tsx`, `src/components/OnboardingForm.tsx`, `src/components/CreatorSocialProfile.tsx`, `src/components/ProfileEditClient.tsx`, `src/components/CompletarPerfilForm.tsx`, `src/app/after-auth/actions.ts`, `src/app/actions.ts`, `src/app/dashboard/creadores/[id]/page.tsx`.
 
-**Cómo probarlo:** (1) registro creador: paso 1 pide celular AR válido y el orden de pasos es el nuevo; (2) onboarding marca: mismo campo obligatorio; (3) editar perfil existente: celular opcional; (4) con teléfono cargado, en perfil social y en `/dashboard/creadores/[id]` aparece “WhatsApp” y abre `wa.me`.
+**Cómo probarlo:** (1) registro creador: paso 1 pide celular AR válido y el orden de pasos es el nuevo; (2) onboarding marca: mismo campo obligatorio; (3) con teléfono cargado, en perfil social y en `/dashboard/creadores/[id]` aparece “WhatsApp” y abre `wa.me`.
 
-**Riesgo / qué mirar:** bajo. Usuarios viejos sin teléfono pueden seguir editando; altas nuevas sí lo necesitan. Revisar que números con `15` viejo o fijos no pasen (solo móvil 10 dígitos nacionales).
+**Riesgo / qué mirar:** bajo en el momento del commit. Ver entrada `0664b40` para el bloqueo posterior.
 
 ---
 
