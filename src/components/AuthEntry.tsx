@@ -163,6 +163,7 @@ export function AuthEntry() {
         eyebrow="Iniciar sesión"
         title="Ingresá con tu email"
         description="Seguís como creador o marca, según lo que elegiste."
+        showMobileTitle
       >
         <button
           type="button"
@@ -183,6 +184,7 @@ export function AuthEntry() {
         eyebrow="Iniciar sesión"
         title="Ingresá tu contraseña"
         description={`Vas a entrar con ${credentialsEmail}.`}
+        showMobileTitle
       >
         <button
           type="button"
@@ -207,6 +209,7 @@ export function AuthEntry() {
         eyebrow="Nueva cuenta"
         title="Email y contraseña"
         description={`Creá el acceso de ${brandName.trim()}. Después completás el perfil.`}
+        showMobileTitle
       >
         <button
           type="button"
@@ -236,47 +239,51 @@ export function AuthEntry() {
           : copy.sub
       }
     >
-      <div className="auth-tabs">
-        <button
-          type="button"
-          className={`auth-tab${mode === "login" ? " is-active" : ""}`}
-          onClick={() => switchMode("login")}
-        >
-          Iniciar sesión
-        </button>
-        <button
-          type="button"
-          className={`auth-tab${mode === "signup" ? " is-active" : ""}`}
-          onClick={() => switchMode("signup")}
-        >
-          Crear cuenta
-        </button>
-      </div>
+      <div className="auth-flow-controls">
+        <div className="auth-profile-block">
+          <span className="auth-profile-label">Sos...</span>
+          <div className="auth-profile-grid" role="group" aria-label="Tipo de cuenta">
+            <button
+              type="button"
+              className={`auth-profile-card${profile === "creador" ? " is-selected" : ""}`}
+              onClick={() => switchProfile("creador")}
+            >
+              <span className="auth-profile-icon" aria-hidden />
+              <strong className="auth-profile-name">Creador</strong>
+              <span className="auth-profile-desc">
+                Postulate a eventos y campañas de marcas.
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`auth-profile-card${profile === "marca" ? " is-selected" : ""}`}
+              onClick={() => switchProfile("marca")}
+            >
+              <span className="auth-profile-icon" aria-hidden />
+              <strong className="auth-profile-name">Marca</strong>
+              <span className="auth-profile-desc">
+                Publicá eventos cuando te aceptemos.
+              </span>
+            </button>
+          </div>
+        </div>
 
-      <span className="auth-profile-label">Sos...</span>
-      <div className="auth-profile-grid">
-        <button
-          type="button"
-          className={`auth-profile-card${profile === "creador" ? " is-selected" : ""}`}
-          onClick={() => switchProfile("creador")}
-        >
-          <span className="auth-profile-icon" aria-hidden />
-          <strong className="auth-profile-name">Creador</strong>
-          <span className="auth-profile-desc">
-            Postulate a eventos y campañas de marcas.
-          </span>
-        </button>
-        <button
-          type="button"
-          className={`auth-profile-card${profile === "marca" ? " is-selected" : ""}`}
-          onClick={() => switchProfile("marca")}
-        >
-          <span className="auth-profile-icon" aria-hidden />
-          <strong className="auth-profile-name">Marca</strong>
-          <span className="auth-profile-desc">
-            Publicá eventos cuando te aceptemos.
-          </span>
-        </button>
+        <div className="auth-tabs" role="group" aria-label="Acción">
+          <button
+            type="button"
+            className={`auth-tab${mode === "login" ? " is-active" : ""}`}
+            onClick={() => switchMode("login")}
+          >
+            Iniciar sesión
+          </button>
+          <button
+            type="button"
+            className={`auth-tab${mode === "signup" ? " is-active" : ""}`}
+            onClick={() => switchMode("signup")}
+          >
+            Crear cuenta
+          </button>
+        </div>
       </div>
 
       <form className="auth-v3-form" onSubmit={onSubmit}>

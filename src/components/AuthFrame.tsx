@@ -14,18 +14,27 @@ export function AuthFrame({
   title,
   description,
   wide = false,
+  showMobileTitle = false,
   children,
 }: {
   eyebrow: string;
   title: string;
   description: string;
   wide?: boolean;
+  /** On mobile, show the title above the card (password / signup steps). */
+  showMobileTitle?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="auth-page">
+    <div
+      className={`auth-page${showMobileTitle ? " auth-page--mobile-title" : ""}`}
+    >
       <header className="auth-header">
-        <Logo href="/" className="auth-logo" />
+        <Logo
+          href="/"
+          className="auth-logo"
+          aria-label="Connecta, ir al inicio"
+        />
         <Link href="/" className="auth-back">
           ← Volver a la landing
         </Link>
@@ -47,7 +56,17 @@ export function AuthFrame({
         <main className="auth-main">
           <span className="auth-eyebrow">{eyebrow}</span>
           <h1>{title}</h1>
-          {description ? <p className="auth-description">{description}</p> : null}
+          {description ? (
+            <p
+              className={`auth-description${
+                description.toLowerCase().includes("inactividad")
+                  ? " is-alert"
+                  : ""
+              }`}
+            >
+              {description}
+            </p>
+          ) : null}
           <div className="auth-panel">{children}</div>
         </main>
       </div>
