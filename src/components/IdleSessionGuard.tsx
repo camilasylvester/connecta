@@ -3,7 +3,14 @@
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useRef } from "react";
 
-/** Minutes without interaction before auto sign-out. */
+/**
+ * Previously signed users out after 30 minutes of no interaction while the
+ * tab was open. Product decision (2026-09): keep sessions open — this guard
+ * is disabled (not mounted from layout). Re-enable only if security policy
+ * requires client-side idle logout.
+ *
+ * Separate from Clerk Dashboard → Sessions → inactivity / session lifetime.
+ */
 export const IDLE_TIMEOUT_MINUTES = 30;
 
 const IDLE_MS = IDLE_TIMEOUT_MINUTES * 60 * 1000;
@@ -16,11 +23,7 @@ const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
   "wheel",
 ];
 
-/**
- * Signs the user out after IDLE_TIMEOUT_MINUTES without interaction
- * (while the tab is open). Clerk Dashboard "Inactivity timeout" covers
- * closed/background tabs separately.
- */
+/** @deprecated Not mounted — kept for optional re-enable. */
 export function IdleSessionGuard() {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

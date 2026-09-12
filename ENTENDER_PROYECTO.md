@@ -204,7 +204,7 @@ Después de aprobación → `/dashboard`: crea eventos (salen en **borrador** ha
 - `src/app/crear-contrasena/page.tsx`  
 - `src/middleware.ts`  
 - `src/lib/clerk-auth.ts`, `src/lib/auth.ts`, `src/lib/account-gate.ts`  
-- `src/components/IdleSessionGuard.tsx` (cierra sesión tras ~30 min sin uso)
+- `src/components/IdleSessionGuard.tsx` (timeout de inactividad de 30 min; **desactivado** — no se monta en el layout)
 
 **Funciones / ideas importantes**
 
