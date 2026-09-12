@@ -241,7 +241,7 @@ export function CreatorSocialProfile({
       fullName: data.fullName.trim(),
       contactEmail: data.contactEmail.trim().toLowerCase(),
     };
-    const result = validateOnboarding(normalized, { requirePhone: false });
+    const result = validateOnboarding(normalized);
     if (!result.ok) {
       setError(result.error);
       return;
@@ -621,7 +621,7 @@ export function CreatorSocialProfile({
                   />
                 </label>
                 <label className="block">
-                  <span className={labelCls}>Celular (WhatsApp)</span>
+                  <span className={labelCls}>Celular (WhatsApp) *</span>
                   <input
                     className={field}
                     type="tel"
@@ -630,9 +630,10 @@ export function CreatorSocialProfile({
                     onChange={(e) => set("phone", e.target.value)}
                     placeholder="+54 9 11 1234-5678"
                     autoComplete="tel"
+                    required
                   />
                   <p className="mt-1 text-xs text-muted-dark">
-                    Opcional. Si lo cargás, las marcas pueden escribirte por WhatsApp
+                    Obligatorio. Las marcas pueden escribirte por WhatsApp
                     {data.phone && waLink
                       ? ` · ${formatArMobileDisplay(data.phone)}`
                       : ""}

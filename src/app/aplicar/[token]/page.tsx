@@ -6,7 +6,7 @@ import { ApplyForm } from "@/components/ApplyForm";
 import { Logo } from "@/components/Logo";
 import { getDb } from "@/db";
 import { applications, events, profiles } from "@/db/schema";
-import { redirectIfNotApproved } from "@/lib/account-gate";
+import { redirectIfNotApproved, redirectIfPhoneMissing } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import "./aplicar.css";
 
@@ -60,6 +60,7 @@ export default async function ApplyPage({
         `/completar-perfil?next=${encodeURIComponent(`/aplicar/${token}`)}`
       );
     }
+    redirectIfPhoneMissing(profile);
     if (profile.accountStatus === "rejected") {
       redirectIfNotApproved(profile);
     }

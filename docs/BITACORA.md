@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** el celular pasó a ser **bloqueo al entrar**: si un creador o marca ya tiene la ficha pero no tiene celular argentino válido, lo mandamos a `/completar-telefono` y no puede usar la app hasta cargarlo. También quedó obligatorio al editar el perfil.
+
+**Por qué:** pediste la opción de campos obligatorios a completar al entrar (no solo opcionales para cuentas viejas).
+
+**Dónde:** `src/lib/account-gate.ts`, `src/lib/roles.ts`, `src/app/completar-telefono/`, `src/components/CompletarTelefonoForm.tsx`, `src/app/after-auth/actions.ts` (`syncPhone`), gates en eventos / postulaciones / aplicar / pendiente / after-auth, formularios de edición.
+
+**Cómo probarlo:** entrar con una cuenta sin `phone` (o borrarlo en admin): tiene que ir a `/completar-telefono` y no a eventos/dashboard. Después de guardar un número válido, sigue el flujo normal. Editar perfil sin teléfono no deja guardar.
+
+**Riesgo / qué mirar:** medio. Todas las cuentas existentes sin teléfono quedan bloqueadas hasta completar; es el comportamiento pedido.
+
+---
+
 ## 2026-09-12 — `86696df` — Camila Sylvester
 
 **Qué cambié:** teléfono celular argentino obligatorio en registro/onboarding (creadores y marcas), opcional al editar perfiles que ya existen; reordené el onboarding del creador (Datos básicos → Redes → Sobre vos → Categorías → Revisión); en el perfil del creador hay link directo a WhatsApp (`wa.me`) cuando hay número válido (tareas **T-12** + **T-13**).

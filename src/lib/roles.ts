@@ -1,5 +1,6 @@
 import type { UserRole } from "@/lib/types";
 import type { Profile } from "@/db/schema";
+import { profileHasValidPhone } from "@/lib/account-gate";
 
 export function homeForRole(role: UserRole | null | undefined): string {
   switch (role) {
@@ -17,6 +18,7 @@ export function homeForRole(role: UserRole | null | undefined): string {
 export function destinationForProfile(profile: Profile): string {
   if (profile.role === "admin") return "/admin";
   if (!profile.onboardingCompleted) return "/completar-perfil";
+  if (!profileHasValidPhone(profile)) return "/completar-telefono";
   if (profile.accountStatus === "pending") return "/pendiente";
   if (profile.accountStatus === "rejected") return "/rechazado";
   return homeForRole(profile.role);

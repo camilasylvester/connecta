@@ -307,7 +307,7 @@ async function applyProfilePayload(
     role: formRole,
   };
 
-  const check = validateOnboarding(effective, { requirePhone: false });
+  const check = validateOnboarding(effective);
   if (!check.ok) throw new Error(check.error);
 
   const { normalizeInstagramHandle } = await import("@/lib/instagram");

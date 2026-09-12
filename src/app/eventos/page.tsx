@@ -7,7 +7,7 @@ import { LogoutButton } from "@/components/LogoutButton";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getDb } from "@/db";
 import { applications, events, profiles } from "@/db/schema";
-import { redirectIfNotApproved, redirectIfPasswordMissing } from "@/lib/account-gate";
+import { redirectIfNotApproved, redirectIfPasswordMissing, redirectIfPhoneMissing } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import "./eventos-feed.css";
 
@@ -81,6 +81,7 @@ export default async function EventosPage() {
   const { userId } = await auth();
   const profile = userId ? await ensureProfile() : null;
   if (profile) {
+    redirectIfPhoneMissing(profile);
     if (!profile.onboardingCompleted || profile.accountStatus === "rejected") {
       redirectIfNotApproved(profile);
     }

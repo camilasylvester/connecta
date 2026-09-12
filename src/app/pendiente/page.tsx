@@ -3,12 +3,14 @@ import { redirect } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { ensureProfile } from "@/lib/auth";
+import { redirectIfPhoneMissing } from "@/lib/account-gate";
 
 export default async function PendientePage() {
   const profile = await ensureProfile();
   if (!profile) redirect("/login");
   if (profile.role === "admin") redirect("/admin");
   if (!profile.onboardingCompleted) redirect("/completar-perfil");
+  redirectIfPhoneMissing(profile);
   if (profile.accountStatus === "approved") {
     redirect(profile.role === "brand" ? "/dashboard" : "/eventos");
   }

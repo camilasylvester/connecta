@@ -10,7 +10,10 @@ import {
   validateOnboarding,
 } from "@/lib/onboarding";
 import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
-import { formatArMobileDisplay } from "@/lib/phone";
+import {
+  arMobileValidationError,
+  formatArMobileDisplay,
+} from "@/lib/phone";
 
 /** Save full onboarding questionnaire into the profile. */
 export async function syncOnboarding(raw: OnboardingPayload) {
@@ -78,6 +81,27 @@ export async function syncOnboarding(raw: OnboardingPayload) {
       creatorMeta:
         raw.role === "creator" ? payloadToCreatorMeta(raw) : existing[0].creatorMeta,
       onboardingCompleted: true,
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.id, userId));
+
+  return { ok: true as const };
+}
+
+/** Solo celular: para usuarios viejos bloqueados hasta cargarlo. */
+export async function syncPhone(rawPhone: string) {
+  const userId = await requireUserId();
+  const err = arMobileValidationError(rawPhone);
+  if (err) return { ok: false as const, error: err };
+
+  await ensureProfile();
+  const db = getDb();
+  const formatted = formatArMobileDisplay(rawPhone) || rawPhone.trim();
+
+  await db
+    .update(profiles)
+    .set({
+      phone: formatted,
       updatedAt: new Date(),
     })
     .where(eq(profiles.id, userId));

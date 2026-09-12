@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
-import { redirectIfPasswordMissing } from "@/lib/account-gate";
+import {
+  profileHasValidPhone,
+  redirectIfPasswordMissing,
+} from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import { destinationForProfile } from "@/lib/roles";
 
@@ -43,6 +46,15 @@ export default async function AfterAuthGoPage({
     }
     const qs = params.toString();
     redirect(`/completar-perfil${qs ? `?${qs}` : ""}`);
+  }
+
+  if (!profileHasValidPhone(profile)) {
+    const params = new URLSearchParams();
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      params.set("next", next);
+    }
+    const qs = params.toString();
+    redirect(`/completar-telefono${qs ? `?${qs}` : ""}`);
   }
 
   const safeNext =

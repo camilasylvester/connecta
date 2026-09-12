@@ -111,7 +111,11 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Depende de:** conviene hacerla junto con T-12 (reordenar el onboarding), es el mismo formulario.
 
-**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `86696df`. Celular AR obligatorio en registro/onboarding (creador y marca); opcional al editar; link WhatsApp en perfil.
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `86696df`. Celular AR obligatorio en registro/onboarding (creador y marca); bloqueo al entrar si falta; link WhatsApp en perfil.
+
+---
+
+### T-05 · Aceptar Términos y Condiciones en el registro — `M`
 
 **Hoy:** las páginas legales existen (`/terminos`, `/privacidad`) y están en el footer, pero **en ningún momento se le pide al usuario que las acepte**.
 
