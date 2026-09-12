@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-12 — `0b94740` — Camila Sylvester
+
+**Qué cambié:** unifiqué el login de desktop con el formato acordado (tarea **T-35**): layout de escritorio (aside + formulario), primero Creador/Marca en chips más quietos, después Iniciar sesión/Crear cuenta en pill, solo logo (sin “Volver a la landing”), y el texto de la izquierda ya no salta al cambiar de Creador a Marca.
+
+**Por qué:** pedían el mismo flujo que mobile pero con cara de login de escritorio, y distinta jerarquía visual entre “quién sos” y “qué querés hacer”.
+
+**Dónde:** `src/app/auth.css`, `src/components/AuthEntry.tsx`, `src/components/AuthFrame.tsx`.
+
+**Cómo probarlo:** abrir `/login` en desktop (≥641px). Verificar orden rol → sesión, chips vs pill, logo → home, y que al pasar Creador ↔ Marca el copy del aside no se mueva.
+
+**Riesgo / qué mirar:** bajo. Mobile ya tenía su CSS; revisar que los pills de mobile sigan bien.
+
+---
+
 ## 2026-09-12 — `9f2c81a` — Camila Sylvester
 
 **Qué cambié:** en `/eventos` mobile, **Ingresar** (y Crear cuenta) quedaron fijos en la barra de arriba; ya no van adentro del menú desplegable (tarea **T-01**). El menú solo deja los links de navegación. Si hay sesión, Cerrar sesión también se ve en la barra.

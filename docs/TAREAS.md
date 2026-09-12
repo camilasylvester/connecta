@@ -369,6 +369,18 @@ El pedido dice "siempre que técnicamente sea posible" — esta es la respuesta 
 
 > Se ve, lo piden, se resuelve rápido — pero no cambia el negocio. Ideal para meter entre tareas grandes o para alguien que recién entra al proyecto.
 
+### T-35 · Login desktop: jerarquía y formato mobile — `S`
+
+**Hoy:** desktop tenía cards grandes Creador/Marca, tabs de sesión arriba, “Volver a la landing”, y el aside se movía al cambiar el form.
+
+**Hacer:** mantener layout desktop (aside + form). Orden: Creador/Marca (chips) → Iniciar sesión/Crear cuenta (pill). Solo logo. Aside fijo al cambiar rol.
+
+**Archivos:** `src/app/auth.css`, `src/components/AuthEntry.tsx`, `src/components/AuthFrame.tsx`.
+
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `0b94740`. Jerarquía chips vs pill; logo-only; aside sticky / align start.
+
+---
+
 ### T-34 · Login mobile: formato y marca — `S`
 
 **Hoy:** en mobile el login se veía genérico / apretado; el botón “Volver a la landing” competía con el logo; el orden de Creador/Marca vs Iniciar sesión/Crear cuenta no era el pedido.
