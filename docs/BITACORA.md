@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-14 — `PENDIENTE` — Camila Sylvester
+## 2026-09-14 — `ec9ae6d` — Camila Sylvester
 
 **Qué cambié:** el checkbox de Términos y Privacidad también aparece al crear cuenta como **creador** (antes solo se veía en marca en la primera pantalla). Sigue siendo obligatorio para continuar al registro.
 
