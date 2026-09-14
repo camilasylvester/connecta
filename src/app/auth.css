@@ -99,62 +99,63 @@
   }
   .auth-shell,
   .auth-shell-wide {
+    --auth-desk-gutter: 1fr;
     flex: 1;
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 48px 0;
     min-height: 0;
     display: grid;
-    /* Logo gets more of the left half; form sits further right */
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    /* [margen] logo [margen] form [margen] — los 3 márgenes iguales */
+    grid-template-columns: var(--auth-desk-gutter) auto var(--auth-desk-gutter) auto var(--auth-desk-gutter);
     gap: 0;
-    align-items: stretch;
+    align-items: center;
+    justify-items: stretch;
   }
   .auth-aside {
+    grid-column: 2;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100%;
-    height: 100%;
-    padding: 48px 40px;
+    min-height: 0;
+    height: auto;
+    padding: 0;
     position: static;
     box-sizing: border-box;
   }
   .auth-aside-logo {
-    font-size: clamp(80px, 9.5vw, 140px);
+    font-size: clamp(84px, 10vw, 148px);
   }
   .auth-aside-logo svg {
-    max-width: min(500px, 40vw);
+    max-width: min(520px, 42vw);
   }
   .auth-main {
+    grid-column: 4;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: stretch;
     max-width: none;
-    width: 100%;
-    /* Push form block right within its column */
-    padding: 48px clamp(40px, 6vw, 88px) 48px clamp(48px, 7vw, 96px);
+    width: min(400px, 36vw);
+    padding: 0;
     box-sizing: border-box;
   }
   .auth-main > * {
-    max-width: 420px;
+    max-width: none;
     width: 100%;
   }
-  .auth-shell-wide .auth-main > * {
-    max-width: 480px;
+  .auth-shell-wide .auth-main {
+    width: min(460px, 40vw);
   }
   .auth-main > h1 {
     white-space: nowrap;
-    font-size: clamp(22px, 2vw, 28px);
+    font-size: clamp(18px, 1.6vw, 22px);
     font-weight: 700;
     letter-spacing: -0.02em;
   }
   .auth-subtitle {
-    margin-top: 8px;
-    font-size: 15px;
-    font-weight: 500;
+    display: none;
   }
 }
 
@@ -305,19 +306,23 @@
   color: var(--auth-muted);
 }
 
-/* Tablet/desktop intermediate: keep split layout (aside logo + form).
-   Mobile collapse lives in the ≤640px block below. */
+/* Tablet/desktop intermediate: keep equal gutters around logo + form. */
 @media (max-width: 900px) and (min-width: 641px) {
   .auth-shell,
   .auth-shell-wide {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    padding: 40px 0;
   }
   .auth-aside {
     display: flex;
-    padding: 32px 24px;
+    padding: 0;
   }
   .auth-main {
-    padding: 40px 28px;
+    width: min(360px, 42vw);
+    padding: 0;
+  }
+  .auth-aside-logo {
+    font-size: clamp(64px, 9vw, 100px);
   }
 }
 

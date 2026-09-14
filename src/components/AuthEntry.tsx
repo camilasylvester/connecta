@@ -63,19 +63,12 @@ export function AuthEntry() {
   );
 
   const copy = useMemo(() => {
-    if (mode === "login") {
-      return {
-        title: "Bienvenido a Connecta",
-        eyebrow: "Iniciá sesión",
-        sub: "",
-      };
-    }
     return {
       title: "Bienvenido a Connecta",
-      eyebrow: "Creá tu cuenta",
+      eyebrow: "",
       sub: "",
     };
-  }, [mode]);
+  }, []);
 
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
@@ -170,7 +163,7 @@ export function AuthEntry() {
   if (emailLogin) {
     return (
       <AuthFrame
-        eyebrow="Iniciá sesión"
+        eyebrow=""
         title="Bienvenido a Connecta"
         description="Seguís como creador o marca, según lo que elegiste."
         showMobileTitle
@@ -191,7 +184,7 @@ export function AuthEntry() {
   if (credentialsEmail) {
     return (
       <AuthFrame
-        eyebrow="Iniciá sesión"
+        eyebrow=""
         title="Bienvenido a Connecta"
         description={`Vas a entrar con ${credentialsEmail}.`}
         showMobileTitle
@@ -216,7 +209,7 @@ export function AuthEntry() {
   if (brandSignup) {
     return (
       <AuthFrame
-        eyebrow="Creá tu cuenta"
+        eyebrow=""
         title="Bienvenido a Connecta"
         description={`Creá el acceso de ${brandName.trim()}. Después completás el perfil.`}
         showMobileTitle
