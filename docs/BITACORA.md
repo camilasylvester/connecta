@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-14 — `PENDIENTE` — Camila Sylvester
+## 2026-09-14 — `6ea47ab` — Camila Sylvester
 
 **Qué cambié:** rediseñé el login **desktop** al formato tipo “Bienvenido a Connecta”: logo Connecta grande a la izquierda, a la derecha el título + “Iniciá sesión” / “Creá tu cuenta”, sin el label “Sos…”. Se mantiene Creador/Marca y el toggle de sesión. El mismo layout (logo izquierdo) aplica a los pasos siguientes que usan `AuthFrame`. Mobile no cambia el formato acordado.
 
