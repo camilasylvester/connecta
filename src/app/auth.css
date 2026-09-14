@@ -21,21 +21,6 @@
   max-width: 100vw;
 }
 
-@media (min-width: 641px) {
-  .auth-page {
-    display: flex;
-    flex-direction: column;
-  }
-  .auth-header {
-    display: none;
-  }
-  .auth-shell,
-  .auth-shell-wide {
-    flex: 1;
-    width: min(1120px, 100%);
-  }
-}
-
 .auth-page :focus-visible,
 .registro-v3-page :focus-visible { outline: 2px solid var(--auth-purple-light); outline-offset: 3px; }
 .auth-header {
@@ -101,6 +86,61 @@
   width: auto;
   height: 0.86em;
   max-width: min(420px, 38vw);
+}
+
+/* Desktop: un solo logo, centrado en la mitad izquierda de la pantalla */
+@media (min-width: 641px) {
+  .auth-page {
+    display: flex;
+    flex-direction: column;
+  }
+  .auth-header {
+    display: none !important;
+  }
+  .auth-shell,
+  .auth-shell-wide {
+    flex: 1;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+    gap: 0;
+    align-items: stretch;
+  }
+  .auth-aside {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    height: 100%;
+    padding: 48px 40px;
+    position: static;
+    box-sizing: border-box;
+  }
+  .auth-aside-logo {
+    font-size: clamp(72px, 8.5vw, 128px);
+  }
+  .auth-aside-logo svg {
+    max-width: min(460px, 36vw);
+  }
+  .auth-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    width: 100%;
+    padding: 48px clamp(32px, 5vw, 72px);
+    box-sizing: border-box;
+  }
+  .auth-main > * {
+    max-width: 440px;
+  }
+  .auth-shell-wide .auth-main > * {
+    max-width: 520px;
+  }
 }
 
 /* Legacy copy classes kept unused on desktop brand-login */
@@ -250,16 +290,19 @@
   color: var(--auth-muted);
 }
 
-@media (max-width: 900px) {
+/* Tablet/desktop intermediate: keep split layout (aside logo + form).
+   Mobile collapse lives in the ≤640px block below. */
+@media (max-width: 900px) and (min-width: 641px) {
   .auth-shell,
   .auth-shell-wide {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    padding-block: 36px;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
   }
   .auth-aside {
-    display: none;
+    display: flex;
+    padding: 32px 24px;
+  }
+  .auth-main {
+    padding: 40px 28px;
   }
 }
 
