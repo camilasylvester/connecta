@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-14 — `PENDIENTE` — Camila Sylvester
+## 2026-09-14 — `0b1feec` — Camila Sylvester
 
 **Qué cambié:** arreglé el login/registro en mobile: Creador/Marca vuelven a ser un toggle en píldora (lado a lado, no cuadrados dentro de un óvalo), los Términos ya no se van de la pantalla, y el footer/legal deja de desbordar el ancho.
 
