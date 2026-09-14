@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-14 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** arreglé el login/registro en mobile: Creador/Marca vuelven a ser un toggle en píldora (lado a lado, no cuadrados dentro de un óvalo), los Términos ya no se van de la pantalla, y el footer/legal deja de desbordar el ancho.
+
+**Por qué:** capturas en celular mostraban el checkbox de términos cortado, overflow horizontal y el selector de rol roto por CSS que pisaba el layout mobile.
+
+**Dónde:** `src/app/auth.css`, `src/components/TermsAcceptCheckbox.tsx`.
+
+**Cómo probarlo:** abrir `/login` en viewport ≤640px (Crear cuenta → Marca). Creador/Marca en una sola fila tipo pill; texto de términos completo y envuelto; footer sin salir del borde; Continuar visible con scroll.
+
+**Riesgo / qué mirar:** bajo. Solo CSS/auth mobile; desktop no debería cambiar el look de los chips.
+
+---
+
 ## 2026-09-12 — `f28012a` — Camila Sylvester
 
 **Qué cambié:** en el registro (creador y marca) hay que aceptar Términos + Privacidad con un solo checkbox (tarea **T-05**). Guardamos en la base `terms_accepted_at` y `terms_version` (`v1`). Quien ya tenía cuenta y nunca aceptó queda bloqueado en `/aceptar-terminos` hasta hacerlo. En admin se ve si aceptó y con qué versión.

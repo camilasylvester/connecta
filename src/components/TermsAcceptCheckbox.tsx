@@ -17,25 +17,17 @@ export function TermsAcceptCheckbox({
   return (
     <label
       htmlFor={id}
-      className={className}
-      style={{
-        display: "flex",
-        gap: 10,
-        alignItems: "flex-start",
-        fontSize: 13,
-        lineHeight: 1.45,
-        cursor: "pointer",
-      }}
+      className={`auth-terms${className ? ` ${className}` : ""}`}
     >
       <input
         id={id}
         type="checkbox"
+        className="auth-terms-input"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         required
-        style={{ marginTop: 3, flexShrink: 0 }}
       />
-      <span>
+      <span className="auth-terms-text">
         Acepto los{" "}
         <Link href={TERMS_PATH} target="_blank" rel="noopener noreferrer">
           Términos y condiciones
