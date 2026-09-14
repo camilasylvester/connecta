@@ -111,6 +111,15 @@ export function AuthEntry() {
         setError("Escribí tu usuario de Instagram.");
         return;
       }
+      if (!termsAccepted) {
+        setError("Tenés que aceptar los Términos y la Política de privacidad.");
+        return;
+      }
+      try {
+        sessionStorage.setItem("connecta-terms-accepted", "1");
+      } catch {
+        /* ignore */
+      }
       const params = new URLSearchParams();
       params.set("instagram", handle);
       if (next) params.set("next", next);
@@ -344,7 +353,7 @@ export function AuthEntry() {
           </div>
         ) : null}
 
-        {mode === "signup" && profile === "marca" ? (
+        {mode === "signup" ? (
           <div className="auth-field">
             <TermsAcceptCheckbox
               checked={termsAccepted}

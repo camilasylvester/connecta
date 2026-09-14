@@ -99,6 +99,16 @@ export function RegistroCreadorV3Form({
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
+    try {
+      if (sessionStorage.getItem("connecta-terms-accepted") === "1") {
+        setTermsAccepted(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
     persistAuthNext(next);
   }, [next]);
 

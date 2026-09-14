@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-14 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** el checkbox de Términos y Privacidad también aparece al crear cuenta como **creador** (antes solo se veía en marca en la primera pantalla). Sigue siendo obligatorio para continuar al registro.
+
+**Por qué:** pediste paridad: el creador tiene que ver y aceptar los términos igual que la marca.
+
+**Dónde:** `src/components/AuthEntry.tsx`, `src/components/RegistroCreadorV3Form.tsx`.
+
+**Cómo probarlo:** `/login` → Crear cuenta → Creador: debajo de Instagram tiene que estar el checkbox; sin marcarlo no avanza. Marca sigue igual.
+
+**Riesgo / qué mirar:** bajo. En el paso Revisión del registro creador el checkbox sigue (si ya lo marcó en login, viene tildado).
+
+---
+
 ## 2026-09-14 — `0b1feec` — Camila Sylvester
 
 **Qué cambié:** arreglé el login/registro en mobile: Creador/Marca vuelven a ser un toggle en píldora (lado a lado, no cuadrados dentro de un óvalo), los Términos ya no se van de la pantalla, y el footer/legal deja de desbordar el ancho.

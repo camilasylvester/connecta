@@ -117,7 +117,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 ### T-05 · Aceptar Términos y Condiciones en el registro — `M`
 
-**Hoy (cerrado en código):** checkbox obligatorio en registro creador (revisión) y marca; se guarda `terms_accepted_at` + `terms_version` (`v1`). Cuentas viejas sin aceptación van a `/aceptar-terminos`. Admin ve la aceptación en la ficha del usuario.
+**Hoy (cerrado en código):** checkbox obligatorio en registro creador y marca (también en la primera pantalla de Crear cuenta para ambos); se guarda `terms_accepted_at` + `terms_version` (`v1`). Cuentas viejas sin aceptación van a `/aceptar-terminos`. Admin ve la aceptación en la ficha del usuario.
 
 **Pedido original:** checkbox obligatorio en el registro (creador y marca), con link que abra los términos en una pestaña nueva. Guardar en la base **cuándo** aceptó y **qué versión**.
 
