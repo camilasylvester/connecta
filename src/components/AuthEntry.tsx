@@ -65,23 +65,17 @@ export function AuthEntry() {
   const copy = useMemo(() => {
     if (mode === "login") {
       return {
-        eyebrow: "Iniciar sesión",
-        title: "Iniciá sesión",
-        sub:
-          profile === "creador"
-            ? "Iniciá sesión con tu Instagram."
-            : "Iniciá sesión con el email de tu marca.",
+        title: "Bienvenido a Connecta",
+        eyebrow: "Iniciá sesión",
+        sub: "",
       };
     }
     return {
-      eyebrow: "Nueva cuenta",
-      title: "Creá tu cuenta",
-      sub:
-        profile === "creador"
-          ? "Creá tu perfil de creador con tu Instagram."
-          : "Creá la cuenta de tu marca con tu email.",
+      title: "Bienvenido a Connecta",
+      eyebrow: "Creá tu cuenta",
+      sub: "",
     };
-  }, [mode, profile]);
+  }, [mode]);
 
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
@@ -176,8 +170,8 @@ export function AuthEntry() {
   if (emailLogin) {
     return (
       <AuthFrame
-        eyebrow="Iniciar sesión"
-        title="Ingresá con tu email"
+        eyebrow="Iniciá sesión"
+        title="Bienvenido a Connecta"
         description="Seguís como creador o marca, según lo que elegiste."
         showMobileTitle
       >
@@ -197,8 +191,8 @@ export function AuthEntry() {
   if (credentialsEmail) {
     return (
       <AuthFrame
-        eyebrow="Iniciar sesión"
-        title="Ingresá tu contraseña"
+        eyebrow="Iniciá sesión"
+        title="Bienvenido a Connecta"
         description={`Vas a entrar con ${credentialsEmail}.`}
         showMobileTitle
       >
@@ -222,8 +216,8 @@ export function AuthEntry() {
   if (brandSignup) {
     return (
       <AuthFrame
-        eyebrow="Nueva cuenta"
-        title="Email y contraseña"
+        eyebrow="Creá tu cuenta"
+        title="Bienvenido a Connecta"
         description={`Creá el acceso de ${brandName.trim()}. Después completás el perfil.`}
         showMobileTitle
       >
@@ -261,7 +255,6 @@ export function AuthEntry() {
     >
       <div className="auth-flow-controls">
         <div className="auth-profile-block">
-          <span className="auth-profile-label">Sos...</span>
           <div className="auth-profile-grid" role="group" aria-label="Tipo de cuenta">
             <button
               type="button"

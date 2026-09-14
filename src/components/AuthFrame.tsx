@@ -29,6 +29,7 @@ export function AuthFrame({
     <div
       className={`auth-page${showMobileTitle ? " auth-page--mobile-title" : ""}`}
     >
+      {/* Mobile only: logo in header. Desktop uses the large aside logo. */}
       <header className="auth-header">
         <Logo
           href="/"
@@ -38,21 +39,17 @@ export function AuthFrame({
       </header>
 
       <div className={`auth-shell${wide ? " auth-shell-wide" : ""}`}>
-        <aside className="auth-aside" aria-hidden="true">
-          <p className="auth-aside-kicker">CONNECTA</p>
-          <p className="auth-aside-title">
-            Marcas y creadores,
-            <br />
-            en un mismo lugar.
-          </p>
-          <p className="auth-aside-copy">
-            Entrá para postularte, publicar eventos o seguir tu solicitud.
-          </p>
+        <aside className="auth-aside">
+          <Logo
+            href="/"
+            className="auth-aside-logo"
+            aria-label="Connecta, ir al inicio"
+          />
         </aside>
 
         <main className="auth-main">
-          <span className="auth-eyebrow">{eyebrow}</span>
           <h1>{title}</h1>
+          {eyebrow ? <p className="auth-subtitle">{eyebrow}</p> : null}
           {description ? (
             <p
               className={`auth-description${

@@ -377,7 +377,7 @@ El pedido dice "siempre que técnicamente sea posible" — esta es la respuesta 
 
 **Archivos:** `src/app/auth.css`, `src/components/AuthEntry.tsx`, `src/components/AuthFrame.tsx`.
 
-**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `0b94740`. Jerarquía chips vs pill; logo-only; aside sticky / align start.
+**Hecho:** ✅ 2026-09-12 — Camila Sylvester — `0b94740`. Jerarquía chips vs pill; logo-only; aside sticky / align start. **Update 2026-09-14:** formato desktop “Bienvenido a Connecta” + logo grande a la izquierda; sin “Sos…” (ver bitácora).
 
 ---
 

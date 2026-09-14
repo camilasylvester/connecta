@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-14 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** rediseñé el login **desktop** al formato tipo “Bienvenido a Connecta”: logo Connecta grande a la izquierda, a la derecha el título + “Iniciá sesión” / “Creá tu cuenta”, sin el label “Sos…”. Se mantiene Creador/Marca y el toggle de sesión. El mismo layout (logo izquierdo) aplica a los pasos siguientes que usan `AuthFrame`. Mobile no cambia el formato acordado.
+
+**Por qué:** pedido de producto para acercar el login desktop al mock de referencia, sin el tono infantil de “Sos…”.
+
+**Dónde:** `src/components/AuthFrame.tsx`, `src/components/AuthEntry.tsx`, `src/app/auth.css`.
+
+**Cómo probarlo:** `/login` en desktop (≥641px): logo grande a la izquierda, “Bienvenido a Connecta” + subtítulo a la derecha, chips Creador/Marca sin “Sos…”, tabs Iniciar sesión/Crear cuenta. Probar también contraseña / signup marca. En mobile (≤640) el login sigue con logo arriba.
+
+**Riesgo / qué mirar:** bajo-medio. Revisar pantallas AuthFrame (completar teléfono, términos, crear contraseña) en desktop.
+
+---
+
 ## 2026-09-14 — `ec9ae6d` — Camila Sylvester
 
 **Qué cambié:** el checkbox de Términos y Privacidad también aparece al crear cuenta como **creador** (antes solo se veía en marca en la primera pantalla). Sigue siendo obligatorio para continuar al registro.
