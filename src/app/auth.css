@@ -68,24 +68,21 @@
 }
 
 .auth-aside {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   min-height: 0;
   padding: 24px 16px;
   border-right: 0;
-  position: sticky;
-  top: 48px;
 }
 .auth-aside-logo {
   color: var(--auth-white);
-  font-size: clamp(64px, 9vw, 112px);
   line-height: 1;
 }
 .auth-aside-logo svg {
   width: auto;
-  height: 0.86em;
-  max-width: min(420px, 38vw);
+  height: auto;
+  max-width: 100%;
 }
 
 /* Desktop: un solo logo, centrado en la mitad izquierda de la pantalla */
@@ -128,7 +125,9 @@
     font-size: clamp(84px, 10vw, 148px);
   }
   .auth-aside-logo svg {
-    max-width: min(520px, 42vw);
+    width: auto !important;
+    height: 0.86em !important;
+    max-width: min(520px, 42vw) !important;
   }
   .auth-main {
     grid-column: 4;
@@ -336,9 +335,13 @@
 
   .auth-header {
     min-height: 0;
-    padding: 40px 24px 20px;
+    padding: 40px 20px 20px;
     border-bottom: 0;
     justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .auth-back {
@@ -347,24 +350,30 @@
 
   .auth-logo {
     color: var(--auth-white);
+    max-width: min(200px, 72vw);
+    justify-content: center;
   }
 
   .auth-logo svg {
-    width: min(220px, 68vw);
-    height: auto;
+    width: 100% !important;
+    max-width: min(200px, 72vw) !important;
+    height: auto !important;
   }
 
   .auth-aside {
-    display: none;
+    display: none !important;
   }
 
   .auth-shell,
   .auth-shell-wide {
+    display: block;
+    grid-template-columns: 1fr;
     padding: 8px 20px 48px;
     gap: 0;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    overflow-x: clip;
   }
 
   .auth-main {
