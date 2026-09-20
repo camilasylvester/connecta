@@ -109,12 +109,24 @@ export function clerkErrorMessage(error: unknown, fallback = "Algo salió mal. P
   return fallback;
 }
 
-export function afterAuthPath(next?: string | null): string {
-  const params = next ? `?next=${encodeURIComponent(next)}` : "";
-  return `/after-auth${params}`;
+export type AuthProfileRole = "creator" | "brand";
+
+export function afterAuthPath(
+  next?: string | null,
+  role?: AuthProfileRole | null
+): string {
+  const params = new URLSearchParams();
+  if (next && next.startsWith("/") && !next.startsWith("//")) {
+    params.set("next", next);
+  }
+  if (role === "brand") params.set("as", "marca");
+  if (role === "creator") params.set("as", "creador");
+  const qs = params.toString();
+  return `/after-auth${qs ? `?${qs}` : ""}`;
 }
 
 const AUTH_NEXT_KEY = "connecta_auth_next";
+const AUTH_ROLE_KEY = "connecta_auth_role";
 
 export function persistAuthNext(next?: string | null): void {
   if (typeof window === "undefined") return;
@@ -130,4 +142,26 @@ export function readAuthNext(): string {
   const next = window.sessionStorage.getItem(AUTH_NEXT_KEY) || "";
   if (next.startsWith("/") && !next.startsWith("//")) return next;
   return "";
+}
+
+export function persistAuthRole(role?: AuthProfileRole | null): void {
+  if (typeof window === "undefined") return;
+  if (role === "creator" || role === "brand") {
+    window.sessionStorage.setItem(AUTH_ROLE_KEY, role);
+  } else {
+    window.sessionStorage.removeItem(AUTH_ROLE_KEY);
+  }
+}
+
+export function readAuthRole(): AuthProfileRole | "" {
+  if (typeof window === "undefined") return "";
+  const role = window.sessionStorage.getItem(AUTH_ROLE_KEY) || "";
+  if (role === "creator" || role === "brand") return role;
+  return "";
+}
+
+export function roleFromAsParam(as?: string | null): AuthProfileRole | null {
+  if (as === "marca" || as === "brand") return "brand";
+  if (as === "creador" || as === "creator") return "creator";
+  return null;
 }

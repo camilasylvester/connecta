@@ -4,6 +4,7 @@ import {
   redirectIfPasswordMissing,
 } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
+import { roleFromAsParam } from "@/lib/clerk-auth";
 import { destinationForProfile } from "@/lib/roles";
 import { profileHasAcceptedTerms } from "@/lib/terms";
 
@@ -21,9 +22,9 @@ function isNextRedirect(err: unknown): boolean {
 export default async function AfterAuthGoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; as?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, as } = await searchParams;
 
   let profile = null;
   try {
@@ -38,6 +39,24 @@ export default async function AfterAuthGoPage({
 
   if (profile.role === "admin") {
     redirect("/admin");
+  }
+
+  const intended = roleFromAsParam(as || null);
+  if (
+    intended &&
+    (profile.role === "creator" || profile.role === "brand") &&
+    profile.role !== intended
+  ) {
+    const params = new URLSearchParams();
+    params.set("error", "role_mismatch");
+    params.set(
+      "expected",
+      profile.role === "brand" ? "marca" : "creador"
+    );
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      params.set("next", next);
+    }
+    redirect(`/login?${params.toString()}`);
   }
 
   if (!profile.onboardingCompleted) {

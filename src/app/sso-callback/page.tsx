@@ -2,14 +2,14 @@
 
 import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { afterAuthPath, readAuthNext } from "@/lib/clerk-auth";
+import { afterAuthPath, readAuthNext, readAuthRole } from "@/lib/clerk-auth";
 
 /** Path-based OAuth return (custom flows / future path routing). */
 export default function SsoCallbackPage() {
   const [redirectUrl, setRedirectUrl] = useState(() => afterAuthPath(null));
 
   useEffect(() => {
-    setRedirectUrl(afterAuthPath(readAuthNext() || null));
+    setRedirectUrl(afterAuthPath(readAuthNext() || null, readAuthRole() || null));
   }, []);
 
   return (

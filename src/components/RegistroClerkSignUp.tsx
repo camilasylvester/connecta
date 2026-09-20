@@ -2,11 +2,16 @@
 
 import { SignUp, useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { afterAuthPath, clerkAppearance, persistAuthNext } from "@/lib/clerk-auth";
+import {
+  afterAuthPath,
+  clerkAppearance,
+  persistAuthNext,
+  persistAuthRole,
+  type AuthProfileRole,
+} from "@/lib/clerk-auth";
 
 /**
- * Prebuilt Clerk SignUp — handles Turnstile/captcha correctly (custom
- * password flow was hanging / failing bot checks for some users).
+ * Prebuilt Clerk SignUp — Google + email. Profile data comes after.
  */
 export function RegistroClerkSignUp({
   role,
@@ -14,19 +19,22 @@ export function RegistroClerkSignUp({
   extraMetadata,
   initialEmail,
 }: {
-  role: "brand" | "creator";
+  role: AuthProfileRole;
   next?: string;
   extraMetadata?: Record<string, string>;
   initialEmail?: string;
 }) {
   const { isSignedIn, isLoaded, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
-  const redirectUrl = afterAuthPath(next || null);
-  const signInUrl = `/login${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+  const redirectUrl = afterAuthPath(next || null, role);
+  const signInUrl = `/login?tab=login&as=${role === "brand" ? "marca" : "creador"}${
+    next ? `&next=${encodeURIComponent(next)}` : ""
+  }`;
 
   useEffect(() => {
     persistAuthNext(next);
-  }, [next]);
+    persistAuthRole(role);
+  }, [next, role]);
 
   if (!isLoaded) {
     return <p className="auth-hint">Preparando el registro…</p>;

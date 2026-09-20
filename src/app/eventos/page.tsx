@@ -169,7 +169,7 @@ export default async function EventosPage() {
             ) : (
               <>
                 <Link
-                  href="/login?role=creator&next=%2Feventos"
+                  href="/login?tab=login&as=creador&next=%2Feventos"
                   className="feed-btn feed-btn-outline"
                 >
                   Ingresar

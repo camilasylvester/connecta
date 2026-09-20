@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Logo } from "@/components/Logo";
 
 const FOOTER_LINKS = [
@@ -15,6 +16,8 @@ export function AuthFrame({
   description,
   wide = false,
   showMobileTitle = false,
+  progress,
+  onBack,
   children,
 }: {
   eyebrow: string;
@@ -23,19 +26,25 @@ export function AuthFrame({
   wide?: boolean;
   /** On mobile, show the title above the card (password / signup steps). */
   showMobileTitle?: boolean;
-  children: React.ReactNode;
+  progress?: ReactNode;
+  onBack?: () => void;
+  children: ReactNode;
 }) {
   return (
     <div
       className={`auth-page${showMobileTitle ? " auth-page--mobile-title" : ""}`}
     >
-      {/* Mobile only: logo in header. Desktop uses the large aside logo. */}
       <header className="auth-header">
         <Logo
           href="/"
           className="auth-logo"
           aria-label="Connecta, ir al inicio"
         />
+        {onBack ? (
+          <button type="button" className="auth-header-back" onClick={onBack}>
+            ← Volver
+          </button>
+        ) : null}
       </header>
 
       <div className={`auth-shell${wide ? " auth-shell-wide" : ""}`}>
@@ -48,6 +57,12 @@ export function AuthFrame({
         </aside>
 
         <main className="auth-main">
+          {onBack ? (
+            <button type="button" className="auth-inline-back" onClick={onBack}>
+              ← Volver
+            </button>
+          ) : null}
+          {progress}
           <h1>{title}</h1>
           {eyebrow ? <p className="auth-subtitle">{eyebrow}</p> : null}
           {description ? (

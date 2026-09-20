@@ -2,28 +2,38 @@
 
 import { SignIn, useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { afterAuthPath, clerkAppearance, persistAuthNext } from "@/lib/clerk-auth";
+import {
+  afterAuthPath,
+  clerkAppearance,
+  persistAuthNext,
+  persistAuthRole,
+  type AuthProfileRole,
+} from "@/lib/clerk-auth";
 
 /**
- * Prebuilt Clerk SignIn — the custom password form stays on "Cargando…"
- * when Clerk's hooks never finish (common on vercel.app / flaky mobile).
+ * Prebuilt Clerk SignIn — Google + email/password.
  */
 export function LoginClerkSignIn({
   next = "",
+  role,
   initialEmail = "",
 }: {
   next?: string;
+  role: AuthProfileRole;
   initialEmail?: string;
 }) {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
   const [waited, setWaited] = useState(false);
-  const redirectUrl = afterAuthPath(next || null);
-  const signUpUrl = `/login?tab=signup${next ? `&next=${encodeURIComponent(next)}` : ""}`;
+  const redirectUrl = afterAuthPath(next || null, role);
+  const signUpUrl = `/login?tab=signup&as=${role === "brand" ? "marca" : "creador"}${
+    next ? `&next=${encodeURIComponent(next)}` : ""
+  }`;
 
   useEffect(() => {
     persistAuthNext(next);
-  }, [next]);
+    persistAuthRole(role);
+  }, [next, role]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setWaited(true), 4000);

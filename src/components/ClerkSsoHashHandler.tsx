@@ -2,7 +2,7 @@
 
 import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { afterAuthPath, readAuthNext } from "@/lib/clerk-auth";
+import { afterAuthPath, readAuthNext, readAuthRole } from "@/lib/clerk-auth";
 
 /**
  * Clerk SignIn/SignUp with routing="hash" send OAuth back to
@@ -22,14 +22,14 @@ export function ClerkSsoHashHandler() {
   );
   const [redirectUrl, setRedirectUrl] = useState(() =>
     typeof window !== "undefined"
-      ? afterAuthPath(readAuthNext() || null)
+      ? afterAuthPath(readAuthNext() || null, readAuthRole() || null)
       : "/after-auth"
   );
 
   useEffect(() => {
     const sync = () => {
       setActive(isSsoCallbackHash(window.location.hash));
-      setRedirectUrl(afterAuthPath(readAuthNext() || null));
+      setRedirectUrl(afterAuthPath(readAuthNext() || null, readAuthRole() || null));
     };
     sync();
     window.addEventListener("hashchange", sync);

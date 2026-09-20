@@ -7,11 +7,15 @@ function AfterAuthInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "";
+  const as = searchParams.get("as") || "";
 
   useEffect(() => {
-    const params = next ? `?next=${encodeURIComponent(next)}` : "";
-    router.replace(`/after-auth/go${params}`);
-  }, [next, router]);
+    const params = new URLSearchParams();
+    if (next) params.set("next", next);
+    if (as) params.set("as", as);
+    const qs = params.toString();
+    router.replace(`/after-auth/go${qs ? `?${qs}` : ""}`);
+  }, [next, as, router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center text-muted-dark">

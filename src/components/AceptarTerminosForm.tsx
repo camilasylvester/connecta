@@ -45,10 +45,14 @@ export function AceptarTerminosForm({ next }: { next: string }) {
 
   return (
     <AuthFrame
-      eyebrow="Legal"
+      eyebrow=""
       title="Aceptá los términos"
-      description="Para seguir usando CONNECTA necesitamos tu aceptación de los Términos y la Política de privacidad."
+      description="Para seguir usando Connecta necesitamos tu aceptación de los Términos y la Política de privacidad."
+      showMobileTitle
     >
+      <p className="auth-wizard-foot" style={{ marginTop: 0, marginBottom: 18 }}>
+        Último paso antes de entrar.
+      </p>
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 16 }}>
         <TermsAcceptCheckbox checked={accepted} onChange={setAccepted} />
         {error ? <p className="auth-error">{error}</p> : null}

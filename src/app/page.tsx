@@ -34,8 +34,8 @@ export default function HomePage() {
             <a href="#como-funciona">Cómo funciona</a>
           </nav>
           <div className="landing-nav-actions">
-            <Link href="/login" className="landing-btn landing-btn-outline landing-btn-small">Iniciar sesión</Link>
-            <Link href="/registro" className="landing-btn landing-btn-solid landing-btn-small">Crear cuenta</Link>
+            <Link href="/login?tab=login" className="landing-btn landing-btn-outline landing-btn-small">Iniciar sesión</Link>
+            <Link href="/login?tab=signup" className="landing-btn landing-btn-solid landing-btn-small">Crear cuenta</Link>
             <details className="landing-mobile-menu">
               <summary aria-label="Abrir menú">Menú</summary>
               <nav>
@@ -43,7 +43,7 @@ export default function HomePage() {
                 <a href="#creadores">Para creadores</a>
                 <a href="#marcas">Para marcas</a>
                 <a href="#como-funciona">Cómo funciona</a>
-                <Link href="/login">Iniciar sesión</Link>
+                <Link href="/login?tab=login">Iniciar sesión</Link>
               </nav>
             </details>
           </div>

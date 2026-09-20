@@ -142,11 +142,15 @@ export function CompletarPerfilForm({
 
   return (
     <AuthFrame
-      eyebrow="Tu perfil"
+      eyebrow=""
       title="Completá tu ficha"
-      description="Ya tenés la cuenta. Ahora contanos quién sos para que CONNECTA pueda revisarte."
+      description="Ya tenés el acceso. Ahora contanos quién sos para que Connecta pueda revisarte."
       wide
+      showMobileTitle
     >
+      <p className="auth-wizard-foot" style={{ marginTop: 0, marginBottom: 18 }}>
+        Los términos se aceptan al final, antes de enviar.
+      </p>
       {error ? <p className="auth-error">{error}</p> : null}
       <OnboardingForm
         initialRole={initialRole}

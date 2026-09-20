@@ -46,10 +46,14 @@ export function CompletarTelefonoForm({
 
   return (
     <AuthFrame
-      eyebrow="Un dato más"
+      eyebrow=""
       title="Agregá tu celular"
-      description="Para seguir usando CONNECTA necesitamos un celular argentino. Lo usamos para linkear WhatsApp en tu perfil."
+      description="Para seguir usando Connecta necesitamos un celular argentino. Lo usamos para WhatsApp en tu perfil."
+      showMobileTitle
     >
+      <p className="auth-wizard-foot" style={{ marginTop: 0, marginBottom: 18 }}>
+        Un paso más para activar tu cuenta.
+      </p>
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 14 }}>
         <label className="auth-field">
           <span className="auth-field-label">Celular (WhatsApp) *</span>

@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-20 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** rediseñé el flujo de **Iniciar sesión** y **Crear cuenta** al estilo wizard (primero elegís la acción, después Creador/Marca, después Google/email). El login ya no pide Instagram. El perfil del creador (5 pasos) arranca después del acceso, con barra de progreso y términos al final. Si entrás por el tipo de cuenta equivocado, te lo aclara y te pide el camino correcto.
+
+**Por qué:** pediste que creación e inicio de sesión sean intuitivos como las referencias (selección primero, datos después), con estética Connecta.
+
+**Dónde:** `AuthEntry`, `AuthFrame`, `AuthWizardBits`, `LoginClerkSignIn`, `RegistroClerkSignUp`, `RegistroCreadorV3Form`, `after-auth/go`, gates de teléfono/términos/perfil, `auth.css`, landing.
+
+**Cómo probarlo:** `/login` → Iniciar sesión o Crear cuenta → Creador/Marca → Google/email. Crear cuenta creador debe mandarte al wizard de perfil. Probar también rol incorrecto (cuenta marca entrando como creador).
+
+**Riesgo / qué mirar:** medio. Cambió toda la puerta de auth; links viejos con `?role=` siguen andando. Revisar mobile y desktop.
+
+---
+
 ## 2026-09-20 — `fd7d563` — Camila Sylvester
 
 **Qué cambié:** arreglé “Continuar con Google” en iniciar sesión y crear cuenta. Al volver de Google, Clerk dejaba la URL en `/login#/sso-callback` (o `/registro/creador#/sso-callback`), pero la pantalla ya no tenía el formulario de Clerk montado y el login no terminaba. Ahora un handler global completa ese callback y manda a `/after-auth`. También alineé los redirects de sign-up/sign-in para que no manden a `/` por error.

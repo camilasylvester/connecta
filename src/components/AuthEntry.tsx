@@ -1,383 +1,309 @@
 "use client";
 
-import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { getLoginEmailByHandle } from "@/app/login/actions";
+import { useEffect, useMemo, useState } from "react";
 import { AuthFrame } from "@/components/AuthFrame";
-import { EmailPasswordSignIn } from "@/components/EmailPasswordSignIn";
+import {
+  AuthProgress,
+  AuthSelectCard,
+  IconBrand,
+  IconLogin,
+  IconSignup,
+  IconUser,
+} from "@/components/AuthWizardBits";
 import { LoginClerkSignIn } from "@/components/LoginClerkSignIn";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
-import { persistAuthNext } from "@/lib/clerk-auth";
-import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
-import { TERMS_VERSION } from "@/lib/terms";
-import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
+import {
+  persistAuthNext,
+  persistAuthRole,
+  type AuthProfileRole,
+} from "@/lib/clerk-auth";
 
 type AuthMode = "login" | "signup";
 type AuthProfile = "creador" | "marca";
+type WizardStep = "intent" | "role" | "access";
 
-function buildHref(
-  mode: AuthMode,
-  profile: AuthProfile,
-  next: string
-): string {
+function buildHref(parts: {
+  mode?: AuthMode | null;
+  profile?: AuthProfile | null;
+  next?: string;
+  error?: string | null;
+}): string {
   const params = new URLSearchParams();
-  params.set("tab", mode === "signup" ? "signup" : "login");
-  params.set("as", profile);
-  if (next) params.set("next", next);
-  return `/login?${params.toString()}`;
+  if (parts.mode === "signup") params.set("tab", "signup");
+  if (parts.mode === "login") params.set("tab", "login");
+  if (parts.profile) params.set("as", parts.profile);
+  if (parts.next) params.set("next", parts.next);
+  if (parts.error) params.set("error", parts.error);
+  const qs = params.toString();
+  return `/login${qs ? `?${qs}` : ""}`;
+}
+
+function profileToRole(profile: AuthProfile): AuthProfileRole {
+  return profile === "marca" ? "brand" : "creator";
 }
 
 export function AuthEntry() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { signOut } = useAuth();
   const next = searchParams.get("next") || "";
   const idle = searchParams.get("idle") === "1";
+  const errorParam = searchParams.get("error") || "";
+  const expectedRole = searchParams.get("expected") || "";
 
-  const initialMode: AuthMode =
-    searchParams.get("tab") === "signup" ? "signup" : "login";
-  const initialProfile: AuthProfile =
-    searchParams.get("as") === "marca" || searchParams.get("role") === "brand"
+  const tabParam = searchParams.get("tab");
+  const asParam = searchParams.get("as") || searchParams.get("role");
+  const isAdminLink = asParam === "admin";
+
+  const initialMode: AuthMode | null =
+    tabParam === "signup"
+      ? "signup"
+      : tabParam === "login"
+        ? "login"
+        : asParam
+          ? "login"
+          : null;
+  const initialProfile: AuthProfile | null =
+    asParam === "marca" || asParam === "brand"
       ? "marca"
-      : "creador";
+      : asParam === "creador" || asParam === "creator"
+        ? "creador"
+        : null;
 
-  const [mode, setMode] = useState<AuthMode>(initialMode);
-  const [profile, setProfile] = useState<AuthProfile>(initialProfile);
-  const [instagram, setInstagram] = useState("");
-  const [brandName, setBrandName] = useState("");
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [credentialsEmail, setCredentialsEmail] = useState<string | null>(null);
-  const [emailLogin, setEmailLogin] = useState(false);
-  const [brandSignup, setBrandSignup] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [mode, setMode] = useState<AuthMode | null>(initialMode);
+  const [profile, setProfile] = useState<AuthProfile | null>(initialProfile);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     persistAuthNext(next);
   }, [next]);
 
-  const igUrl = useMemo(
-    () => instagramUrl(instagram),
-    [instagram]
-  );
+  useEffect(() => {
+    setMode(initialMode);
+    setProfile(initialProfile);
+  }, [initialMode, initialProfile]);
 
-  const copy = useMemo(() => {
-    return {
-      title: "Bienvenido a Connecta",
-      eyebrow: "",
-      sub: "",
-    };
-  }, []);
+  const step: WizardStep =
+    !mode ? "intent" : !profile && !isAdminLink ? "role" : "access";
 
-  function switchMode(nextMode: AuthMode) {
+  const roleMismatch = errorParam === "role_mismatch";
+
+  const roleMismatchCopy = useMemo(() => {
+    if (!roleMismatch) return null;
+    if (expectedRole === "brand" || expectedRole === "marca") {
+      return "Esta cuenta es de marca. Para entrar, elegí Iniciar sesión → Marca.";
+    }
+    if (expectedRole === "creator" || expectedRole === "creador") {
+      return "Esta cuenta es de creador. Para entrar, elegí Iniciar sesión → Creador.";
+    }
+    return "Elegiste un tipo de cuenta que no coincide con esta sesión. Volvé a intentar por el camino correcto.";
+  }, [roleMismatch, expectedRole]);
+
+  function go(parts: {
+    mode?: AuthMode | null;
+    profile?: AuthProfile | null;
+    clearError?: boolean;
+  }) {
+    router.replace(
+      buildHref({
+        mode: parts.mode === undefined ? mode : parts.mode,
+        profile: parts.profile === undefined ? profile : parts.profile,
+        next,
+        error: parts.clearError ? null : errorParam || null,
+      }),
+      { scroll: false }
+    );
+  }
+
+  function chooseIntent(nextMode: AuthMode) {
     setMode(nextMode);
-    setError(null);
-    setCredentialsEmail(null);
-    setEmailLogin(false);
-    setBrandSignup(false);
-    router.replace(buildHref(nextMode, profile, next), { scroll: false });
+    setProfile(null);
+    persistAuthRole(null);
+    go({ mode: nextMode, profile: null, clearError: true });
   }
 
-  function switchProfile(nextProfile: AuthProfile) {
+  function chooseProfile(nextProfile: AuthProfile) {
     setProfile(nextProfile);
-    setError(null);
-    setCredentialsEmail(null);
-    setEmailLogin(false);
-    setBrandSignup(false);
-    router.replace(buildHref(mode, nextProfile, next), { scroll: false });
+    persistAuthRole(profileToRole(nextProfile));
+    go({ mode, profile: nextProfile, clearError: true });
   }
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    if (mode === "signup" && profile === "creador") {
-      const handle = normalizeInstagramHandle(instagram);
-      if (!handle) {
-        setError("Escribí tu usuario de Instagram.");
-        return;
-      }
-      if (!termsAccepted) {
-        setError("Tenés que aceptar los Términos y la Política de privacidad.");
-        return;
-      }
-      try {
-        sessionStorage.setItem("connecta-terms-accepted", "1");
-      } catch {
-        /* ignore */
-      }
-      const params = new URLSearchParams();
-      params.set("instagram", handle);
-      if (next) params.set("next", next);
-      router.push(`/registro/creador?${params.toString()}`);
+  function goBack() {
+    if (step === "access") {
+      setProfile(null);
+      persistAuthRole(null);
+      go({ mode, profile: null, clearError: true });
       return;
     }
-
-    if (mode === "signup" && profile === "marca") {
-      if (!brandName.trim()) {
-        setError("Escribí el nombre de la marca.");
-        return;
-      }
-      if (!email.trim() || !email.includes("@")) {
-        setError("Escribí un email válido.");
-        return;
-      }
-      if (!termsAccepted) {
-        setError("Tenés que aceptar los Términos y la Política de privacidad.");
-        return;
-      }
-      setBrandSignup(true);
-      return;
-    }
-
-    if (mode === "login" && profile === "creador") {
-      const handle = normalizeInstagramHandle(instagram);
-      if (!handle) {
-        setError("Escribí tu usuario de Instagram.");
-        return;
-      }
-      setLoading(true);
-      try {
-        const lookup = await getLoginEmailByHandle(handle);
-        if (!lookup?.email) {
-          setError("No encontramos una cuenta con ese Instagram.");
-          return;
-        }
-        setCredentialsEmail(lookup.email);
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    if (mode === "login" && profile === "marca") {
-      if (!email.trim() || !email.includes("@")) {
-        setError("Escribí el email de tu marca.");
-        return;
-      }
-      setCredentialsEmail(email.trim().toLowerCase());
+    if (step === "role") {
+      setMode(null);
+      setProfile(null);
+      go({ mode: null, profile: null, clearError: true });
     }
   }
 
-  if (emailLogin) {
+  if (roleMismatch) {
     return (
       <AuthFrame
         eyebrow=""
-        title="Bienvenido a Connecta"
-        description="Seguís como creador o marca, según lo que elegiste."
+        title="Camino incorrecto"
+        description={roleMismatchCopy || ""}
         showMobileTitle
       >
         <button
           type="button"
-          className="auth-secondary"
-          style={{ marginBottom: 18 }}
-          onClick={() => setEmailLogin(false)}
-        >
-          ← Volver
-        </button>
-        <LoginClerkSignIn next={next} />
-      </AuthFrame>
-    );
-  }
-
-  if (credentialsEmail) {
-    return (
-      <AuthFrame
-        eyebrow=""
-        title="Bienvenido a Connecta"
-        description={`Vas a entrar con ${credentialsEmail}.`}
-        showMobileTitle
-      >
-        <button
-          type="button"
-          className="auth-secondary"
-          style={{ marginBottom: 18 }}
-          onClick={() => setCredentialsEmail(null)}
-        >
-          ← Volver
-        </button>
-        <EmailPasswordSignIn
-          next={next}
-          initialEmail={credentialsEmail}
-          passwordOnly
-        />
-      </AuthFrame>
-    );
-  }
-
-  if (brandSignup) {
-    return (
-      <AuthFrame
-        eyebrow=""
-        title="Bienvenido a Connecta"
-        description={`Creá el acceso de ${brandName.trim()}. Después completás el perfil.`}
-        showMobileTitle
-      >
-        <button
-          type="button"
-          className="auth-secondary"
-          style={{ marginBottom: 18 }}
-          onClick={() => setBrandSignup(false)}
-        >
-          ← Volver
-        </button>
-        <RegistroClerkSignUp
-          role="brand"
-          next={next}
-          initialEmail={email}
-          extraMetadata={{
-            brand_name: brandName.trim(),
-            terms_accepted: "true",
-            terms_version: TERMS_VERSION,
+          className="auth-primary"
+          disabled={signingOut}
+          onClick={async () => {
+            setSigningOut(true);
+            try {
+              await signOut({
+                redirectUrl: buildHref({
+                  mode: "login",
+                  profile:
+                    expectedRole === "brand" || expectedRole === "marca"
+                      ? "marca"
+                      : expectedRole === "creator" || expectedRole === "creador"
+                        ? "creador"
+                        : null,
+                  next,
+                }),
+              });
+            } finally {
+              setSigningOut(false);
+            }
           }}
-        />
-      </AuthFrame>
-    );
-  }
-
-  return (
-    <AuthFrame
-      eyebrow={copy.eyebrow}
-      title={copy.title}
-      description={
-        idle
-          ? "Cerramos tu sesión por inactividad. Volvé a entrar para continuar."
-          : copy.sub
-      }
-    >
-      <div className="auth-flow-controls">
-        <div className="auth-profile-block">
-          <div className="auth-profile-grid" role="group" aria-label="Tipo de cuenta">
-            <button
-              type="button"
-              className={`auth-profile-card${profile === "creador" ? " is-selected" : ""}`}
-              onClick={() => switchProfile("creador")}
-            >
-              <strong className="auth-profile-name">Creador</strong>
-            </button>
-            <button
-              type="button"
-              className={`auth-profile-card${profile === "marca" ? " is-selected" : ""}`}
-              onClick={() => switchProfile("marca")}
-            >
-              <strong className="auth-profile-name">Marca</strong>
-            </button>
-          </div>
-        </div>
-
-        <div className="auth-tabs" role="group" aria-label="Acción">
-          <button
-            type="button"
-            className={`auth-tab${mode === "login" ? " is-active" : ""}`}
-            onClick={() => switchMode("login")}
-          >
-            Iniciar sesión
-          </button>
-          <button
-            type="button"
-            className={`auth-tab${mode === "signup" ? " is-active" : ""}`}
-            onClick={() => switchMode("signup")}
-          >
-            Crear cuenta
-          </button>
-        </div>
-      </div>
-
-      <form className="auth-v3-form" onSubmit={onSubmit}>
-        {profile === "creador" ? (
-          <div className="auth-field">
-            <label htmlFor="instagram">Tu Instagram</label>
-            <input
-              id="instagram"
-              type="text"
-              value={instagram}
-              onChange={(e) => setInstagram(e.target.value)}
-              placeholder="@tu.usuario"
-              autoComplete="off"
-            />
-            <p className="auth-hint">
-              {igUrl ? (
-                <>
-                  Tu perfil:{" "}
-                  <Link href={igUrl} target="_blank" rel="noreferrer">
-                    {igUrl.replace("https://", "")}
-                  </Link>
-                </>
-              ) : (
-                "Escribí tu usuario y te mostramos el link a tu perfil."
-              )}
-            </p>
-          </div>
-        ) : null}
-
-        {profile === "marca" && mode === "signup" ? (
-          <div className="auth-field">
-            <label htmlFor="brandName">Nombre de la marca</label>
-            <input
-              id="brandName"
-              type="text"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-              placeholder="Costa 7070"
-              autoComplete="off"
-            />
-          </div>
-        ) : null}
-
-        {profile === "marca" ? (
-          <div className="auth-field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="hola@tumarca.com"
-              autoComplete="email"
-            />
-          </div>
-        ) : null}
-
-        {mode === "signup" ? (
-          <div className="auth-field">
-            <TermsAcceptCheckbox
-              checked={termsAccepted}
-              onChange={setTermsAccepted}
-            />
-          </div>
-        ) : null}
-
-        {error ? <p className="auth-error">{error}</p> : null}
-
-        <button type="submit" className="auth-primary" disabled={loading}>
-          {loading
-            ? "Buscando…"
-            : mode === "login"
-              ? "Iniciar sesión"
-              : "Continuar"}
+        >
+          {signingOut ? "Cerrando…" : "Cerrar sesión y corregir"}
         </button>
-      </form>
-
-      {profile === "creador" && mode === "login" ? (
-        <>
-          <div className="auth-divider">o</div>
+        <p className="auth-switch">
           <button
             type="button"
-            className="auth-alt-btn"
             onClick={() => {
-              setError(null);
-              setEmailLogin(true);
+              router.replace(buildHref({ mode: null, profile: null, next }));
             }}
           >
-            Continuar con email
+            Volver al inicio
           </button>
-        </>
-      ) : null}
+        </p>
+      </AuthFrame>
+    );
+  }
 
+  if (step === "intent") {
+    return (
+      <AuthFrame
+        eyebrow=""
+        title="Bienvenido a Connecta"
+        description={
+          idle
+            ? "Cerramos tu sesión por inactividad. Volvé a entrar para continuar."
+            : "Elegí cómo querés continuar."
+        }
+        showMobileTitle
+      >
+        <div className="auth-select-grid auth-select-grid--intent">
+          <AuthSelectCard
+            title="Iniciar sesión"
+            description="Ya tengo cuenta en Connecta."
+            icon={<IconLogin />}
+            onClick={() => chooseIntent("login")}
+          />
+          <AuthSelectCard
+            title="Crear cuenta"
+            description="Primera vez: armamos tu acceso y después el perfil."
+            icon={<IconSignup />}
+            onClick={() => chooseIntent("signup")}
+          />
+        </div>
+        <p className="auth-wizard-foot">Empezá eligiendo una opción.</p>
+      </AuthFrame>
+    );
+  }
+
+  if (step === "role") {
+    return (
+      <AuthFrame
+        eyebrow=""
+        title={mode === "login" ? "¿Cómo iniciás sesión?" : "¿Cómo vas a usar Connecta?"}
+        description={
+          mode === "login"
+            ? "Elegí el tipo de cuenta con el que te registraste."
+            : "Así armamos el espacio correcto para vos."
+        }
+        showMobileTitle
+        progress={
+          mode === "login" ? (
+            <AuthProgress total={2} current={1} labels={["Tipo de cuenta", "Acceso"]} />
+          ) : undefined
+        }
+        onBack={goBack}
+      >
+        <div className="auth-select-grid">
+          <AuthSelectCard
+            title="Creador"
+            description="Postulate a eventos y colaborá con marcas."
+            icon={<IconUser />}
+            onClick={() => chooseProfile("creador")}
+          />
+          <AuthSelectCard
+            title="Marca"
+            description="Publicá acciones y encontrá creadores."
+            icon={<IconBrand />}
+            onClick={() => chooseProfile("marca")}
+          />
+        </div>
+        <p className="auth-wizard-foot">
+          {mode === "login"
+            ? "Después vas a entrar con Google o email."
+            : "Después creás el acceso; el perfil viene después."}
+        </p>
+      </AuthFrame>
+    );
+  }
+
+  // access
+  const role = profile ? profileToRole(profile) : "creator";
+  return (
+    <AuthFrame
+      eyebrow=""
+      title={mode === "login" ? "Tu acceso" : "Creá tu acceso"}
+      description={
+        mode === "login"
+          ? profile === "marca"
+            ? "Entrá con Google o el email de tu marca."
+            : isAdminLink
+              ? "Entrá con Google o el email de admin."
+              : "Entrá con Google o tu email."
+          : profile === "marca"
+            ? "Google o email. Después completás los datos de la marca."
+            : "Google o email. Después armamos tu perfil de creador."
+      }
+      showMobileTitle
+      progress={
+        mode === "login" && !isAdminLink ? (
+          <AuthProgress total={2} current={2} labels={["Tipo de cuenta", "Acceso"]} />
+        ) : undefined
+      }
+      onBack={isAdminLink ? undefined : goBack}
+    >
+      {mode === "login" ? (
+        <LoginClerkSignIn next={next} role={role} />
+      ) : (
+        <RegistroClerkSignUp role={role} next={next} />
+      )}
       <p className="auth-switch">
         {mode === "login" ? "¿Primera vez en Connecta? " : "¿Ya tenés cuenta? "}
-        <button type="button" onClick={() => switchMode(mode === "login" ? "signup" : "login")}>
+        <button
+          type="button"
+          onClick={() => {
+            const other: AuthMode = mode === "login" ? "signup" : "login";
+            setMode(other);
+            go({ mode: other, profile, clearError: true });
+          }}
+        >
           {mode === "login" ? "Crear cuenta" : "Iniciar sesión"}
         </button>
       </p>

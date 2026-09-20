@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
+import { AuthProgress } from "@/components/AuthWizardBits";
 import { Logo } from "@/components/Logo";
 import {
   CATEGORY_TREE,
@@ -19,7 +19,6 @@ import {
 import { persistAuthNext } from "@/lib/clerk-auth";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
-import { TERMS_VERSION } from "@/lib/terms";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 import { syncTermsAcceptance } from "@/app/after-auth/actions";
 
@@ -190,14 +189,22 @@ export function RegistroCreadorV3Form({
         })();
         return;
       }
-      setStep(6);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Legacy signup path: access is created first on /login now.
+      const params = new URLSearchParams();
+      params.set("tab", "signup");
+      params.set("as", "creador");
+      if (next) params.set("next", next);
+      router.push(`/login?${params.toString()}`);
     }
   }
 
   function goBack() {
     setError(null);
     if (step === 1) {
+      if (variant === "profile") {
+        router.push("/after-auth");
+        return;
+      }
       const params = new URLSearchParams();
       params.set("tab", "signup");
       params.set("as", "creador");
@@ -265,24 +272,12 @@ export function RegistroCreadorV3Form({
 
       <main className="registro-v3-main">
         <div className="registro-v3-wrap">
-          <div className="registro-stepper">
-            {STEPS.map((s, i) => {
-              const n = i + 1;
-              const visual = Math.min(step, 5);
-              const allDone = step >= 6;
-              const state =
-                allDone || n < visual ? "done" : n === visual ? "active" : "";
-              return (
-                <div key={s.label} className="registro-step-dot-wrap">
-                  <div className={`registro-step-dot ${state}`}>
-                    {allDone || n < visual ? "✓" : n}
-                  </div>
-                  <span className={`registro-step-label${n === visual && !allDone ? " is-active" : ""}`}>
-                    {s.label}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="registro-wizard-head">
+            <AuthProgress
+              total={5}
+              current={Math.min(step, 5)}
+              labels={STEPS.map((s) => s.label)}
+            />
           </div>
 
           <div className="registro-step-card">
@@ -604,52 +599,17 @@ export function RegistroCreadorV3Form({
               </>
             ) : null}
 
-            {step === 6 ? (
-              <>
-                <h2 className="registro-step-title">Creá tu acceso</h2>
-                <p className="registro-step-sub">
-                  Usá Google o tu email para guardar este perfil y enviar la solicitud.
-                </p>
-                <div className="registro-clerk-wrap">
-                  <RegistroClerkSignUp
-                    role="creator"
-                    next={next}
-                    extraMetadata={{
-                      handle:
-                        normalizeInstagramHandle(profile.instagram) ||
-                        profile.instagram.trim(),
-                      display_name: profile.nombre.trim(),
-                      terms_accepted: "true",
-                      terms_version: TERMS_VERSION,
-                    }}
-                  />
-                </div>
-              </>
-            ) : null}
-
             {error ? <p className="auth-error">{error}</p> : null}
           </div>
 
-          {step < 6 ? (
-            <div className="registro-step-nav">
-              <button type="button" className="auth-alt-btn" onClick={goBack}>
-                {step === 1 ? "Cancelar" : "Atrás"}
-              </button>
-              <button type="button" className="auth-primary registro-next-btn" onClick={goNext}>
-                {step === 5
-                  ? variant === "signup"
-                    ? "Crear cuenta"
-                    : "Enviar solicitud"
-                  : "Continuar"}
-              </button>
-            </div>
-          ) : (
-            <div className="registro-step-nav">
-              <button type="button" className="auth-alt-btn" onClick={goBack}>
-                Atrás
-              </button>
-            </div>
-          )}
+          <div className="registro-step-nav">
+            <button type="button" className="auth-alt-btn" onClick={goBack}>
+              {step === 1 ? "Cancelar" : "Atrás"}
+            </button>
+            <button type="button" className="auth-primary registro-next-btn" onClick={goNext}>
+              {step === 5 ? "Enviar solicitud" : "Continuar"}
+            </button>
+          </div>
         </div>
       </main>
     </div>

@@ -1,36 +1,22 @@
-import { Suspense } from "react";
-import { RegistroCreadorV3Form } from "@/components/RegistroCreadorV3Form";
-import "../../auth.css";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-function RegistroCreadorInner({
-  searchParams,
-}: {
-  searchParams: { instagram?: string; next?: string };
-}) {
-  const instagram = searchParams.instagram || "";
-  const next = searchParams.next || "";
-
-  return (
-    <RegistroCreadorV3Form initialInstagram={instagram} next={next} />
-  );
-}
-
+/** Legacy URL: access is first now, then profile at /completar-perfil. */
 export default async function RegistroCreadorPage({
   searchParams,
 }: {
-  searchParams: Promise<{ instagram?: string; next?: string }>;
+  searchParams: Promise<{ next?: string; instagram?: string }>;
 }) {
-  const params = await searchParams;
+  const { next, instagram } = await searchParams;
+  const { userId } = await auth();
+  const params = new URLSearchParams();
+  if (next) params.set("next", next);
+  if (instagram) params.set("instagram", instagram);
+  const qs = params.toString();
 
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center text-muted-dark">
-          Cargando…
-        </div>
-      }
-    >
-      <RegistroCreadorInner searchParams={params} />
-    </Suspense>
-  );
+  if (!userId) {
+    redirect(`/login?tab=signup&as=creador${qs ? `&${qs}` : ""}`);
+  }
+
+  redirect(`/completar-perfil${qs ? `?${qs}` : ""}`);
 }
