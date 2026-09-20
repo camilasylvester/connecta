@@ -24,7 +24,7 @@ export function AuthFrame({
   title: string;
   description: string;
   wide?: boolean;
-  /** On mobile, show the title above the card (password / signup steps). */
+  /** Kept for callers; titles always show in the centered layout. */
   showMobileTitle?: boolean;
   progress?: ReactNode;
   onBack?: () => void;
@@ -32,36 +32,28 @@ export function AuthFrame({
 }) {
   return (
     <div
-      className={`auth-page${showMobileTitle ? " auth-page--mobile-title" : ""}`}
+      className={`auth-page auth-page--centered${
+        showMobileTitle ? " auth-page--mobile-title" : ""
+      }`}
     >
       <header className="auth-header">
+        {onBack ? (
+          <button type="button" className="auth-header-back" onClick={onBack}>
+            ← Volver
+          </button>
+        ) : (
+          <span className="auth-header-spacer" aria-hidden />
+        )}
         <Logo
           href="/"
           className="auth-logo"
           aria-label="Connecta, ir al inicio"
         />
-        {onBack ? (
-          <button type="button" className="auth-header-back" onClick={onBack}>
-            ← Volver
-          </button>
-        ) : null}
+        <span className="auth-header-spacer" aria-hidden />
       </header>
 
       <div className={`auth-shell${wide ? " auth-shell-wide" : ""}`}>
-        <aside className="auth-aside">
-          <Logo
-            href="/"
-            className="auth-aside-logo"
-            aria-label="Connecta, ir al inicio"
-          />
-        </aside>
-
         <main className="auth-main">
-          {onBack ? (
-            <button type="button" className="auth-inline-back" onClick={onBack}>
-              ← Volver
-            </button>
-          ) : null}
           {progress}
           <h1>{title}</h1>
           {eyebrow ? <p className="auth-subtitle">{eyebrow}</p> : null}
