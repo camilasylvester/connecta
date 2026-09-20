@@ -4,20 +4,22 @@
 export const clerkAppearance = {
   variables: {
     colorPrimary: "#6f6ae0",
-    colorBackground: "#0d0d10",
-    colorInputBackground: "#111116",
+    colorBackground: "#0a0a0c",
+    colorInputBackground: "#16161c",
     colorInputText: "#f4f3ef",
     colorText: "#f4f3ef",
-    colorTextSecondary: "rgba(244, 243, 239, 0.56)",
+    colorTextOnPrimaryBackground: "#ffffff",
+    colorTextSecondary: "rgba(244, 243, 239, 0.62)",
     colorDanger: "#e0736b",
     colorNeutral: "#f4f3ef",
-    borderRadius: "10px",
+    borderRadius: "12px",
     fontFamily: "var(--font-inter), sans-serif",
   },
   elements: {
-    rootBox: "w-full",
+    rootBox: "w-full mx-auto",
     cardBox: "w-full bg-transparent shadow-none border-0",
     card: "bg-transparent shadow-none border-0 p-0",
+    main: "gap-4",
     headerTitle: "hidden",
     headerSubtitle: "hidden",
     identityPreview: "hidden",
@@ -25,7 +27,11 @@ export const clerkAppearance = {
     identityPreviewIdentifier: "text-[#f4f3ef]",
     footer: "hidden",
     footerAction: "hidden",
-    badge: "hidden",
+    badge: {
+      color: "rgba(244, 243, 239, 0.7)",
+      backgroundColor: "rgba(111, 106, 224, 0.18)",
+      borderColor: "rgba(156, 152, 236, 0.35)",
+    },
     socialButtonsBlockButton: {
       backgroundColor: "#ffffff",
       color: "#1f1f1f",
@@ -36,14 +42,38 @@ export const clerkAppearance = {
       color: "#1f1f1f",
       fontWeight: "600",
     },
-    formButtonPrimary: "bg-[#6f6ae0] hover:bg-[#9c98ec] text-white shadow-none",
-    formFieldInput:
-      "border border-[rgba(244,243,239,0.14)] bg-[#111116] text-[#f4f3ef]",
-    footerActionLink: "text-[#9c98ec] hover:text-white",
-    identityPreviewEditButton: "text-[#9c98ec]",
-    formFieldLabel: "text-[rgba(244,243,239,0.56)]",
-    dividerLine: "bg-[rgba(244,243,239,0.14)]",
-    dividerText: "text-[rgba(244,243,239,0.56)]",
+    formButtonPrimary: {
+      backgroundColor: "#6f6ae0",
+      color: "#ffffff",
+      boxShadow: "none",
+    },
+    formFieldInput: {
+      color: "#f4f3ef",
+      backgroundColor: "#16161c",
+      borderColor: "rgba(244, 243, 239, 0.18)",
+      caretColor: "#f4f3ef",
+    },
+    formFieldLabel: {
+      color: "rgba(244, 243, 239, 0.72)",
+    },
+    formFieldHintText: {
+      color: "rgba(244, 243, 239, 0.5)",
+    },
+    formFieldInputShowPasswordButton: {
+      color: "rgba(244, 243, 239, 0.62)",
+    },
+    footerActionLink: {
+      color: "#9c98ec",
+    },
+    identityPreviewEditButton: {
+      color: "#9c98ec",
+    },
+    dividerLine: {
+      backgroundColor: "rgba(244, 243, 239, 0.14)",
+    },
+    dividerText: {
+      color: "rgba(244, 243, 239, 0.56)",
+    },
   },
 } as const;
 
