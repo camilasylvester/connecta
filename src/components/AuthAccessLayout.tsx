@@ -13,7 +13,8 @@ const FOOTER_LINKS = [
 ] as const;
 
 /**
- * Access step shell: progress outside, logo+title+Clerk inside a dark card (Marz-style).
+ * Access step shell: progress outside, title+Clerk inside a dark card.
+ * Logo stays small in the header (not inside the card).
  */
 export function AuthAccessLayout({
   progress,
@@ -40,7 +41,11 @@ export function AuthAccessLayout({
         ) : (
           <span className="auth-header-spacer" aria-hidden />
         )}
-        <span className="auth-header-spacer" aria-hidden />
+        <Logo
+          href="/"
+          className="auth-logo"
+          aria-label="Connecta, ir al inicio"
+        />
         <span className="auth-header-spacer" aria-hidden />
       </header>
 
@@ -48,11 +53,6 @@ export function AuthAccessLayout({
         <div className="auth-access-wrap">
           {progress}
           <div className="auth-access-card">
-            <Logo
-              href="/"
-              className="auth-access-logo"
-              aria-label="Connecta, ir al inicio"
-            />
             <h1 className="auth-access-title">{title}</h1>
             {description ? (
               <p className="auth-access-desc">{description}</p>

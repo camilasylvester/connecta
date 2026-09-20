@@ -26,7 +26,7 @@ export const clerkAppearance = {
     rootBox: "w-full mx-auto",
     cardBox: "w-full bg-transparent shadow-none border-0",
     card: "bg-transparent shadow-none border-0 p-0",
-    main: "gap-4",
+    main: "gap-3",
     headerTitle: "hidden",
     headerSubtitle: "hidden",
     identityPreview: "hidden",
