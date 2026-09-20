@@ -2,10 +2,17 @@
 
 /** Dark Connecta chrome, but Google's official button stays white + dark text. */
 export const clerkAppearance = {
+  layout: {
+    socialButtonsPlacement: "bottom" as const,
+    socialButtonsVariant: "blockButton" as const,
+    showOptionalFields: false,
+    termsPageUrl: "/terminos",
+    privacyPageUrl: "/privacidad",
+  },
   variables: {
     colorPrimary: "#6f6ae0",
-    colorBackground: "#0a0a0c",
-    colorInputBackground: "#16161c",
+    colorBackground: "transparent",
+    colorInputBackground: "#121218",
     colorInputText: "#f4f3ef",
     colorText: "#f4f3ef",
     colorTextOnPrimaryBackground: "#ffffff",
@@ -46,18 +53,23 @@ export const clerkAppearance = {
       backgroundColor: "#6f6ae0",
       color: "#ffffff",
       boxShadow: "none",
+      borderRadius: "12px",
     },
     formFieldInput: {
       color: "#f4f3ef",
-      backgroundColor: "#16161c",
+      backgroundColor: "#121218",
       borderColor: "rgba(244, 243, 239, 0.18)",
       caretColor: "#f4f3ef",
+      borderRadius: "12px",
     },
     formFieldLabel: {
       color: "rgba(244, 243, 239, 0.72)",
     },
     formFieldHintText: {
       color: "rgba(244, 243, 239, 0.5)",
+    },
+    formFieldAction: {
+      color: "#9c98ec",
     },
     formFieldInputShowPasswordButton: {
       color: "rgba(244, 243, 239, 0.62)",
@@ -73,6 +85,11 @@ export const clerkAppearance = {
     },
     dividerText: {
       color: "rgba(244, 243, 239, 0.56)",
+    },
+    alternativeMethodsBlockButton: {
+      color: "rgba(244, 243, 239, 0.72)",
+      backgroundColor: "transparent",
+      borderColor: "rgba(244, 243, 239, 0.18)",
     },
   },
 } as const;

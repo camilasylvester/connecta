@@ -1415,3 +1415,127 @@
 .registro-step-sub {
   text-align: center;
 }
+
+/* —— Access card (Marz-style, Connecta dark) —— */
+.auth-header--access {
+  border-bottom: 0;
+  min-height: 56px;
+}
+.auth-shell--access {
+  justify-content: flex-start;
+  padding-top: 4px;
+}
+.auth-access-wrap {
+  width: min(420px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.auth-access-wrap .auth-progress {
+  margin-bottom: 0;
+}
+.auth-access-card {
+  width: 100%;
+  padding: 28px 24px 22px;
+  border: 1px solid rgba(244, 243, 239, 0.14);
+  border-radius: 18px;
+  background: #111116;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+.auth-access-logo {
+  display: inline-flex;
+  justify-content: center;
+  color: var(--auth-white);
+  margin: 0 auto 16px;
+  line-height: 0;
+}
+.auth-access-logo svg {
+  width: 128px;
+  height: auto;
+}
+.auth-access-title {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--auth-white);
+  line-height: 1.15;
+}
+.auth-access-desc {
+  margin: 10px 0 0;
+  color: var(--auth-muted);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.auth-access-form {
+  margin-top: 22px;
+  text-align: left;
+  width: 100%;
+}
+.auth-access-legal {
+  margin: 18px 0 0;
+  color: var(--auth-muted-soft);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+}
+.auth-access-legal a {
+  color: var(--auth-purple-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-access-legal a:hover {
+  color: var(--auth-white);
+}
+.auth-access-code {
+  margin-top: 14px;
+  text-align: center;
+}
+.auth-access-code-link {
+  border: 0;
+  background: transparent;
+  color: rgba(244, 243, 239, 0.62);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.auth-access-code-link:hover {
+  color: var(--auth-purple-light);
+}
+.auth-access-code-link:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.auth-access-code-error {
+  margin-top: 8px;
+  text-align: center;
+}
+.auth-page--access .auth-switch {
+  margin-top: 4px;
+}
+
+/* Forgot-password / field actions readable */
+.auth-access-form .cl-formFieldAction,
+.auth-access-form .cl-formFieldAction[class] {
+  color: #9c98ec !important;
+}
+.auth-access-form .cl-formButtonPrimary {
+  border-radius: 12px !important;
+}
+
+@media (max-width: 640px) {
+  .auth-access-card {
+    padding: 24px 18px 18px;
+    border-radius: 16px;
+  }
+  .auth-access-logo svg {
+    width: 112px;
+  }
+  .auth-access-wrap {
+    width: 100%;
+  }
+}

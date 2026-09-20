@@ -3,6 +3,7 @@
 import { useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { AuthAccessLayout } from "@/components/AuthAccessLayout";
 import { AuthFrame } from "@/components/AuthFrame";
 import {
   AuthProgress,
@@ -13,6 +14,7 @@ import {
   IconUser,
 } from "@/components/AuthWizardBits";
 import { LoginClerkSignIn } from "@/components/LoginClerkSignIn";
+import { PreferEmailCodeLink } from "@/components/PreferEmailCodeLink";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
 import {
   persistAuthNext,
@@ -282,47 +284,57 @@ export function AuthEntry() {
 
   // access
   const role = profile ? profileToRole(profile) : "creator";
+  const accessTitle =
+    mode === "login" ? "Entrá a Connecta" : "Creá tu cuenta en Connecta";
+  const accessDescription =
+    mode === "login"
+      ? profile === "marca"
+        ? "Entrá con Google o el email de tu marca."
+        : isAdminLink
+          ? "Entrá con Google o el email de admin."
+          : "Entrá con Google o tu email."
+      : profile === "marca"
+        ? "Google o email. Después completás los datos de la marca."
+        : "Google o email. Después armamos tu perfil de creador.";
+
   return (
-    <AuthFrame
-      eyebrow=""
-      title={mode === "login" ? "Tu acceso" : "Creá tu acceso"}
-      description={
-        mode === "login"
-          ? profile === "marca"
-            ? "Entrá con Google o el email de tu marca."
-            : isAdminLink
-              ? "Entrá con Google o el email de admin."
-              : "Entrá con Google o tu email."
-          : profile === "marca"
-            ? "Google o email. Después completás los datos de la marca."
-            : "Google o email. Después armamos tu perfil de creador."
-      }
-      showMobileTitle
+    <AuthAccessLayout
+      title={accessTitle}
+      description={accessDescription}
+      onBack={isAdminLink ? undefined : goBack}
       progress={
-        mode === "login" && !isAdminLink ? (
-          <AuthProgress total={2} current={2} labels={["Tipo de cuenta", "Acceso"]} />
+        !isAdminLink ? (
+          <AuthProgress
+            total={2}
+            current={2}
+            labels={["Tipo de cuenta", "Acceso"]}
+          />
         ) : undefined
       }
-      onBack={isAdminLink ? undefined : goBack}
+      footer={
+        <p className="auth-switch">
+          {mode === "login" ? "¿Primera vez en Connecta? " : "¿Ya tenés cuenta? "}
+          <button
+            type="button"
+            onClick={() => {
+              const other: AuthMode = mode === "login" ? "signup" : "login";
+              setMode(other);
+              go({ mode: other, profile, clearError: true });
+            }}
+          >
+            {mode === "login" ? "Crear cuenta" : "Iniciar sesión"}
+          </button>
+        </p>
+      }
     >
       {mode === "login" ? (
-        <LoginClerkSignIn next={next} role={role} />
+        <>
+          <LoginClerkSignIn next={next} role={role} />
+          <PreferEmailCodeLink />
+        </>
       ) : (
         <RegistroClerkSignUp role={role} next={next} />
       )}
-      <p className="auth-switch">
-        {mode === "login" ? "¿Primera vez en Connecta? " : "¿Ya tenés cuenta? "}
-        <button
-          type="button"
-          onClick={() => {
-            const other: AuthMode = mode === "login" ? "signup" : "login";
-            setMode(other);
-            go({ mode: other, profile, clearError: true });
-          }}
-        >
-          {mode === "login" ? "Crear cuenta" : "Iniciar sesión"}
-        </button>
-      </p>
-    </AuthFrame>
+    </AuthAccessLayout>
   );
 }
