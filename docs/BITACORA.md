@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-20 — `PENDIENTE` — Camila Sylvester
+## 2026-09-20 — `a1fc48b` — Camila Sylvester
 
 **Qué cambié:** rediseñé el flujo de **Iniciar sesión** y **Crear cuenta** al estilo wizard (primero elegís la acción, después Creador/Marca, después Google/email). El login ya no pide Instagram. El perfil del creador (5 pasos) arranca después del acceso, con barra de progreso y términos al final. Si entrás por el tipo de cuenta equivocado, te lo aclara y te pide el camino correcto.
 
