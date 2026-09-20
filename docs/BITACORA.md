@@ -38,7 +38,21 @@ Reglas de la entrada:
 
 # Registro
 
-<!-- Las entradas nuevas van ACÁ ARRIBA, la más reciente primero. -->
+<!-- Las entradas nuevas van ACÁ ARRIBA, la más reciente primera. -->
+
+---
+
+## 2026-09-20 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** el botón “Continuar/Guardando…” en `/completar-telefono` y `/aceptar-terminos` ya no se queda trabado después de guardar. El dato sí se guardaba, pero la navegación soft (`router.replace` + `router.refresh` dentro de `useTransition`) no terminaba; ahora se hace navegación completa a `/after-auth/go`.
+
+**Por qué:** reportaron que al cargar celular o aceptar términos el botón quedaba en Guardando… y solo al recargar se veía el cambio.
+
+**Dónde:** `src/components/CompletarTelefonoForm.tsx`, `src/components/AceptarTerminosForm.tsx`.
+
+**Cómo probarlo:** entrar con una cuenta sin teléfono → cargar un celular válido → Continuar debe salir de la pantalla (no quedarse en Guardando…). Igual con aceptar términos.
+
+**Riesgo / qué mirar:** bajo. Solo esos dos formularios de gate.
 
 ---
 

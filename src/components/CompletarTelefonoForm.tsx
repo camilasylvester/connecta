@@ -1,10 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { syncPhone } from "@/app/after-auth/actions";
 import { AuthFrame } from "@/components/AuthFrame";
 import { LogoutButton } from "@/components/LogoutButton";
+
+function afterAuthHref(next: string) {
+  const params = new URLSearchParams();
+  if (next) params.set("next", next);
+  const qs = params.toString();
+  return `/after-auth/go${qs ? `?${qs}` : ""}`;
+}
 
 export function CompletarTelefonoForm({
   initialPhone,
@@ -13,26 +19,29 @@ export function CompletarTelefonoForm({
   initialPhone: string;
   next: string;
 }) {
-  const router = useRouter();
   const [phone, setPhone] = useState(initialPhone);
   const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (busy) return;
     setError(null);
-    startTransition(async () => {
+    setBusy(true);
+    try {
       const res = await syncPhone(phone);
       if (!res.ok) {
         setError(res.error);
+        setBusy(false);
         return;
       }
-      const params = new URLSearchParams();
-      if (next) params.set("next", next);
-      const qs = params.toString();
-      router.replace(`/after-auth/go${qs ? `?${qs}` : ""}`);
-      router.refresh();
-    });
+      // Full navigation so gates re-read the DB; soft nav + refresh was hanging
+      // the button on "Guardando…" even after a successful save.
+      window.location.assign(afterAuthHref(next));
+    } catch {
+      setError("No se pudo guardar. Probá de nuevo.");
+      setBusy(false);
+    }
   }
 
   return (
@@ -55,14 +64,15 @@ export function CompletarTelefonoForm({
             autoComplete="tel"
             required
             autoFocus
+            disabled={busy}
           />
         </label>
         <p className="auth-hint" style={{ marginTop: 0 }}>
           Solo celular argentino, por ejemplo 11 1234-5678 o +54 9 11 1234-5678.
         </p>
         {error ? <p className="auth-error">{error}</p> : null}
-        <button type="submit" className="auth-primary" disabled={pending}>
-          {pending ? "Guardando…" : "Continuar"}
+        <button type="submit" className="auth-primary" disabled={busy}>
+          {busy ? "Guardando…" : "Continuar"}
         </button>
       </form>
       <p className="auth-switch">
