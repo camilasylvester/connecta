@@ -26,20 +26,32 @@ export function PreferEmailCodeLink() {
 
     setBusy(true);
     try {
-      const created = await signIn.create({ identifier: email });
-      const emailCode = created.supportedFirstFactors?.find(
-        (f) => f.strategy === "email_code"
-      );
+      try {
+        signIn.reset?.();
+      } catch {
+        /* ignore */
+      }
+      const { error: createError } = await signIn.create({ identifier: email });
+      if (createError) {
+        setError(clerkErrorMessage(createError, "No se pudo empezar el ingreso."));
+        return;
+      }
+      const factors = signIn.supportedFirstFactors || [];
+      const emailCode = factors.find((f) => f.strategy === "email_code");
       if (!emailCode || emailCode.strategy !== "email_code") {
         setError(
           "El ingreso con código no está disponible para esta cuenta. Usá contraseña o Google."
         );
         return;
       }
-      await signIn.prepareFirstFactor({
+      const { error: prepareError } = await signIn.prepareFirstFactor({
         strategy: "email_code",
         emailAddressId: emailCode.emailAddressId,
       });
+      if (prepareError) {
+        setError(clerkErrorMessage(prepareError, "No se pudo enviar el código."));
+        return;
+      }
       window.location.hash = "#/factor-one";
     } catch (err) {
       setError(clerkErrorMessage(err, "No se pudo enviar el código."));
