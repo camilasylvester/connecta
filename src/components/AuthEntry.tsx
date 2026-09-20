@@ -75,6 +75,8 @@ export function AuthEntry() {
   const [mode, setMode] = useState<AuthMode | null>(initialMode);
   const [profile, setProfile] = useState<AuthProfile | null>(initialProfile);
   const [signingOut, setSigningOut] = useState(false);
+  const [pickedIntent, setPickedIntent] = useState<AuthMode | null>(null);
+  const [pickedProfile, setPickedProfile] = useState<AuthProfile | null>(null);
 
   useEffect(() => {
     persistAuthNext(next);
@@ -118,16 +120,26 @@ export function AuthEntry() {
   }
 
   function chooseIntent(nextMode: AuthMode) {
-    setMode(nextMode);
-    setProfile(null);
-    persistAuthRole(null);
-    go({ mode: nextMode, profile: null, clearError: true });
+    if (pickedIntent) return;
+    setPickedIntent(nextMode);
+    window.setTimeout(() => {
+      setMode(nextMode);
+      setProfile(null);
+      persistAuthRole(null);
+      go({ mode: nextMode, profile: null, clearError: true });
+      setPickedIntent(null);
+    }, 220);
   }
 
   function chooseProfile(nextProfile: AuthProfile) {
-    setProfile(nextProfile);
-    persistAuthRole(profileToRole(nextProfile));
-    go({ mode, profile: nextProfile, clearError: true });
+    if (pickedProfile) return;
+    setPickedProfile(nextProfile);
+    window.setTimeout(() => {
+      setProfile(nextProfile);
+      persistAuthRole(profileToRole(nextProfile));
+      go({ mode, profile: nextProfile, clearError: true });
+      setPickedProfile(null);
+    }, 220);
   }
 
   function goBack() {
@@ -209,12 +221,14 @@ export function AuthEntry() {
             title="Iniciar sesión"
             description="Ya tengo cuenta en Connecta."
             icon={<IconLogin />}
+            selected={pickedIntent === "login"}
             onClick={() => chooseIntent("login")}
           />
           <AuthSelectCard
             title="Crear cuenta"
             description="Primera vez: armamos tu acceso y después el perfil."
             icon={<IconSignup />}
+            selected={pickedIntent === "signup"}
             onClick={() => chooseIntent("signup")}
           />
         </div>
@@ -246,12 +260,14 @@ export function AuthEntry() {
             title="Creador"
             description="Postulate a eventos y colaborá con marcas."
             icon={<IconUser />}
+            selected={pickedProfile === "creador"}
             onClick={() => chooseProfile("creador")}
           />
           <AuthSelectCard
             title="Marca"
             description="Publicá acciones y encontrá creadores."
             icon={<IconBrand />}
+            selected={pickedProfile === "marca"}
             onClick={() => chooseProfile("marca")}
           />
         </div>
