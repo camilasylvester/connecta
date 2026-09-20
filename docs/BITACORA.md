@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-20 — `PENDIENTE` — Camila Sylvester
+## 2026-09-20 — `fd7d563` — Camila Sylvester
 
 **Qué cambié:** arreglé “Continuar con Google” en iniciar sesión y crear cuenta. Al volver de Google, Clerk dejaba la URL en `/login#/sso-callback` (o `/registro/creador#/sso-callback`), pero la pantalla ya no tenía el formulario de Clerk montado y el login no terminaba. Ahora un handler global completa ese callback y manda a `/after-auth`. También alineé los redirects de sign-up/sign-in para que no manden a `/` por error.
 
