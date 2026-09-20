@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-20 — `PENDIENTE` — Camila Sylvester
+
+**Qué cambié:** arreglé “Continuar con Google” en iniciar sesión y crear cuenta. Al volver de Google, Clerk dejaba la URL en `/login#/sso-callback` (o `/registro/creador#/sso-callback`), pero la pantalla ya no tenía el formulario de Clerk montado y el login no terminaba. Ahora un handler global completa ese callback y manda a `/after-auth`. También alineé los redirects de sign-up/sign-in para que no manden a `/` por error.
+
+**Por qué:** reportaron que no se podía iniciar sesión ni crear cuenta con Google.
+
+**Dónde:** `src/components/ClerkSsoHashHandler.tsx`, `src/app/layout.tsx`, `src/components/LoginClerkSignIn.tsx`, `src/components/RegistroClerkSignUp.tsx`, `src/app/sso-callback/page.tsx`.
+
+**Cómo probarlo:** `/login` → Continuar con email → Continuar con Google (cuenta de prueba). Debe volver a Connecta y pasar por after-auth (perfil / teléfono / términos según corresponda). Igual desde crear cuenta marca o paso final de registro creador.
+
+**Riesgo / qué mirar:** medio-bajo. Solo el retorno OAuth; email/contraseña no cambia. Si Google falla, mirar que aparezca “Conectando tu cuenta…” un momento y no quede en el form de Instagram.
+
+---
+
 ## 2026-09-20 — `2db0284` — Camila Sylvester
 
 **Qué cambié:** el botón “Continuar/Guardando…” en `/completar-telefono` y `/aceptar-terminos` ya no se queda trabado después de guardar. El dato sí se guardaba, pero la navegación soft (`router.replace` + `router.refresh` dentro de `useTransition`) no terminaba; ahora se hace navegación completa a `/after-auth/go`.

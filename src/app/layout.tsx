@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
+import { ClerkSsoHashHandler } from "@/components/ClerkSsoHashHandler";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={`${inter.variable} ${ibmPlexMono.variable} h-full`}
       >
         <body className="min-h-full font-sans antialiased">
+          <ClerkSsoHashHandler />
           {children}
         </body>
       </html>

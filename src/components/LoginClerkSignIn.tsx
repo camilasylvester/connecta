@@ -100,6 +100,8 @@ export function LoginClerkSignIn({
       initialValues={initialEmail ? { emailAddress: initialEmail } : undefined}
       forceRedirectUrl={redirectUrl}
       fallbackRedirectUrl={redirectUrl}
+      signUpForceRedirectUrl={redirectUrl}
+      signUpFallbackRedirectUrl={redirectUrl}
       signUpUrl={signUpUrl}
       appearance={clerkAppearance}
       fallback={<p className="auth-hint">Preparando el ingreso…</p>}

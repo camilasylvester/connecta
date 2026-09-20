@@ -65,6 +65,8 @@ export function RegistroClerkSignUp({
       initialValues={initialEmail ? { emailAddress: initialEmail } : undefined}
       forceRedirectUrl={redirectUrl}
       fallbackRedirectUrl={redirectUrl}
+      signInForceRedirectUrl={redirectUrl}
+      signInFallbackRedirectUrl={redirectUrl}
       signInUrl={signInUrl}
       appearance={clerkAppearance}
       fallback={<p className="auth-hint">Preparando el registro…</p>}
