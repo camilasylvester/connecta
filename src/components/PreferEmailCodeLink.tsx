@@ -6,12 +6,13 @@ import { clerkErrorMessage } from "@/lib/clerk-auth";
 
 /** Starts Clerk email-code factor (OTP) from the current identifier field. */
 export function PreferEmailCodeLink() {
-  const { isLoaded, signIn } = useSignIn();
+  const { signIn, fetchStatus } = useSignIn();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const ready = Boolean(signIn) && fetchStatus !== "fetching";
 
   async function onClick() {
-    if (!isLoaded || !signIn || busy) return;
+    if (!signIn || busy) return;
     setError(null);
     const input = document.querySelector(
       '.auth-access-form input[name="identifier"], .auth-access-form input[type="email"], .auth-access-form input[name="emailAddress"]'
@@ -53,7 +54,7 @@ export function PreferEmailCodeLink() {
         type="button"
         className="auth-access-code-link"
         onClick={() => void onClick()}
-        disabled={busy || !isLoaded}
+        disabled={busy || !ready}
       >
         {busy ? "Enviando código…" : "Prefiero ingresar con un código"}
       </button>
