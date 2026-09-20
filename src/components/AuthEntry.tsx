@@ -284,23 +284,12 @@ export function AuthEntry() {
 
   // access
   const role = profile ? profileToRole(profile) : "creator";
-  const accessTitle =
-    mode === "login" ? "Entrá a Connecta" : "Creá tu cuenta en Connecta";
-  const accessDescription =
-    mode === "login"
-      ? profile === "marca"
-        ? "Entrá con Google o el email de tu marca."
-        : isAdminLink
-          ? "Entrá con Google o el email de admin."
-          : "Entrá con Google o tu email."
-      : profile === "marca"
-        ? "Google o email. Después completás los datos de la marca."
-        : "Google o email. Después armamos tu perfil de creador.";
+  const accessTitle = mode === "login" ? "Iniciá sesión" : "Creá tu cuenta";
 
   return (
     <AuthAccessLayout
       title={accessTitle}
-      description={accessDescription}
+      description=""
       onBack={isAdminLink ? undefined : goBack}
       progress={
         !isAdminLink ? (

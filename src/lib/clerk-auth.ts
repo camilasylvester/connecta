@@ -3,7 +3,7 @@
 /** Dark Connecta chrome, but Google's official button stays white + dark text. */
 export const clerkAppearance = {
   layout: {
-    socialButtonsPlacement: "bottom" as const,
+    socialButtonsPlacement: "top" as const,
     socialButtonsVariant: "blockButton" as const,
     showOptionalFields: false,
     termsPageUrl: "/terminos",

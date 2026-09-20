@@ -1419,9 +1419,23 @@
 /* —— Access card (Marz-style, Connecta dark) —— */
 .auth-header--access {
   border-bottom: 0;
-  min-height: 64px;
-  padding-top: 20px;
-  padding-bottom: 8px;
+  min-height: 72px;
+  padding-top: 22px;
+  padding-bottom: 12px;
+  align-items: center;
+}
+.auth-page--access .auth-header--access .auth-logo svg {
+  width: 118px;
+}
+.auth-page--access .auth-header-back {
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-inter), sans-serif;
+  color: rgba(244, 243, 239, 0.72);
+  line-height: 1;
+}
+.auth-page--access .auth-header-back:hover {
+  color: var(--auth-white);
 }
 .auth-shell--access {
   justify-content: flex-start;
@@ -1457,13 +1471,10 @@
   line-height: 1.25;
 }
 .auth-access-desc {
-  margin: 8px 0 0;
-  color: var(--auth-muted);
-  font-size: 13.5px;
-  line-height: 1.45;
+  display: none;
 }
 .auth-access-form {
-  margin-top: 16px;
+  margin-top: 18px;
   text-align: left;
   width: 100%;
 }
