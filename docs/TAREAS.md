@@ -171,7 +171,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Decisión (2026-09-26):** escalera País → Provincia → Municipio, con Argentina, Uruguay, Chile y España. Los filtros de marcas siguen la misma lógica.
 
-**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `5e31226`. Datos en `public/geo/` (se regeneran con `scripts/build-geo.mjs`), buscador sin tildes, filtro "manda lo más específico", perfiles viejos traducidos solos, sin migración (`creator_meta.geo`).
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `5e31226`. Datos en `public/geo/` (se regeneran con `scripts/build-geo.mjs`), buscador sin tildes, filtro "manda lo más específico", perfiles viejos traducidos solos, sin migración (`creator_meta.geo`). **Update 2026-09-26:** las marcas también cargan su ubicación con la escalera (alta, `/dashboard/config` y admin).
 
 ---
 

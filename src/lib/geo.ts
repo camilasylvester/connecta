@@ -6,7 +6,8 @@
  * Acá quedan solo los países y la lógica, para que el bundle no cargue los
  * ~10.900 municipios.
  *
- * En la base se guarda como `creatorMeta.geo` (jsonb, sin migración) y además
+ * La usan creadores y marcas. En la base se guarda como `creatorMeta.geo`
+ * (jsonb, sin migración; el nombre de la columna es histórico) y además
  * se copia a las columnas viejas `province` / `city` para las pantallas que
  * todavía las leen.
  */

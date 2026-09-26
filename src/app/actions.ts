@@ -12,7 +12,7 @@ import {
   type OnboardingPayload,
   validateOnboarding,
 } from "@/lib/onboarding";
-import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
+import { brandMetaWithGeo, payloadToCreatorMeta } from "@/lib/creator-registro-v3";
 import { parseGeo } from "@/lib/geo";
 import { isAllowedStoredImageUrl, parseImageUrlsField } from "@/lib/image-compress";
 import {
@@ -365,11 +365,12 @@ async function applyProfilePayload(
       handle,
       tiktokHandle: effective.tiktok.trim() || null,
       province: effective.province || null,
-      // Creadores: `city` = municipio de la escalera (src/lib/geo.ts).
+      // `city` = municipio de la escalera (src/lib/geo.ts), para los dos roles.
       city:
-        formRole === "brand"
-          ? effective.companyLocation.trim() || effective.province || null
-          : parseGeo(effective.geo)?.municipio || effective.province || null,
+        parseGeo(effective.geo)?.municipio ||
+        (formRole === "brand" ? effective.companyLocation.trim() : "") ||
+        effective.province ||
+        null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: effective.phone.trim()
         ? formatMobileDisplay(effective.phone) || effective.phone.trim()
@@ -421,7 +422,9 @@ async function applyProfilePayload(
             : null
           : target.tiktokFollowers,
       creatorMeta:
-        formRole === "creator" ? payloadToCreatorMeta(effective) : target.creatorMeta,
+        formRole === "creator"
+          ? payloadToCreatorMeta(effective)
+          : brandMetaWithGeo(target.creatorMeta, effective),
       onboardingCompleted: true,
       updatedAt: new Date(),
     })

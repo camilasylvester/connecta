@@ -1,4 +1,5 @@
 import type { CreatorRegistroV3Draft } from "@/lib/creator-registro-v3";
+import { parseGeo } from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { emptyOnboarding, type OnboardingPayload } from "@/lib/onboarding";
 import { formatMobileDisplay } from "@/lib/phone";
@@ -92,6 +93,7 @@ export function loadBrandDraft(): OnboardingPayload | null {
       ...parsed,
       role: "brand",
       goals: Array.isArray(parsed.goals) ? parsed.goals : [],
+      geo: parseGeo(parsed.geo),
     };
   } catch {
     return null;

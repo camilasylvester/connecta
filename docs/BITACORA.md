@@ -42,6 +42,24 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+
+**Qué cambié:** las **marcas cargan su ubicación con la misma escalera País → Provincia → Municipio** que los creadores (extensión de **T-14**). Reemplaza la provincia suelta (5 opciones) + el texto libre "Ciudad / barrio". Está en el wizard de alta de la marca (paso "Tu marca"), en la edición de su perfil (`/dashboard/config`) y en la ficha que edita el admin. El prefijo del celular de la marca también sale de su país.
+
+**Cómo se guarda:** igual que en creadores, en `creator_meta.geo` (jsonb que ya existía; **sin migración**, el nombre de la columna es histórico). Además se copian `province` = provincia, `city` = municipio y `company_location` = "Tigre, Buenos Aires", para las pantallas que ya leían esos campos (ficha del admin, etc.). La lógica quedó en un solo helper, `withGeo` (`src/lib/onboarding.ts`), que usan todos los formularios.
+
+**Por qué:** pedido de producto: que la ubicación de las marcas siga la misma lógica que la de los creadores.
+
+**Dónde:** `RegistroMarcaForm`, `OnboardingForm` (la escalera ahora es para los dos roles; se sacaron el select de provincia y el campo libre de ciudad), `CreatorSocialProfile` (usa `withGeo`), `src/lib/onboarding.ts` (`withGeo`, la validación de ubicación completa pasa a valer para marcas; se borró `PROVINCES`, que quedó sin uso), `creator-registro-v3.ts` (`brandMetaWithGeo`), `signup-draft.ts`, `after-auth/actions.ts` y `actions.ts` (guardado).
+
+**Cómo probarlo:** `/login` → Crear cuenta → Marca → paso "Tu marca": elegir país, provincia y municipio (sin municipio no avanza) y ver en la revisión "Tigre, Buenos Aires, Argentina". Con una marca existente, `/dashboard/config`: la ubicación aparece como escalera; guardar.
+
+**Riesgo / qué mirar:** medio-bajo. Las marcas que ya existen tienen la ubicación vieja como texto libre, que no se puede traducir sola: la próxima vez que editen su perfil van a tener que elegirla en la escalera (hasta entonces, lo que muestran no cambia). Los creadores no cambian.
+
+**Verificación:** lint, `tsc` y `next build` limpios. Ida y vuelta de una marca (validación sin ubicación / sin municipio / completa, lo que guarda el servidor y la reapertura en edición). En local, paso 1 del alta de marca con Argentina › Buenos Aires › Tigre.
+
+---
+
 ## 2026-09-26 — `ff7bc1c` — Amadeo Rodríguez
 
 **Qué cambié:** el celular ahora acepta **Argentina, Uruguay, Chile y España** (tarea **T-38**), los mismos países que la ubicación. En todos los formularios que piden celular (registro de creador y de marca, `/completar-telefono`, `/mi-perfil` y la edición del admin) hay un selector de prefijo al lado del número. En el registro del creador la ubicación pasó arriba del celular, así el prefijo ya viene con el país elegido.

@@ -10,7 +10,7 @@ import {
   type OnboardingPayload,
   validateOnboarding,
 } from "@/lib/onboarding";
-import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
+import { brandMetaWithGeo, payloadToCreatorMeta } from "@/lib/creator-registro-v3";
 import {
   mobileValidationError,
   formatMobileDisplay,
@@ -48,11 +48,12 @@ export async function syncOnboarding(raw: OnboardingPayload) {
       handle,
       tiktokHandle: raw.tiktok.trim() || null,
       province: raw.province || null,
-      // Creadores: `city` = municipio de la escalera (src/lib/geo.ts).
+      // `city` = municipio de la escalera (src/lib/geo.ts), para los dos roles.
       city:
-        raw.role === "brand"
-          ? raw.companyLocation.trim() || raw.province || null
-          : parseGeo(raw.geo)?.municipio || raw.province || null,
+        parseGeo(raw.geo)?.municipio ||
+        (raw.role === "brand" ? raw.companyLocation.trim() : "") ||
+        raw.province ||
+        null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: raw.phone.trim()
         ? formatMobileDisplay(raw.phone) || raw.phone.trim()
@@ -81,7 +82,9 @@ export async function syncOnboarding(raw: OnboardingPayload) {
       contentThemes: raw.role === "creator" ? raw.contentThemes : [],
       platforms: raw.role === "creator" ? raw.platforms : [],
       creatorMeta:
-        raw.role === "creator" ? payloadToCreatorMeta(raw) : existing[0].creatorMeta,
+        raw.role === "creator"
+          ? payloadToCreatorMeta(raw)
+          : brandMetaWithGeo(existing[0].creatorMeta, raw),
       onboardingCompleted: true,
       updatedAt: new Date(),
     })

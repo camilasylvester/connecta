@@ -345,6 +345,14 @@ export function payloadToCreatorMeta(data: OnboardingPayload): CreatorMeta {
   };
 }
 
+/**
+ * Marcas: de todo `creator_meta` solo usan `geo` (su ubicación). Se guarda ahí
+ * para no migrar la base; el resto de los campos quedan como estaban.
+ */
+export function brandMetaWithGeo(existing: unknown, data: OnboardingPayload): CreatorMeta {
+  return { ...parseCreatorMeta(existing), geo: parseGeo(data.geo) };
+}
+
 export function profileToCreatorDraft(data: OnboardingPayload): CreatorRegistroV3Draft {
   const meta = payloadToCreatorMeta(data);
   return {

@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { AuthProgress } from "@/components/AuthWizardBits";
+import { UbicacionPicker } from "@/components/GeoPicker";
 import { Logo } from "@/components/Logo";
 import { PhoneInput } from "@/components/PhoneInput";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
+import { geoLabel, isCompleteGeo } from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import {
   BRAND_GOALS,
   emptyOnboarding,
   INDUSTRIES,
   INFLUENCER_EXPERIENCE,
-  PROVINCES,
   validateOnboarding,
+  withGeo,
   type OnboardingPayload,
 } from "@/lib/onboarding";
 import { mobileValidationError, formatMobileDisplay } from "@/lib/phone";
@@ -110,8 +112,9 @@ export function RegistroMarcaForm({
       if (!normalizeInstagramHandle(data.instagram)) {
         return "Poné el Instagram de la marca (por ejemplo @connecta).";
       }
-      if (!data.province) return "Elegí la provincia.";
-      if (!data.companyLocation.trim()) return "Poné la ciudad o barrio.";
+      if (!isCompleteGeo(data.geo)) {
+        return "Completá la ubicación de la marca: país, provincia y municipio.";
+      }
       return null;
     }
     if (current === 2) {
@@ -265,26 +268,14 @@ export function RegistroMarcaForm({
                   />
                 </div>
                 <div className="auth-field">
-                  <label>Provincia *</label>
-                  <div className="registro-chip-row">
-                    {PROVINCES.map((p) => (
-                      <Chip
-                        key={p}
-                        active={data.province === p}
-                        onClick={() => set("province", p)}
-                      >
-                        {p}
-                      </Chip>
-                    ))}
-                  </div>
-                </div>
-                <div className="auth-field">
-                  <label htmlFor="companyLocation">Ciudad / barrio *</label>
-                  <input
-                    id="companyLocation"
-                    value={data.companyLocation}
-                    onChange={(e) => set("companyLocation", e.target.value)}
-                    placeholder="Palermo, CABA"
+                  <label>¿Dónde está la marca?</label>
+                  <p className="auth-hint" style={{ marginTop: 0 }}>
+                    Misma escalera que usan los creadores: país, provincia y municipio.
+                  </p>
+                  <UbicacionPicker
+                    idPrefix="marca-geo"
+                    value={data.geo || null}
+                    onChange={(geo) => setData((prev) => withGeo(prev, geo))}
                   />
                 </div>
               </>
@@ -322,6 +313,7 @@ export function RegistroMarcaForm({
                   <PhoneInput
                     id="brandPhone"
                     value={data.phone}
+                    defaultCountry={data.geo?.pais}
                     onChange={(phone) => set("phone", phone)}
                   />
                   <p className="auth-hint">
@@ -411,7 +403,7 @@ export function RegistroMarcaForm({
                 />
                 <ReviewRow
                   label="Ubicación"
-                  value={[data.companyLocation, data.province].filter(Boolean).join(" · ")}
+                  value={geoLabel(data.geo)}
                 />
                 <ReviewRow
                   label="Contacto"

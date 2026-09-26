@@ -1,18 +1,11 @@
 import {
+  geoShortLabel,
   isCompleteGeo,
   legacyToGeo,
   parseGeo,
   type GeoUbicacion,
 } from "@/lib/geo";
 import { mobileValidationError } from "@/lib/phone";
-
-export const PROVINCES = [
-  "Buenos Aires",
-  "CABA",
-  "Córdoba",
-  "Rosario",
-  "Otro",
-] as const;
 
 export const INDUSTRIES = [
   "Gastronomía y bebidas",
@@ -199,6 +192,10 @@ export function validateOnboarding(
 
   if (!data.fullName.trim()) return { ok: false, error: "Nombre y apellido es obligatorio" };
   if (!data.instagram.trim()) return { ok: false, error: "Usuario de Instagram es obligatorio" };
+  // Creadores y marcas cargan la ubicación con la misma escalera (src/lib/geo.ts).
+  if (!isCompleteGeo(data.geo)) {
+    return { ok: false, error: "Completá la ubicación: país, provincia y municipio" };
+  }
   if (!data.province) return { ok: false, error: "Provincia es obligatoria" };
   if (
     data.role !== "creator" &&
@@ -239,9 +236,6 @@ export function validateOnboarding(
   }
 
   if (data.role === "creator") {
-    if (!isCompleteGeo(data.geo)) {
-      return { ok: false, error: "Completá tu ubicación: país, provincia y municipio" };
-    }
     if (data.contentThemes.length === 0) {
       return { ok: false, error: "Elegí al menos una temática" };
     }
@@ -251,6 +245,24 @@ export function validateOnboarding(
   }
 
   return { ok: true };
+}
+
+/**
+ * Aplica una ubicación de la escalera a la ficha. `geo` es la fuente de verdad;
+ * de ahí salen las columnas viejas que otras pantallas siguen leyendo:
+ * `province` para los dos roles y, en marcas, `companyLocation` ("Palermo, CABA").
+ */
+export function withGeo(
+  data: OnboardingPayload,
+  geo: GeoUbicacion | null
+): OnboardingPayload {
+  return {
+    ...data,
+    geo,
+    province: geo?.provincia || "",
+    companyLocation:
+      data.role === "brand" ? geoShortLabel(geo) : data.companyLocation,
+  };
 }
 
 /** Map a DB profile into the onboarding form shape for editing. */

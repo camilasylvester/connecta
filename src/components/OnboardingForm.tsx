@@ -10,8 +10,8 @@ import {
   type OnboardingPayload,
   type OnboardingRole,
   PLATFORMS,
-  PROVINCES,
   validateOnboarding,
+  withGeo,
 } from "@/lib/onboarding";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
@@ -225,36 +225,17 @@ export function OnboardingForm({
             />
           </label>
 
-          {data.role === "creator" ? (
-            // Creadores: escalera país → provincia → municipio (la usan los filtros de marcas).
-            <div className="block">
-              <span className={labelClass}>¿Dónde vive? *</span>
-              <UbicacionPicker
-                idPrefix="onboarding-geo"
-                value={data.geo || null}
-                onChange={(geo) =>
-                  setData((prev) => ({ ...prev, geo, province: geo?.provincia || "" }))
-                }
-              />
-            </div>
-          ) : (
-            <label className="block">
-              <span className={labelClass}>Provincia *</span>
-              <select
-                className={fieldCls}
-                value={data.province}
-                onChange={(e) => set("province", e.target.value)}
-                required
-              >
-                <option value="">Elegí una opción</option>
-                {PROVINCES.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          {/* Escalera país → provincia → municipio para creadores y marcas. */}
+          <div className="block">
+            <span className={labelClass}>
+              {data.role === "brand" ? "¿Dónde está la marca? *" : "¿Dónde vive? *"}
+            </span>
+            <UbicacionPicker
+              idPrefix="onboarding-geo"
+              value={data.geo || null}
+              onChange={(geo) => setData((prev) => withGeo(prev, geo))}
+            />
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
@@ -376,16 +357,6 @@ export function OnboardingForm({
                   </option>
                 ))}
               </select>
-            </label>
-
-            <label className="block">
-              <span className={labelClass}>Ciudad / Provincia *</span>
-              <input
-                className={fieldCls}
-                value={data.companyLocation}
-                onChange={(e) => set("companyLocation", e.target.value)}
-                placeholder="Palermo, CABA"
-              />
             </label>
 
             <div className={`rounded-xl border p-4 ${light ? "border-black/10 bg-black/[0.03]" : "border-white/10 bg-black/20"}`}>

@@ -16,6 +16,7 @@ import {
   PLATFORMS,
   type OnboardingPayload,
   validateOnboarding,
+  withGeo,
 } from "@/lib/onboarding";
 import { UbicacionPicker } from "@/components/GeoPicker";
 import { PhoneInput } from "@/components/PhoneInput";
@@ -585,14 +586,7 @@ export function CreatorSocialProfile({
                 <UbicacionPicker
                   idPrefix="perfil-geo"
                   value={data.geo || null}
-                  onChange={(geo) =>
-                    setData((prev) => ({
-                      ...prev,
-                      geo,
-                      // La columna vieja `province` sigue alimentando otras pantallas.
-                      province: geo?.provincia || "",
-                    }))
-                  }
+                  onChange={(geo) => setData((prev) => withGeo(prev, geo))}
                 />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
