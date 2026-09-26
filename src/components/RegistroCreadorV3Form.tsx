@@ -10,13 +10,14 @@ import {
   GENERO_OPTIONS,
   IDIOMA_OPTIONS,
   PLATAFORMA_OPTIONS,
-  UBICACION_OPTIONS,
   emptyCreatorDraft,
   loadCreatorDraft,
   saveCreatorDraft,
   type CreatorRegistroV3Draft,
 } from "@/lib/creator-registro-v3";
 import { persistAuthNext } from "@/lib/clerk-auth";
+import { UbicacionPicker } from "@/components/GeoPicker";
+import { geoLabel, isCompleteGeo } from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
@@ -153,11 +154,13 @@ export function RegistroCreadorV3Form({
             profile.instagram.trim()
         ) &&
         !phoneErr &&
-        !!profile.ubicacion;
+        isCompleteGeo(profile.geo);
       if (!ok) {
         setError(
           phoneErr ||
-            "Completá tu nombre, Instagram, teléfono y ubicación antes de continuar."
+            (isCompleteGeo(profile.geo)
+              ? "Completá tu nombre, Instagram y teléfono antes de continuar."
+              : "Completá tu ubicación: país, provincia y municipio.")
         );
       }
       return ok;
@@ -357,18 +360,15 @@ export function RegistroCreadorV3Form({
                   </p>
                 </div>
                 <div className="auth-field">
-                  <label>Ubicación</label>
-                  <div className="registro-chip-row">
-                    {UBICACION_OPTIONS.map((u) => (
-                      <Chip
-                        key={u}
-                        active={profile.ubicacion === u}
-                        onClick={() => setProfile((p) => ({ ...p, ubicacion: u }))}
-                      >
-                        {u}
-                      </Chip>
-                    ))}
-                  </div>
+                  <label>¿Dónde vivís?</label>
+                  <p className="auth-hint" style={{ marginTop: 0 }}>
+                    Las marcas filtran por país, provincia y municipio.
+                  </p>
+                  <UbicacionPicker
+                    idPrefix="registro-geo"
+                    value={profile.geo}
+                    onChange={(geo) => setProfile((p) => ({ ...p, geo }))}
+                  />
                 </div>
               </>
             ) : null}
@@ -569,8 +569,8 @@ export function RegistroCreadorV3Form({
                 <div className="registro-review-section">
                   <div className="registro-review-label">Ubicación · Género</div>
                   <div className="registro-review-pills">
-                    {profile.ubicacion ? (
-                      <span className="registro-review-pill">{profile.ubicacion}</span>
+                    {profile.geo ? (
+                      <span className="registro-review-pill">{geoLabel(profile.geo)}</span>
                     ) : null}
                     {profile.genero ? (
                       <span className="registro-review-pill">{profile.genero}</span>

@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { profiles } from "@/db/schema";
 import { ensureProfile, requireUserId } from "@/lib/auth";
+import { parseGeo } from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import {
   type OnboardingPayload,
@@ -47,10 +48,11 @@ export async function syncOnboarding(raw: OnboardingPayload) {
       handle,
       tiktokHandle: raw.tiktok.trim() || null,
       province: raw.province || null,
+      // Creadores: `city` = municipio de la escalera (src/lib/geo.ts).
       city:
         raw.role === "brand"
           ? raw.companyLocation.trim() || raw.province || null
-          : raw.province || null,
+          : parseGeo(raw.geo)?.municipio || raw.province || null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: raw.phone.trim()
         ? formatArMobileDisplay(raw.phone) || raw.phone.trim()

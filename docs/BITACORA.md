@@ -42,7 +42,30 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+## 2026-09-26 — `pendiente de commit (ubicación)` — Amadeo Rodríguez
+
+**Qué cambié:** la ubicación de los creadores pasó a ser una **escalera País → Provincia → Municipio** con Argentina, Uruguay, Chile y España completos (tarea **T-14**). Se usa en el registro, en la edición de `/mi-perfil`, en la ficha que edita el admin, y en el **filtro de Ubicación del buscador de marcas**, que sigue la misma lógica.
+
+- **Datos:** Argentina 24 provincias / 2.289 municipios (en CABA, los 48 barrios); Uruguay 19 departamentos / 217 (municipios + capitales + barrios de Montevideo); Chile 16 regiones / 346 comunas; España 52 provincias / 8.131 municipios. Viven en `public/geo/*.json` y se bajan solo cuando alguien elige ese país. Se regeneran con `node scripts/build-geo.mjs` (el script explica las fuentes y los parches: Georef no tiene municipios de Santa Cruz ni Santiago del Estero → localidades; las capitales de Uruguay no son municipio → se agregan).
+- **Buscador:** cada nivel tiene buscador que ignora tildes ("cordoba" encuentra "Córdoba").
+- **Filtro de marcas:** tildás países; adentro de cada país podés sumar provincias, y adentro de cada provincia, municipios. **Manda lo más específico**: Argentina + Córdoba busca solo en Córdoba; entre elecciones hermanas es "o" (Córdoba o Madrid).
+- **Perfiles viejos:** "Palermo", "Rosario", "La Plata", provincia "CABA"… se traducen solos a la escalera (Rosario → Argentina › Santa Fe › Rosario), así que aparecen en los filtros sin migrar nada. Cuando editen su perfil, la escalera arranca cargada.
+
+**Por qué:** pedido de producto: que las personas carguen bien dónde viven y que las marcas puedan buscar exactamente la zona que quieren. La lista vieja tenía 6 valores mezclados (una provincia, una ciudad y un barrio en la misma lista).
+
+**Dónde:** nuevos `src/lib/geo.ts` (países, carga, regla del filtro), `src/components/GeoPicker.tsx` + `geo-picker.css`, `scripts/build-geo.mjs`, `public/geo/`. Tocados: `RegistroCreadorV3Form`, `CreatorSocialProfile`, `OnboardingForm`, `CreatorExplorer` + `explorer.css`, `creator-search.ts`, `creator-registro-v3.ts`, `onboarding.ts`, `after-auth/actions.ts` y `actions.ts` (guardan `province` = provincia y `city` = municipio), `schema.ts` (solo el tipo del jsonb), `middleware.ts` (`/geo/*` público: sin eso el registro no podía bajar las listas).
+
+**Base de datos:** **sin migración.** La escalera se guarda en `creator_meta.geo` (jsonb que ya existía) y se copia a las columnas `province` / `city`.
+
+**Cómo probarlo:** registro creador → paso 1 → elegir país, provincia y municipio (sin municipio no avanza). `/mi-perfil` → Editar → cambiar la ubicación y guardar. Como marca, `/dashboard/explorar` → Ubicación → Argentina → sumar Córdoba → sumar Río Cuarto: la lista se achica en cada paso.
+
+**Riesgo / qué mirar:** medio. Validación nueva: un creador sin ubicación completa no puede guardar su perfil hasta completarla (los viejos con "Córdoba" solo tienen que elegir el municipio). **Ojo:** el celular sigue aceptando solo números argentinos, así que un creador de Uruguay, Chile o España hoy no puede terminar el registro. Ver T-38 en TAREAS.
+
+**Verificación:** lint, `tsc` y `next build` limpios. 11 casos de la regla del filtro probados. En local se probaron el filtro (con creadores de ejemplo en los 4 países) y el paso 1 del registro con España › Madrid › Alcobendas, hasta la revisión. La ficha resultante pasa la validación del servidor y guarda `province`/`city`/`geo`.
+
+---
+
+## 2026-09-26 — `05ad37f` — Amadeo Rodríguez
 
 **Qué cambié:** el alta volvió a ser **perfil primero, cuenta después** (tarea **T-36**, decisión del jefe: *"que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*). Al crear cuenta el orden ahora es: Crear cuenta → Creador/Marca → **ficha completa por etapas** → Google/email. La cuenta recién existe cuando la ficha está terminada.
 

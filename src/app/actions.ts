@@ -13,6 +13,7 @@ import {
   validateOnboarding,
 } from "@/lib/onboarding";
 import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
+import { parseGeo } from "@/lib/geo";
 import { isAllowedStoredImageUrl, parseImageUrlsField } from "@/lib/image-compress";
 import {
   detectPostPlatform,
@@ -327,10 +328,11 @@ async function applyProfilePayload(
       handle,
       tiktokHandle: effective.tiktok.trim() || null,
       province: effective.province || null,
+      // Creadores: `city` = municipio de la escalera (src/lib/geo.ts).
       city:
         formRole === "brand"
           ? effective.companyLocation.trim() || effective.province || null
-          : effective.province || null,
+          : parseGeo(effective.geo)?.municipio || effective.province || null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: effective.phone.trim()
         ? formatArMobileDisplay(effective.phone) || effective.phone.trim()

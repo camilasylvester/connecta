@@ -169,7 +169,9 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Decidir antes de programar:** ¿provincia y ciudad son dos campos separados (`province` y `city` ya existen en la base) o un solo campo tipo buscador? Cambia bastante la implementación.
 
-**Hecho:** ⬜
+**Decisión (2026-09-26):** escalera País → Provincia → Municipio, con Argentina, Uruguay, Chile y España. Los filtros de marcas siguen la misma lógica.
+
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit (ubicación)`. Datos en `public/geo/` (se regeneran con `scripts/build-geo.mjs`), buscador sin tildes, filtro "manda lo más específico", perfiles viejos traducidos solos, sin migración (`creator_meta.geo`).
 
 ---
 
@@ -418,7 +420,17 @@ Son dos cosas distintas:
 
 **Decisión (2026-09-26, el jefe):** *"quiere que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*. Se descartó la variante de los "4 datos mínimos antes de la cuenta".
 
-**Hecho:** 🟡 2026-09-26 — Amadeo Rodríguez — `pendiente de commit`. Alta = Creador/Marca → ficha completa por etapas (creador 5, marca 4) → Google/email. La ficha viaja como borrador local y se sube apenas existe la cuenta; el contacto va también por metadata de Clerk. El admin vuelve a aceptar solo fichas completas. Falta: prueba de punta a punta creando una cuenta real (email y Google) y limpiar a mano las fichas vacías que ya entraron.
+**Hecho:** 🟡 2026-09-26 — Amadeo Rodríguez — `05ad37f`. Alta = Creador/Marca → ficha completa por etapas (creador 5, marca 4) → Google/email. La ficha viaja como borrador local y se sube apenas existe la cuenta; el contacto va también por metadata de Clerk. El admin vuelve a aceptar solo fichas completas. Falta: prueba de punta a punta creando una cuenta real (email y Google) y limpiar a mano las fichas vacías que ya entraron.
+
+---
+
+### T-38 · Celular de otros países — `S` — **pregunta abierta**
+
+**Hoy:** el celular solo acepta números argentinos (`src/lib/phone.ts`), y es obligatorio en el registro y en el bloqueo `/completar-telefono`. Desde T-14 la ubicación admite Uruguay, Chile y España, pero **una persona de esos países no puede terminar el registro** porque su celular no valida.
+
+**A decidir:** ¿aceptamos celulares de UY/CL/ES (con su prefijo, y el link a WhatsApp con el código de país), o esos países solo pueden cargarse con un celular argentino?
+
+**Hecho:** ⬜
 
 ---
 
@@ -513,11 +525,12 @@ Estas no las puedo decidir yo. Cuanto antes me las contesten, mejor:
 1. **T-02** — ¿El cierre de sesión a los 30 minutos se puso por seguridad? ¿Cuánto quieren que dure?
 2. **T-08** — El brief automático, ¿plantilla o IA? Son dos proyectos distintos.
 3. **T-11** — URLs de Instagram y LinkedIn de Connecta, y mail de contacto.
-4. **T-14** — Provincia y ciudad, ¿dos campos o uno?
+4. ~~**T-14** — Provincia y ciudad, ¿dos campos o uno?~~ **Respondida 2026-09-26:** escalera país → provincia → municipio.
 5. **T-18** — ¿Aceptan cerrar el tema de la foto de Instagram con carga manual + TikTok? (ver la tarea)
 6. **T-04** — El mail, ¿al crear la cuenta, al aprobarla, o los dos?
 7. **T-21** — Marcas con las que trabajó, ¿texto libre o vinculado a marcas de Connecta?
 8. ~~**T-36** — El wizard de alta: ¿la elección va primero, o no se piden datos antes de crear la cuenta?~~ **Respondida 2026-09-26:** ficha completa por etapas y después la cuenta.
+9. **T-38** — ¿Aceptamos celulares de Uruguay, Chile y España? Hoy un creador de esos países no puede terminar el registro.
 
 ---
 

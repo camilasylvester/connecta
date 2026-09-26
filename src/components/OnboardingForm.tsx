@@ -15,6 +15,7 @@ import {
 } from "@/lib/onboarding";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
+import { UbicacionPicker } from "@/components/GeoPicker";
 
 const field =
   "w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none focus:border-purple";
@@ -223,22 +224,36 @@ export function OnboardingForm({
             />
           </label>
 
-          <label className="block">
-            <span className={labelClass}>Provincia *</span>
-            <select
-              className={fieldCls}
-              value={data.province}
-              onChange={(e) => set("province", e.target.value)}
-              required
-            >
-              <option value="">Elegí una opción</option>
-              {PROVINCES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </label>
+          {data.role === "creator" ? (
+            // Creadores: escalera país → provincia → municipio (la usan los filtros de marcas).
+            <div className="block">
+              <span className={labelClass}>¿Dónde vive? *</span>
+              <UbicacionPicker
+                idPrefix="onboarding-geo"
+                value={data.geo || null}
+                onChange={(geo) =>
+                  setData((prev) => ({ ...prev, geo, province: geo?.provincia || "" }))
+                }
+              />
+            </div>
+          ) : (
+            <label className="block">
+              <span className={labelClass}>Provincia *</span>
+              <select
+                className={fieldCls}
+                value={data.province}
+                onChange={(e) => set("province", e.target.value)}
+                required
+              >
+                <option value="">Elegí una opción</option>
+                {PROVINCES.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">

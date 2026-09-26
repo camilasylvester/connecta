@@ -1,0 +1,114 @@
+/* Selector de ubicación (GeoPicker.tsx). Paleta Connecta en oscuro: se usa en
+   el registro, en mi-perfil y en el filtro de marcas, que son todos oscuros. */
+
+.geo-picker { display: grid; gap: 16px; }
+.geo-picker-field { display: grid; gap: 8px; }
+.geo-picker-label {
+  color: rgba(244, 243, 239, 0.56);
+  font-size: 13px;
+  font-weight: 600;
+}
+.geo-picker-error { color: #f87171; font-size: 13px; font-weight: 600; margin: 0; }
+
+.geo-country-row { display: flex; flex-wrap: wrap; gap: 9px; }
+.geo-country {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(244, 243, 239, 0.22);
+  background: transparent;
+  color: rgba(244, 243, 239, 0.72);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.geo-country:hover { border-color: rgba(244, 243, 239, 0.4); color: #f4f3ef; }
+.geo-country.is-selected { background: #6f6ae0; border-color: #6f6ae0; color: #f4f3ef; }
+
+.geo-combo { position: relative; }
+.geo-combo-input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid rgba(244, 243, 239, 0.14);
+  border-radius: 10px;
+  background: #0d0d10;
+  color: #f4f3ef;
+  font-size: 14.5px;
+}
+.geo-combo-input:focus { outline: none; border-color: #9c98ec; }
+.geo-combo-input:disabled { opacity: 0.5; cursor: not-allowed; }
+.geo-combo-input::placeholder { color: rgba(244, 243, 239, 0.36); }
+
+.geo-combo-list {
+  position: absolute;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  max-height: 264px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1.5px solid rgba(244, 243, 239, 0.14);
+  border-radius: 12px;
+  background: #121217;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+/* Dentro del panel del filtro (que ya tiene scroll) la lista va en el flujo. */
+.geo-combo-list--inline {
+  position: static;
+  margin-top: 6px;
+  max-height: 200px;
+  box-shadow: none;
+}
+.geo-combo-option {
+  padding: 9px 11px;
+  border-radius: 8px;
+  color: rgba(244, 243, 239, 0.86);
+  font-size: 14px;
+  cursor: pointer;
+}
+.geo-combo-option.is-active { background: rgba(111, 106, 224, 0.18); color: #f4f3ef; }
+.geo-combo-option.is-selected { color: #9c98ec; font-weight: 700; }
+.geo-combo-empty,
+.geo-combo-more {
+  padding: 9px 11px;
+  color: rgba(244, 243, 239, 0.45);
+  font-size: 12.5px;
+}
+
+/* Filtro de marcas: niveles anidados con pastillas quitables. */
+.geo-filter { display: grid; gap: 14px; }
+.geo-filter-level { display: grid; gap: 8px; padding-left: 12px; border-left: 2px solid rgba(111, 106, 224, 0.35); }
+.geo-filter-title { font-size: 12.5px; font-weight: 700; color: #f4f3ef; }
+.geo-filter-hint { font-size: 12px; color: rgba(244, 243, 239, 0.45); margin: 0; }
+.geo-pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.geo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 11px;
+  border-radius: 999px;
+  background: rgba(111, 106, 224, 0.2);
+  color: #f4f3ef;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.geo-pill button {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(244, 243, 239, 0.14);
+  color: #f4f3ef;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.geo-pill button:hover { background: rgba(244, 243, 239, 0.3); }

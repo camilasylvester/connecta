@@ -14,10 +14,11 @@ import { initialsFromName, avatarColor } from "@/app/dashboard/brand-helpers";
 import {
   CONTENT_THEME_GROUPS,
   PLATFORMS,
-  PROVINCES,
   type OnboardingPayload,
   validateOnboarding,
 } from "@/lib/onboarding";
+import { UbicacionPicker } from "@/components/GeoPicker";
+import { geoShortLabel } from "@/lib/geo";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
 import { uploadConnectaImage } from "@/lib/blob-upload";
 import { formatArMobileDisplay, whatsappUrl } from "@/lib/phone";
@@ -405,9 +406,9 @@ export function CreatorSocialProfile({
                 {data.contentThemes[0]}
               </span>
             ) : null}
-            {data.province ? (
+            {data.geo || data.province ? (
               <span className="rounded-full bg-purple/20 px-3 py-1 text-xs font-bold text-purple-2">
-                {data.province}
+                {geoShortLabel(data.geo) || data.province}
               </span>
             ) : null}
             {igLink ? (
@@ -604,22 +605,21 @@ export function CreatorSocialProfile({
                   ) : null}
                 </label>
               </div>
-              <label className="block">
-                <span className={labelCls}>Provincia *</span>
-                <select
-                  className={field}
-                  value={data.province}
-                  onChange={(e) => set("province", e.target.value)}
-                  required
-                >
-                  <option value="">Elegí una opción</option>
-                  {PROVINCES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="block">
+                <span className={labelCls}>¿Dónde vivís? *</span>
+                <UbicacionPicker
+                  idPrefix="perfil-geo"
+                  value={data.geo || null}
+                  onChange={(geo) =>
+                    setData((prev) => ({
+                      ...prev,
+                      geo,
+                      // La columna vieja `province` sigue alimentando otras pantallas.
+                      province: geo?.provincia || "",
+                    }))
+                  }
+                />
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className={labelCls}>Edad</span>

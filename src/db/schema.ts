@@ -66,6 +66,8 @@ export const profiles = pgTable("profiles", {
   platforms: jsonb("platforms").$type<string[]>().default([]),
   creatorMeta: jsonb("creator_meta").$type<{
     ubicacion: string | null;
+    /** País → provincia → municipio (src/lib/geo.ts). Sin migración: es jsonb. */
+    geo?: { pais: "AR" | "UY" | "CL" | "ES"; provincia: string; municipio: string } | null;
     genero: string | null;
     idiomas: string[];
     categoriaSet: string[];

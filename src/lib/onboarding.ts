@@ -1,3 +1,9 @@
+import {
+  isCompleteGeo,
+  legacyToGeo,
+  parseGeo,
+  type GeoUbicacion,
+} from "@/lib/geo";
 import { arMobileValidationError } from "@/lib/phone";
 
 export const PROVINCES = [
@@ -145,6 +151,8 @@ export type OnboardingPayload = {
   tiktokFollowers: string;
   /** Wizard v3 — alimenta el buscador de creadores. */
   ubicacion?: string | null;
+  /** País → provincia → municipio. Obligatorio completo para creadores. */
+  geo?: GeoUbicacion | null;
   genero?: string | null;
   idiomas?: string[];
   categoriaSet?: string[];
@@ -231,6 +239,9 @@ export function validateOnboarding(
   }
 
   if (data.role === "creator") {
+    if (!isCompleteGeo(data.geo)) {
+      return { ok: false, error: "Completá tu ubicación: país, provincia y municipio" };
+    }
     if (data.contentThemes.length === 0) {
       return { ok: false, error: "Elegí al menos una temática" };
     }
@@ -268,6 +279,7 @@ export function profileToOnboarding(profile: {
   tiktokFollowers?: number | null;
   creatorMeta?: {
     ubicacion: string | null;
+    geo?: GeoUbicacion | null;
     genero: string | null;
     idiomas: string[];
     categoriaSet: string[];
@@ -306,6 +318,12 @@ export function profileToOnboarding(profile: {
         ? String(profile.tiktokFollowers)
         : "",
     ubicacion: profile.creatorMeta?.ubicacion || null,
+    // Perfiles viejos sin `geo`: se traduce la ubicación vieja a la escalera.
+    geo:
+      parseGeo(profile.creatorMeta?.geo) ||
+      legacyToGeo(profile.creatorMeta?.ubicacion) ||
+      legacyToGeo(profile.city) ||
+      legacyToGeo(profile.province),
     genero: profile.creatorMeta?.genero || null,
     idiomas: profile.creatorMeta?.idiomas || [],
     categoriaSet: profile.creatorMeta?.categoriaSet || [],
