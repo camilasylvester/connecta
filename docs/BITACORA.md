@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-26 — `pendiente de commit (foto)` — Amadeo Rodríguez
+## 2026-09-26 — `36ba24c` — Amadeo Rodríguez
 
 **Qué cambié:** la **foto de perfil es obligatoria para postularse** (solo creadores). Crear la cuenta sigue sin pedirla; recién cuando quiere postularse a un evento, si no tiene foto, en `/aplicar` aparece "Subí tu foto de perfil" en lugar del botón de enviar. La sube ahí mismo (se recorta cuadrada, va a Vercel Blob y queda guardada en su perfil) y sigue con la postulación.
 
@@ -58,7 +58,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-26 — `pendiente de commit (ubicación)` — Amadeo Rodríguez
+## 2026-09-26 — `5e31226` — Amadeo Rodríguez
 
 **Qué cambié:** la ubicación de los creadores pasó a ser una **escalera País → Provincia → Municipio** con Argentina, Uruguay, Chile y España completos (tarea **T-14**). Se usa en el registro, en la edición de `/mi-perfil`, en la ficha que edita el admin, y en el **filtro de Ubicación del buscador de marcas**, que sigue la misma lógica.
 

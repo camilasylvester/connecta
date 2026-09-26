@@ -171,7 +171,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Decisión (2026-09-26):** escalera País → Provincia → Municipio, con Argentina, Uruguay, Chile y España. Los filtros de marcas siguen la misma lógica.
 
-**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit (ubicación)`. Datos en `public/geo/` (se regeneran con `scripts/build-geo.mjs`), buscador sin tildes, filtro "manda lo más específico", perfiles viejos traducidos solos, sin migración (`creator_meta.geo`).
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `5e31226`. Datos en `public/geo/` (se regeneran con `scripts/build-geo.mjs`), buscador sin tildes, filtro "manda lo más específico", perfiles viejos traducidos solos, sin migración (`creator_meta.geo`).
 
 ---
 
@@ -428,7 +428,7 @@ Son dos cosas distintas:
 
 **Pedido (2026-09-26):** que al crear la cuenta no sea obligatoria, pero sí para postularse.
 
-**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit (foto)`. `/aplicar` pide la foto si falta y `applyToEvent` la exige en el servidor.
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `36ba24c`. `/aplicar` pide la foto si falta y `applyToEvent` la exige en el servidor.
 
 ---
 
