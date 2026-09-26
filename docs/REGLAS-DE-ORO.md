@@ -152,7 +152,7 @@ Ojo también con `.env.local.example`: es un archivo versionado y **no** es lo m
 
 ### 7. La base de datos no se edita, se le agrega
 
-Las migraciones viven en `drizzle/` y están numeradas (`0000_init.sql` … `0006_post_metrics.sql`).
+Las migraciones viven en `drizzle/` y están numeradas (`0000_init.sql` … `0009_terms_accepted.sql`, al 26/09).
 
 - **Nunca edites una migración que ya se corrió.** Aunque tenga un error. Aunque sea una línea. Si ya se aplicó en producción, editarla hace que tu base y la de producción queden distintas sin que nadie se entere.
 - Para cambiar algo, **creá la migración siguiente** (`0007_...sql`) que arregla lo anterior.
@@ -195,6 +195,19 @@ Diez segundos de mensaje evitan que dos rehagamos la misma pantalla. Mirando el 
 Todo cambio que llega a `main` se anota en [BITACORA.md](BITACORA.md), **en el mismo commit** que el cambio.
 
 El commit explica el cambio a quien programa. La bitácora se lo explica **al resto del equipo** —y a vos mismo dentro de seis meses—. No es lo mismo y no se reemplazan.
+
+---
+
+## Trampas que ya nos comimos
+
+Las fui anotando a medida que me pasaron. Si te pasa otra, sumala acá.
+
+- **Entrá a la app local por `localhost:3000`, no por `127.0.0.1:3000`.** Con `127.0.0.1`, Next 16 bloquea sus recursos de desarrollo y la página se ve pero no responde: los botones no hacen nada. Parece un bug nuestro y no lo es.
+- **Cualquier archivo nuevo en `public/` que no sea imagen, CSS o JS pasa por el middleware.** Si no está en la lista de rutas públicas de `src/middleware.ts`, al que no tiene sesión lo manda a `/login`. Me pasó con las listas de ubicación (`public/geo/*.json`) y el registro no las podía bajar.
+- **Si probás el alta en local, ojo con `.env.local`.** Si apunta a la base y al Clerk de producción, la cuenta que crees entra como solicitud real. Para probar el alta de punta a punta, usá cuentas de prueba y avisá en el grupo.
+- **En Windows, git puede cambiar los saltos de línea (LF ↔ CRLF).** Si un diff te muestra el archivo entero cambiado y vos tocaste tres líneas, es eso. Antes de commitear, mirá `git diff --stat`: si los números no cierran con lo que tocaste, frená.
+- **La ubicación y el celular tienen una sola fuente cada uno:** `src/lib/geo.ts` y `src/lib/phone.ts`. No armes listas de provincias ni validaciones de teléfono sueltas en un formulario; si falta algo, se agrega ahí y lo usan todos.
+- **Las listas de provincias y municipios no se editan a mano.** Se regeneran con `node scripts/build-geo.mjs`.
 
 ---
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { AuthProgress } from "@/components/AuthWizardBits";
 import { Logo } from "@/components/Logo";
 import {
@@ -10,17 +10,34 @@ import {
   GENERO_OPTIONS,
   IDIOMA_OPTIONS,
   PLATAFORMA_OPTIONS,
-  UBICACION_OPTIONS,
   emptyCreatorDraft,
   loadCreatorDraft,
   saveCreatorDraft,
   type CreatorRegistroV3Draft,
 } from "@/lib/creator-registro-v3";
 import { persistAuthNext } from "@/lib/clerk-auth";
+import { UbicacionPicker } from "@/components/GeoPicker";
+import { PhoneInput } from "@/components/PhoneInput";
+import { geoLabel, isCompleteGeo } from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
-import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
+import { mobileValidationError, formatMobileDisplay } from "@/lib/phone";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 import { syncTermsAcceptance } from "@/app/after-auth/actions";
+
+const TERMS_SESSION_KEY = "connecta-terms-accepted";
+
+/** El flag de terminos no cambia solo: no hace falta suscribirse a nada. */
+function subscribeToNothing(): () => void {
+  return () => {};
+}
+
+function readPersistedTerms(): boolean {
+  try {
+    return sessionStorage.getItem(TERMS_SESSION_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 const STEPS = [
   { label: "Datos básicos" },
@@ -63,12 +80,20 @@ export function RegistroCreadorV3Form({
   next = "",
   variant = "signup",
   onComplete,
+  onCancel,
 }: {
   initialInstagram?: string;
   initialDraft?: CreatorRegistroV3Draft;
   next?: string;
+  /**
+   * signup: la ficha se llena ANTES de crear la cuenta; al terminar se llama
+   * a `onComplete` y el que la contiene (AuthEntry) muestra el acceso.
+   * profile: la cuenta ya existe y la ficha se guarda directo en la base.
+   */
   variant?: "signup" | "profile";
   onComplete?: (draft: CreatorRegistroV3Draft) => void | Promise<void>;
+  /** Salir del wizard desde el paso 1 (vuelve a elegir Creador/Marca). */
+  onCancel?: () => void;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -95,17 +120,17 @@ export function RegistroCreadorV3Form({
   const [error, setError] = useState<string | null>(null);
   const [catSearch, setCatSearch] = useState("");
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
-  const [termsAccepted, setTermsAccepted] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (sessionStorage.getItem("connecta-terms-accepted") === "1") {
-        setTermsAccepted(true);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  // El valor persistido se lee con useSyncExternalStore: en SSR/hidratacion
+  // devuelve false (igual que el HTML del servidor) y recien despues toma el
+  // valor real de sessionStorage, asi que no hay hydration mismatch.
+  const persistedTerms = useSyncExternalStore(
+    subscribeToNothing,
+    readPersistedTerms,
+    () => false
+  );
+  const [termsOverride, setTermsOverride] = useState<boolean | null>(null);
+  const termsAccepted = termsOverride ?? persistedTerms;
+  const setTermsAccepted = setTermsOverride;
 
   useEffect(() => {
     persistAuthNext(next);
@@ -122,7 +147,7 @@ export function RegistroCreadorV3Form({
 
   function validate(current: number): boolean {
     if (current === 1) {
-      const phoneErr = arMobileValidationError(profile.phone);
+      const phoneErr = mobileValidationError(profile.phone);
       const ok =
         profile.nombre.trim().length > 0 &&
         Boolean(
@@ -130,11 +155,13 @@ export function RegistroCreadorV3Form({
             profile.instagram.trim()
         ) &&
         !phoneErr &&
-        !!profile.ubicacion;
+        isCompleteGeo(profile.geo);
       if (!ok) {
         setError(
           phoneErr ||
-            "Completá tu nombre, Instagram, teléfono y ubicación antes de continuar."
+            (isCompleteGeo(profile.geo)
+              ? "Completá tu nombre, Instagram y teléfono antes de continuar."
+              : "Completá tu ubicación: país, provincia y municipio.")
         );
       }
       return ok;
@@ -189,18 +216,18 @@ export function RegistroCreadorV3Form({
         })();
         return;
       }
-      // Legacy signup path: access is created first on /login now.
-      const params = new URLSearchParams();
-      params.set("tab", "signup");
-      params.set("as", "creador");
-      if (next) params.set("next", next);
-      router.push(`/login?${params.toString()}`);
+      // Alta: la ficha ya quedo en el borrador local; ahora se crea la cuenta.
+      void onComplete?.(profile);
     }
   }
 
   function goBack() {
     setError(null);
     if (step === 1) {
+      if (onCancel) {
+        onCancel();
+        return;
+      }
       if (variant === "profile") {
         router.push("/after-auth");
         return;
@@ -265,9 +292,15 @@ export function RegistroCreadorV3Form({
     <div className="registro-v3-page">
       <header className="auth-header registro-v3-header">
         <Logo href="/" className="auth-logo" />
-        <Link href="/login?tab=signup&as=creador" className="auth-back">
-          ← Cancelar
-        </Link>
+        {onCancel ? (
+          <button type="button" className="auth-back" onClick={onCancel}>
+            ← Cancelar
+          </button>
+        ) : (
+          <Link href="/login?tab=signup&as=creador" className="auth-back">
+            ← Cancelar
+          </Link>
+        )}
       </header>
 
       <main className="registro-v3-main">
@@ -310,36 +343,29 @@ export function RegistroCreadorV3Form({
                     autoComplete="off"
                   />
                 </div>
+                {/* Ubicación antes que el celular: el prefijo sugerido sale del país. */}
                 <div className="auth-field">
-                  <label htmlFor="phone">Celular *</label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    inputMode="tel"
-                    value={profile.phone}
-                    onChange={(e) =>
-                      setProfile((p) => ({ ...p, phone: e.target.value }))
-                    }
-                    placeholder="+54 9 11 1234-5678"
-                    autoComplete="tel"
-                  />
-                  <p className="auth-hint">
-                    Solo celular argentino. Va a aparecer como link a WhatsApp en tu perfil.
+                  <label>¿Dónde vivís?</label>
+                  <p className="auth-hint" style={{ marginTop: 0 }}>
+                    Las marcas filtran por país, provincia y municipio.
                   </p>
+                  <UbicacionPicker
+                    idPrefix="registro-geo"
+                    value={profile.geo}
+                    onChange={(geo) => setProfile((p) => ({ ...p, geo }))}
+                  />
                 </div>
                 <div className="auth-field">
-                  <label>Ubicación</label>
-                  <div className="registro-chip-row">
-                    {UBICACION_OPTIONS.map((u) => (
-                      <Chip
-                        key={u}
-                        active={profile.ubicacion === u}
-                        onClick={() => setProfile((p) => ({ ...p, ubicacion: u }))}
-                      >
-                        {u}
-                      </Chip>
-                    ))}
-                  </div>
+                  <label htmlFor="phone">Celular *</label>
+                  <PhoneInput
+                    id="phone"
+                    value={profile.phone}
+                    defaultCountry={profile.geo?.pais}
+                    onChange={(phone) => setProfile((p) => ({ ...p, phone }))}
+                  />
+                  <p className="auth-hint">
+                    Va a aparecer como link a WhatsApp en tu perfil.
+                  </p>
                 </div>
               </>
             ) : null}
@@ -533,15 +559,15 @@ export function RegistroCreadorV3Form({
                   <div className="registro-review-label">Celular / WhatsApp</div>
                   <div className="registro-review-value">
                     {profile.phone
-                      ? formatArMobileDisplay(profile.phone)
+                      ? formatMobileDisplay(profile.phone)
                       : "—"}
                   </div>
                 </div>
                 <div className="registro-review-section">
                   <div className="registro-review-label">Ubicación · Género</div>
                   <div className="registro-review-pills">
-                    {profile.ubicacion ? (
-                      <span className="registro-review-pill">{profile.ubicacion}</span>
+                    {profile.geo ? (
+                      <span className="registro-review-pill">{geoLabel(profile.geo)}</span>
                     ) : null}
                     {profile.genero ? (
                       <span className="registro-review-pill">{profile.genero}</span>
@@ -607,7 +633,11 @@ export function RegistroCreadorV3Form({
               {step === 1 ? "Cancelar" : "Atrás"}
             </button>
             <button type="button" className="auth-primary registro-next-btn" onClick={goNext}>
-              {step === 5 ? "Enviar solicitud" : "Continuar"}
+              {step === 5
+                ? variant === "signup"
+                  ? "Continuar a crear la cuenta"
+                  : "Enviar solicitud"
+                : "Continuar"}
             </button>
           </div>
         </div>

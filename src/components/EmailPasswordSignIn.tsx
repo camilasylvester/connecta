@@ -53,14 +53,17 @@ export function EmailPasswordSignIn({
   }, [clerkReady]);
 
   // Prefill email from Clerk once, but keep the field editable.
-  useEffect(() => {
-    if (!userLoaded || !user || email) return;
-    const fromClerk =
-      user.primaryEmailAddress?.emailAddress ||
-      user.emailAddresses?.[0]?.emailAddress ||
-      "";
-    if (fromClerk) setEmail(fromClerk);
-  }, [userLoaded, user, email]);
+  const clerkEmail =
+    userLoaded && user
+      ? user.primaryEmailAddress?.emailAddress ||
+        user.emailAddresses?.[0]?.emailAddress ||
+        ""
+      : "";
+  const [emailPrefilled, setEmailPrefilled] = useState(false);
+  if (!emailPrefilled && clerkEmail && !email) {
+    setEmailPrefilled(true);
+    setEmail(clerkEmail);
+  }
 
   /** Already logged in with password → app. Without password → stay and ask email. */
   useEffect(() => {

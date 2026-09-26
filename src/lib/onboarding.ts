@@ -1,12 +1,11 @@
-import { arMobileValidationError } from "@/lib/phone";
-
-export const PROVINCES = [
-  "Buenos Aires",
-  "CABA",
-  "Córdoba",
-  "Rosario",
-  "Otro",
-] as const;
+import {
+  geoShortLabel,
+  isCompleteGeo,
+  legacyToGeo,
+  parseGeo,
+  type GeoUbicacion,
+} from "@/lib/geo";
+import { mobileValidationError } from "@/lib/phone";
 
 export const INDUSTRIES = [
   "Gastronomía y bebidas",
@@ -145,6 +144,8 @@ export type OnboardingPayload = {
   tiktokFollowers: string;
   /** Wizard v3 — alimenta el buscador de creadores. */
   ubicacion?: string | null;
+  /** País → provincia → municipio. Obligatorio completo para creadores. */
+  geo?: GeoUbicacion | null;
   genero?: string | null;
   idiomas?: string[];
   categoriaSet?: string[];
@@ -191,6 +192,10 @@ export function validateOnboarding(
 
   if (!data.fullName.trim()) return { ok: false, error: "Nombre y apellido es obligatorio" };
   if (!data.instagram.trim()) return { ok: false, error: "Usuario de Instagram es obligatorio" };
+  // Creadores y marcas cargan la ubicación con la misma escalera (src/lib/geo.ts).
+  if (!isCompleteGeo(data.geo)) {
+    return { ok: false, error: "Completá la ubicación: país, provincia y municipio" };
+  }
   if (!data.province) return { ok: false, error: "Provincia es obligatoria" };
   if (
     data.role !== "creator" &&
@@ -203,10 +208,10 @@ export function validateOnboarding(
   }
 
   if (requirePhone) {
-    const phoneErr = arMobileValidationError(data.phone);
+    const phoneErr = mobileValidationError(data.phone);
     if (phoneErr) return { ok: false, error: phoneErr };
   } else if (data.phone.trim()) {
-    const phoneErr = arMobileValidationError(data.phone);
+    const phoneErr = mobileValidationError(data.phone);
     if (phoneErr) return { ok: false, error: phoneErr };
   }
 
@@ -242,6 +247,24 @@ export function validateOnboarding(
   return { ok: true };
 }
 
+/**
+ * Aplica una ubicación de la escalera a la ficha. `geo` es la fuente de verdad;
+ * de ahí salen las columnas viejas que otras pantallas siguen leyendo:
+ * `province` para los dos roles y, en marcas, `companyLocation` ("Palermo, CABA").
+ */
+export function withGeo(
+  data: OnboardingPayload,
+  geo: GeoUbicacion | null
+): OnboardingPayload {
+  return {
+    ...data,
+    geo,
+    province: geo?.provincia || "",
+    companyLocation:
+      data.role === "brand" ? geoShortLabel(geo) : data.companyLocation,
+  };
+}
+
 /** Map a DB profile into the onboarding form shape for editing. */
 export function profileToOnboarding(profile: {
   role: string;
@@ -268,6 +291,7 @@ export function profileToOnboarding(profile: {
   tiktokFollowers?: number | null;
   creatorMeta?: {
     ubicacion: string | null;
+    geo?: GeoUbicacion | null;
     genero: string | null;
     idiomas: string[];
     categoriaSet: string[];
@@ -306,6 +330,12 @@ export function profileToOnboarding(profile: {
         ? String(profile.tiktokFollowers)
         : "",
     ubicacion: profile.creatorMeta?.ubicacion || null,
+    // Perfiles viejos sin `geo`: se traduce la ubicación vieja a la escalera.
+    geo:
+      parseGeo(profile.creatorMeta?.geo) ||
+      legacyToGeo(profile.creatorMeta?.ubicacion) ||
+      legacyToGeo(profile.city) ||
+      legacyToGeo(profile.province),
     genero: profile.creatorMeta?.genero || null,
     idiomas: profile.creatorMeta?.idiomas || [],
     categoriaSet: profile.creatorMeta?.categoriaSet || [],

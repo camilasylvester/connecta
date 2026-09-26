@@ -3,12 +3,18 @@ import {
   GENERO_OPTIONS,
   IDIOMA_OPTIONS,
   PLATAFORMA_OPTIONS,
-  UBICACION_OPTIONS,
   parseCreatorMeta,
   themeToCategoriaKey,
   type CreatorMeta,
 } from "@/lib/creator-registro-v3";
 import type { Profile } from "@/db/schema";
+import {
+  geoLabel,
+  geoShortLabel,
+  legacyToGeo,
+  matchesGeoFilter,
+  type GeoUbicacion,
+} from "@/lib/geo";
 
 export const SEGUIDORES_BUCKETS = [
   { key: "1-5k", label: "1 - 5.000", min: 1, max: 5000 },
@@ -40,6 +46,7 @@ export type PuntuacionFilter = (typeof PUNTUACION_OPTIONS)[number]["key"] | null
 
 export type CreatorSearchFilters = {
   seguidores: string[];
+  /** Caminos "AR", "AR|Córdoba", "AR|Córdoba|Río Cuarto" (ver matchesGeoFilter). */
   ubicacion: string[];
   genero: string[];
   idioma: string[];
@@ -67,6 +74,7 @@ export type CreatorSearchCard = {
   category: string;
   subnicho: string;
   zona: string;
+  geo: GeoUbicacion | null;
   seguidores: number;
   plataformas: string[];
   genero: string | null;
@@ -100,16 +108,18 @@ export function hydrateCreatorMeta(profile: Profile): CreatorMeta {
     }
   }
 
-  const zonaCandidate = stored.ubicacion || profile.city || profile.province;
-  const ubicacion =
-    stored.ubicacion ||
-    (zonaCandidate &&
-    (UBICACION_OPTIONS as readonly string[]).includes(zonaCandidate)
-      ? zonaCandidate
-      : null);
+  // Perfiles de antes de la escalera: se traduce lo viejo ("Palermo",
+  // provincia "Córdoba"...) para que igual entren en los filtros.
+  const geo =
+    stored.geo ||
+    legacyToGeo(stored.ubicacion) ||
+    legacyToGeo(profile.city) ||
+    legacyToGeo(profile.province);
+  const ubicacion = geo ? geoShortLabel(geo) : stored.ubicacion;
 
   return {
     ubicacion,
+    geo,
     genero: stored.genero,
     idiomas: stored.idiomas,
     categoriaSet,
@@ -153,6 +163,7 @@ export function profileToSearchCard(
     category: category || profile.category || "Creador",
     subnicho,
     zona: meta.ubicacion || profile.city || profile.province || "",
+    geo: meta.geo,
     seguidores,
     plataformas,
     genero: meta.genero,
@@ -191,9 +202,7 @@ export function matchesCreatorFilters(
     );
     if (!ok) return false;
   }
-  if (filters.ubicacion.length && !filters.ubicacion.includes(card.zona)) {
-    return false;
-  }
+  if (!matchesGeoFilter(card.geo, filters.ubicacion)) return false;
   if (filters.genero.length && (!card.genero || !filters.genero.includes(card.genero))) {
     return false;
   }
@@ -235,6 +244,7 @@ export function matchesSearchTerm(card: CreatorSearchCard, term: string): boolea
     card.category,
     card.subnicho,
     card.zona,
+    geoLabel(card.geo),
     ...card.categoriaSet,
   ]
     .join(" ")
@@ -242,7 +252,6 @@ export function matchesSearchTerm(card: CreatorSearchCard, term: string): boolea
   return hay.includes(term.toLowerCase());
 }
 
-export const SEARCH_UBICACIONES = UBICACION_OPTIONS;
 export const SEARCH_GENEROS = GENERO_OPTIONS;
 export const SEARCH_IDIOMAS = IDIOMA_OPTIONS;
 export const SEARCH_PLATAFORMAS = PLATAFORMA_OPTIONS;

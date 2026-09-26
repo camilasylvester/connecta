@@ -105,6 +105,14 @@
   min-width: 280px;
   max-width: 320px;
 }
+/* Ubicación: país → provincia → municipio con buscadores, necesita más lugar. */
+.explorer-fpanel-geo {
+  width: min(440px, calc(100vw - 24px));
+  max-width: none;
+  overflow-x: hidden;
+  max-height: 520px;
+  padding: 14px;
+}
 .explorer-fpanel-item {
   display: flex;
   align-items: center;

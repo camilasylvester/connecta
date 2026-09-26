@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   createCreatorPost,
@@ -14,13 +14,17 @@ import { initialsFromName, avatarColor } from "@/app/dashboard/brand-helpers";
 import {
   CONTENT_THEME_GROUPS,
   PLATFORMS,
-  PROVINCES,
   type OnboardingPayload,
   validateOnboarding,
+  withGeo,
 } from "@/lib/onboarding";
+import { UbicacionPicker } from "@/components/GeoPicker";
+import { PhoneInput } from "@/components/PhoneInput";
+import { geoShortLabel } from "@/lib/geo";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
+import { cropToSquareDataUrl } from "@/lib/avatar-crop";
 import { uploadConnectaImage } from "@/lib/blob-upload";
-import { formatArMobileDisplay, whatsappUrl } from "@/lib/phone";
+import { formatMobileDisplay, whatsappUrl } from "@/lib/phone";
 import { platformLabel, tiktokProfileUrl } from "@/lib/posts";
 import type { CreatorPost, PostPlatform } from "@/db/schema";
 
@@ -56,33 +60,6 @@ function Chip({
       {children}
     </button>
   );
-}
-
-async function cropToSquareDataUrl(file: File): Promise<string> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
-    reader.readAsDataURL(file);
-  });
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const el = new Image();
-    el.onload = () => resolve(el);
-    el.onerror = () => reject(new Error("Imagen inválida"));
-    el.src = dataUrl;
-  });
-  const size = 400;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas no disponible");
-  const side = Math.min(img.width, img.height);
-  const sx = (img.width - side) / 2;
-  const sy = (img.height - side) / 2;
-  ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
-  const out = canvas.toDataURL("image/jpeg", 0.82);
-  return out.length > 450_000 ? canvas.toDataURL("image/jpeg", 0.6) : out;
 }
 
 function formatCount(n: number): string {
@@ -125,17 +102,27 @@ export function CreatorSocialProfile({
   const [tiktokBusy, setTiktokBusy] = useState(false);
   const [, startTransition] = useTransition();
 
-  useEffect(() => {
+  // Sincronizacion props -> estado durante el render (sin effects que solo
+  // copian). Se mantiene el comportamiento original: al salir del modo edicion
+  // los datos vuelven a los del servidor.
+  const [propsSync, setPropsSync] = useState({
+    initial,
+    initialPosts,
+    tiktokConnected,
+    editing,
+  });
+  if (propsSync.initial !== initial || propsSync.editing !== editing) {
+    setPropsSync((s) => ({ ...s, initial, editing }));
     if (!editing) setData(initial);
-  }, [initial, editing]);
-
-  useEffect(() => {
+  }
+  if (propsSync.initialPosts !== initialPosts) {
+    setPropsSync((s) => ({ ...s, initialPosts }));
     setPosts(initialPosts);
-  }, [initialPosts]);
-
-  useEffect(() => {
+  }
+  if (propsSync.tiktokConnected !== tiktokConnected) {
+    setPropsSync((s) => ({ ...s, tiktokConnected }));
     setConnected(tiktokConnected);
-  }, [tiktokConnected]);
+  }
 
   const handle =
     normalizeInstagramHandle(data.instagram) ||
@@ -395,9 +382,9 @@ export function CreatorSocialProfile({
                 {data.contentThemes[0]}
               </span>
             ) : null}
-            {data.province ? (
+            {data.geo || data.province ? (
               <span className="rounded-full bg-purple/20 px-3 py-1 text-xs font-bold text-purple-2">
-                {data.province}
+                {geoShortLabel(data.geo) || data.province}
               </span>
             ) : null}
             {igLink ? (
@@ -594,22 +581,14 @@ export function CreatorSocialProfile({
                   ) : null}
                 </label>
               </div>
-              <label className="block">
-                <span className={labelCls}>Provincia *</span>
-                <select
-                  className={field}
-                  value={data.province}
-                  onChange={(e) => set("province", e.target.value)}
-                  required
-                >
-                  <option value="">Elegí una opción</option>
-                  {PROVINCES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="block">
+                <span className={labelCls}>¿Dónde vivís? *</span>
+                <UbicacionPicker
+                  idPrefix="perfil-geo"
+                  value={data.geo || null}
+                  onChange={(geo) => setData((prev) => withGeo(prev, geo))}
+                />
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className={labelCls}>Edad</span>
@@ -622,20 +601,17 @@ export function CreatorSocialProfile({
                 </label>
                 <label className="block">
                   <span className={labelCls}>Celular (WhatsApp) *</span>
-                  <input
-                    className={field}
-                    type="tel"
-                    inputMode="tel"
+                  <PhoneInput
+                    inputClassName={field}
                     value={data.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    placeholder="+54 9 11 1234-5678"
-                    autoComplete="tel"
+                    defaultCountry={data.geo?.pais}
+                    onChange={(phone) => set("phone", phone)}
                     required
                   />
                   <p className="mt-1 text-xs text-muted-dark">
                     Obligatorio. Las marcas pueden escribirte por WhatsApp
                     {data.phone && waLink
-                      ? ` · ${formatArMobileDisplay(data.phone)}`
+                      ? ` · ${formatMobileDisplay(data.phone)}`
                       : ""}
                     .
                   </p>

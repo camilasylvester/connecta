@@ -4,6 +4,7 @@ import { useState } from "react";
 import { syncPhone } from "@/app/after-auth/actions";
 import { AuthFrame } from "@/components/AuthFrame";
 import { LogoutButton } from "@/components/LogoutButton";
+import { PhoneInput } from "@/components/PhoneInput";
 
 function afterAuthHref(next: string) {
   const params = new URLSearchParams();
@@ -48,7 +49,7 @@ export function CompletarTelefonoForm({
     <AuthFrame
       eyebrow=""
       title="Agregá tu celular"
-      description="Para seguir usando Connecta necesitamos un celular argentino. Lo usamos para WhatsApp en tu perfil."
+      description="Para seguir usando Connecta necesitamos tu celular. Lo usamos para WhatsApp en tu perfil."
       showMobileTitle
     >
       <p className="auth-wizard-foot" style={{ marginTop: 0, marginBottom: 18 }}>
@@ -57,22 +58,18 @@ export function CompletarTelefonoForm({
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 14 }}>
         <label className="auth-field">
           <span className="auth-field-label">Celular (WhatsApp) *</span>
-          <input
+          <PhoneInput
             id="phone"
-            className="auth-input"
-            type="tel"
-            inputMode="tel"
+            inputClassName="auth-input"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+54 9 11 1234-5678"
-            autoComplete="tel"
+            onChange={setPhone}
             required
             autoFocus
             disabled={busy}
           />
         </label>
         <p className="auth-hint" style={{ marginTop: 0 }}>
-          Solo celular argentino, por ejemplo 11 1234-5678 o +54 9 11 1234-5678.
+          Celular de Argentina, Uruguay, Chile o España. Elegí el prefijo de tu país.
         </p>
         {error ? <p className="auth-error">{error}</p> : null}
         <button type="submit" className="auth-primary" disabled={busy}>

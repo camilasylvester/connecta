@@ -10,7 +10,6 @@ import {
   SEARCH_GENEROS,
   SEARCH_IDIOMAS,
   SEARCH_PLATAFORMAS,
-  SEARCH_UBICACIONES,
   SEGUIDORES_BUCKETS,
   anyCreatorFilterActive,
   matchesCreatorFilters,
@@ -18,6 +17,8 @@ import {
   type CreatorSearchCard,
   type CreatorSearchFilters,
 } from "@/lib/creator-search";
+import { GeoFilter } from "@/components/GeoPicker";
+import { effectiveGeoSelections } from "@/lib/geo";
 import "./explorer.css";
 
 const FILTER_LABELS: Record<keyof Omit<CreatorSearchFilters, "puntuacion"> | "puntuacion", string> = {
@@ -42,7 +43,11 @@ function buttonLabel(key: keyof typeof FILTER_LABELS, filters: CreatorSearchFilt
     const n = categorySelectionCount(filters.categoriaSet);
     return n ? `${base} (${n})` : base;
   }
-  const n = filters[key].length;
+  // "Argentina > Córdoba" cuenta como 1 (lo que de verdad filtra), no como 2.
+  const n =
+    key === "ubicacion"
+      ? effectiveGeoSelections(filters.ubicacion).length
+      : filters[key].length;
   return n ? `${base} (${n})` : base;
 }
 
@@ -66,7 +71,10 @@ export function CreatorExplorer({ creators }: { creators: CreatorSearchCard[] })
   const btnRefs = useRef<Partial<Record<keyof typeof FILTER_LABELS, HTMLButtonElement | null>>>({});
 
   useEffect(() => {
-    function close() {
+    function close(e?: Event) {
+      // El scroll de adentro del panel (lista de municipios) no lo cierra.
+      const target = e?.target as HTMLElement | null;
+      if (e?.type === "scroll" && target?.closest?.(".explorer-fpanel")) return;
       setOpen(null);
     }
     function onDoc(e: MouseEvent) {
@@ -93,13 +101,14 @@ export function CreatorExplorer({ creators }: { creators: CreatorSearchCard[] })
       return;
     }
     const rect = btn.getBoundingClientRect();
-    const width = key === "categoriaSet" ? 320 : 280;
+    const width = key === "categoriaSet" ? 320 : key === "ubicacion" ? 440 : 280;
     let left = rect.left;
     const maxLeft = window.innerWidth - width - 12;
     if (left > maxLeft) left = Math.max(12, maxLeft);
     let top = rect.bottom + 8;
-    const maxTop = window.innerHeight - 380 - 12;
-    if (top > maxTop) top = Math.max(12, rect.top - 388);
+    const height = key === "ubicacion" ? 520 : 380;
+    const maxTop = window.innerHeight - height - 12;
+    if (top > maxTop) top = Math.max(12, rect.top - height - 8);
     setPanelPos({ top, left });
     setOpen(key);
   }
@@ -183,7 +192,9 @@ export function CreatorExplorer({ creators }: { creators: CreatorSearchCard[] })
 
       {open ? (
         <div
-          className={`explorer-fpanel${open === "categoriaSet" ? " explorer-fpanel-wide" : ""}`}
+          className={`explorer-fpanel${open === "categoriaSet" ? " explorer-fpanel-wide" : ""}${
+            open === "ubicacion" ? " explorer-fpanel-geo" : ""
+          }`}
           style={{ top: panelPos.top, left: panelPos.left }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -204,23 +215,12 @@ export function CreatorExplorer({ creators }: { creators: CreatorSearchCard[] })
                 </label>
               ))
             : null}
-          {open === "ubicacion"
-            ? SEARCH_UBICACIONES.map((opt) => (
-                <label key={opt} className="explorer-fpanel-item">
-                  <input
-                    type="checkbox"
-                    checked={filters.ubicacion.includes(opt)}
-                    onChange={() =>
-                      setFilters((f) => ({
-                        ...f,
-                        ubicacion: toggleIn(f.ubicacion, opt),
-                      }))
-                    }
-                  />
-                  {opt}
-                </label>
-              ))
-            : null}
+          {open === "ubicacion" ? (
+            <GeoFilter
+              selected={filters.ubicacion}
+              onChange={(ubicacion) => setFilters((f) => ({ ...f, ubicacion }))}
+            />
+          ) : null}
           {open === "genero"
             ? SEARCH_GENEROS.map((opt) => (
                 <label key={opt} className="explorer-fpanel-item">

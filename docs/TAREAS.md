@@ -13,6 +13,28 @@ Ver [REGLAS-DE-ORO.md](REGLAS-DE-ORO.md) y [BITACORA.md](BITACORA.md).
 
 ---
 
+## Cómo estamos al 26/09
+
+Lo actualicé el 2026-09-26, después de una tanda grande de cambios en la rama `fix/alta-perfil-completo`. El detalle de cada cosa está en la [bitácora](BITACORA.md).
+
+**Cerradas (12):** T-01, T-02, T-05, T-12, T-13, T-14, T-34, T-35, T-37 y T-38 cerradas del todo; T-03 y T-36 hechas pero con prueba pendiente.
+
+**Lo que agregué hoy:**
+
+| Qué | Tarea | Commit |
+|---|---|---|
+| Alta con la ficha completa **antes** de crear la cuenta (se terminaron las solicitudes vacías) | T-36 | `05ad37f` |
+| Ubicación País → Provincia → Municipio (Argentina, Uruguay, Chile y España) para creadores y marcas, más el filtro de marcas con la misma lógica | T-14 | `5e31226`, `a84a509` |
+| Foto de perfil obligatoria para postularse | T-37 | `36ba24c` |
+| Celulares de Uruguay, Chile y España | T-38 | `ff7bc1c` |
+| `npm run lint` en cero | — | `ef702bc` |
+
+**Lo más urgente que queda:** T-04 (mail de bienvenida: arrancar ya con el DNS de `connectainf.com`), T-26 (el scroll: primero reproducirlo), T-07 (imágenes de eventos enmarcadas) y T-09 (foto en solicitudes, casi gratis).
+
+**Antes de mergear la rama:** hacer una pasada con cuentas de prueba creando una cuenta real (email y Google) de creador y de marca, y postularse con un creador sin foto. Yo lo probé todo en local hasta donde se puede sin sesión.
+
+---
+
 ## Estado actual de la aplicación
 
 Antes de estimar, revisé el código. Lo que encontré:
@@ -23,11 +45,11 @@ Antes de estimar, revisé el código. Lo que encontré:
 
 | Pedido | Estado real |
 |---|---|
-| Solicitudes con nombre, @IG y link al perfil | **Ya está.** Solo falta la foto de perfil (hoy muestra iniciales de color) |
+| Solicitudes con nombre, @IG y link al perfil | **Ya está.** Solo falta la foto de perfil (hoy muestra iniciales de color). *26/09: la foto ahora es obligatoria para postularse (T-37), así que cada vez más fichas la van a tener.* |
 | Export CSV | **Ya existe** para admin (`c0b65a4`). Falta la versión para marcas, con TikTok |
 | Footer con links legales | **Ya está.** Faltan Instagram, LinkedIn y mail |
 | Foto de perfil automática | **Ya funciona con TikTok** (`src/lib/tiktok.ts`). Instagram es otra historia — ver T-18 |
-| Teléfono, ubicación, edad | **Ya están en la base** (`profiles`). Falta pedirlos y validarlos en el formulario |
+| Teléfono, ubicación, edad | *26/09:* **teléfono y ubicación, hechos** (T-13, T-14, T-38). Falta la edad con fecha de nacimiento (T-15) |
 
 **Las tres causas concretas de los problemas reportados:**
 
@@ -88,6 +110,12 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 **Archivos:** `src/app/eventos/page.tsx`, `src/app/eventos/eventos-feed.css`.
 
 **Hecho:** ✅ 2026-09-12 — Camila Sylvester — `9f2c81a`. Ingresar y Crear cuenta quedan fijos en la barra en mobile; el menú solo tiene los links de la página (Eventos / Cómo postularte). Si hay sesión, Cerrar sesión también queda en la barra.
+
+---
+
+### T-26 · Scroll trabado al cargar o ver publicaciones — sin estimar
+
+> El 26/09 me di cuenta de que a esta tarea se le había perdido el título y había quedado pegada abajo de T-01. Por descarte es la T-26: era el único ID que faltaba.
 
 **Hoy:** reportado como "problemas de scrolleo durante la carga/visualización de publicaciones". Lo más probable es el modal de `CreatorFeed.tsx:131` (`max-h-[85vh] overflow-auto`), que se queda con el scroll o no bloquea el del fondo.
 
@@ -169,7 +197,9 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Decidir antes de programar:** ¿provincia y ciudad son dos campos separados (`province` y `city` ya existen en la base) o un solo campo tipo buscador? Cambia bastante la implementación.
 
-**Hecho:** ⬜
+**Decisión (26/09):** me pidieron una escalera País → Provincia → Municipio, con Argentina, Uruguay, Chile y España, y que los filtros de las marcas sigan la misma lógica. Con eso se contesta la pregunta de arriba: son tres campos encadenados, cada uno con buscador.
+
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `5e31226`. Datos en `public/geo/` (se regeneran con `scripts/build-geo.mjs`), buscador sin tildes, filtro "manda lo más específico", perfiles viejos traducidos solos, sin migración (`creator_meta.geo`). **Update 2026-09-26:** las marcas también cargan su ubicación con la escalera (alta, `/dashboard/config` y admin).
 
 ---
 
@@ -247,7 +277,9 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Hacer:** subida de foto en la edición de perfil, reusando `src/lib/blob-upload.ts` y `image-compress.ts` (ya se usan para las imágenes de eventos).
 
-**Hecho:** ⬜
+**Update 26/09:** lo revisé. El creador **ya puede** subir su foto desde `/mi-perfil` (`CreatorSocialProfile`), y desde T-37 también desde `/aplicar` cuando le falta. Lo que sigue sin tener subida es la edición por `ProfileEditClient` (marca y admin).
+
+**Hecho:** 🟡 a medias. Para creadores está; falta marca y admin.
 
 ---
 
@@ -299,7 +331,9 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **El trabajo real no es el botón:** hoy el flujo del creador arranca pidiendo el Instagram y el de la marca el nombre. Con Google, el usuario entra directo sin pasar por ahí. Hay que resolver dónde se le pregunta si es creador o marca, y dónde se le pide el Instagram.
 
-**Hecho:** ⬜
+**Update 26/09:** el botón de Google ya anda desde el 20/09 (`fd7d563`, `a1fc48b`, Camila). El problema de fondo (dónde se pregunta si es creador o marca y dónde se pide el Instagram) quedó resuelto con T-36: ahora se elige el rol y se completa toda la ficha **antes** de llegar a Google.
+
+**Hecho:** 🟡 2026-09-26 — falta probar el alta completa con Google de punta a punta (con cuentas de prueba), que es la parte más delicada porque la cuenta se crea en el callback de Google.
 
 ---
 
@@ -390,6 +424,59 @@ El pedido dice "siempre que técnicamente sea posible" — esta es la respuesta 
 **Archivos:** `src/app/auth.css`, `src/components/AuthEntry.tsx`, `src/components/AuthFrame.tsx`, `src/components/Logo.tsx`.
 
 **Hecho:** ✅ 2026-09-12 — Camila Sylvester — `570a7fc`. Formato mobile con estética de marca; desktop intacto.
+
+---
+
+### T-36 · Solicitudes que llegan vacías por el orden del wizard — `M`
+
+**Reportado:** al dueño le llegan solicitudes con la ficha casi vacía y el panel **no le deja aceptarlas**.
+
+**Por qué pasa:** el wizard de auth (`a1fc48b`, 20/09) invirtió el orden del alta. Antes el creador llenaba los 5 pasos y *recién ahí* se creaba la cuenta; ahora la cuenta se crea primero en `/login` y el perfil viene después. Está escrito en el código: `src/components/RegistroCreadorV3Form.tsx` → `// Legacy signup path: access is created first on /login now.`
+
+Apenas hay sesión, `ensureProfile()` inserta la fila en `profiles` con `accountStatus='pending'` y todo lo demás en null. Si la persona abandona el formulario, esa fila queda igual y cae en la lista de solicitudes. Encima el mismo lote sumó dos pantallas obligatorias más (`/completar-telefono`, `/aceptar-terminos`), o sea más lugares donde abandonar.
+
+**Por qué no se puede aceptar:** candado que ya existía desde antes (no vino con el wizard), en `src/app/actions.ts` → `adminSetAccountStatus`: si `!onboardingCompleted`, tira *"La ficha está incompleta. No se puede aceptar todavía."*. Nunca se había activado porque antes no llegaban fichas incompletas.
+
+**Lo que hay que decidir con el jefe.** En la bitácora, la entrada de `a1fc48b` dice: *"pediste que creación e inicio de sesión sean intuitivos como las referencias (selección primero, datos después)"*. La pregunta concreta es:
+
+> ¿El pedido era que **la elección vaya primero**, o que **no se pidan datos antes de crear la cuenta**?
+
+Son dos cosas distintas:
+
+- Si era lo primero, el arreglo implementado lo respeta: acción → rol → **4 datos mínimos** → Google/email.
+- Si era literalmente "no le pidas nada antes de la cuenta", el arreglo va contra el pedido y hay que buscar otra salida. **No hay forma de tener las dos**: o pedís algo antes, o seguís recibiendo fichas vacías.
+
+**Restricción técnica a tener en cuenta:** con Google **no se puede** pedir datos antes de crear la cuenta. El OAuth crea el usuario de Clerk en el callback; cuando volvés a Connecta la cuenta ya existe. Un "volver al orden viejo" literal solo es implementable en el camino de email.
+
+**El costo de cada lado, para que lo decida con la información:** cada dato que pedís antes de crear la cuenta es fricción y algo de abandono — pero un abandono *antes* de la cuenta no deja basura en la base. El abandono *después* sí, y además te deja sin forma de contactar a esa persona.
+
+**Decisión (26/09):** lo hablé con el jefe y me dijo que quiere *"que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*. Así que descarté mi variante de los "4 datos mínimos antes de la cuenta" (nunca llegó a subirse).
+
+Lo de Google que decía arriba se resuelve así: la ficha se completa entera **antes** de apretar "Continuar con Google", y viaja guardada en el navegador hasta que la cuenta existe.
+
+**Hecho:** 🟡 2026-09-26 — Amadeo Rodríguez — `05ad37f`. El alta ahora es: Creador/Marca → ficha completa por etapas (5 para creador, 4 para marca, con un wizard nuevo) → Google/email. La ficha viaja como borrador local y se sube apenas existe la cuenta; el contacto viaja además por la metadata de Clerk. El admin vuelve a aceptar solo fichas completas.
+
+**Me falta:** probarlo de punta a punta creando una cuenta real (con email y con Google), y limpiar a mano las fichas vacías que entraron entre el 20 y el 26/09.
+
+---
+
+### T-37 · Foto de perfil obligatoria para postularse (creadores) — `S`
+
+**Pedido (26/09):** me pidieron que la foto no sea obligatoria al crear la cuenta, pero sí para postularse. Es solo para creadores.
+
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `36ba24c`. Si al creador le falta la foto, `/aplicar` se la pide ahí mismo antes de dejarlo postularse. Además, `applyToEvent` la exige en el servidor, así que no hay forma de saltearla.
+
+---
+
+### T-38 · Celular de otros países — `S`
+
+**Cómo estaba** (lo encontré al hacer T-14): el celular solo aceptaba números argentinos (`src/lib/phone.ts`), y es obligatorio en el registro y en el bloqueo `/completar-telefono`. Desde T-14 la ubicación admite Uruguay, Chile y España, pero **una persona de esos países no podía terminar el registro**, porque su celular no validaba.
+
+**A decidir:** ¿aceptamos celulares de UY/CL/ES (con su prefijo, y el link a WhatsApp con el código de país), o esos países solo pueden cargarse con un celular argentino?
+
+**Decisión (26/09):** se lo pregunté al jefe y me dijo que sí, que los aceptemos.
+
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `ff7bc1c`. Puse un selector de prefijo en todos los formularios, validación de celular por país y el link de WhatsApp con el código correcto. Los números viejos sin "+" se siguen leyendo como argentinos, así que no se rompió ninguno.
 
 ---
 
@@ -484,10 +571,12 @@ Estas no las puedo decidir yo. Cuanto antes me las contesten, mejor:
 1. **T-02** — ¿El cierre de sesión a los 30 minutos se puso por seguridad? ¿Cuánto quieren que dure?
 2. **T-08** — El brief automático, ¿plantilla o IA? Son dos proyectos distintos.
 3. **T-11** — URLs de Instagram y LinkedIn de Connecta, y mail de contacto.
-4. **T-14** — Provincia y ciudad, ¿dos campos o uno?
+4. ~~**T-14** — Provincia y ciudad, ¿dos campos o uno?~~ **Respondida 2026-09-26:** escalera país → provincia → municipio.
 5. **T-18** — ¿Aceptan cerrar el tema de la foto de Instagram con carga manual + TikTok? (ver la tarea)
 6. **T-04** — El mail, ¿al crear la cuenta, al aprobarla, o los dos?
 7. **T-21** — Marcas con las que trabajó, ¿texto libre o vinculado a marcas de Connecta?
+8. ~~**T-36** — El wizard de alta: ¿la elección va primero, o no se piden datos antes de crear la cuenta?~~ **Respondida 2026-09-26:** ficha completa por etapas y después la cuenta.
+9. ~~**T-38** — ¿Aceptamos celulares de Uruguay, Chile y España?~~ **Respondida 2026-09-26:** sí.
 
 ---
 
@@ -500,3 +589,11 @@ Estas no las puedo decidir yo. Cuanto antes me las contesten, mejor:
 **Semanas 4-6:** T-29 (perfil de marca). Es lo más grande, y destraba T-25, T-30 y parte de T-33.
 
 **Después:** revisar de nuevo el cuadrante blanco con datos reales en la mano.
+
+**Actualizado al 26/09:** del plan original ya está casi todo el rojo, el azul del login y T-14 del Bloque A. Lo que sigo:
+1. Mergear la rama `fix/alta-perfil-completo` después de probarla con cuentas reales.
+2. T-04: cargar el DNS para Resend ya mismo, que tarda.
+3. T-26: reproducir el scroll.
+4. T-07 y T-09, que se ven y son rápidas.
+5. El resto del Bloque A (T-15, T-16, T-20, T-21) en una sola migración `0010_creator_profile.sql`.
+6. T-29 (perfil de marca).

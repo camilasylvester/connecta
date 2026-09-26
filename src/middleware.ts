@@ -15,6 +15,9 @@ const isPublic = createRouteMatcher([
   "/sso-callback(.*)",
   "/robots.txt",
   "/sitemap.xml",
+  // Listas de país/provincia/municipio (public/geo/*.json). Son datos públicos
+  // y el registro las necesita antes de que exista la sesión.
+  "/geo/(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

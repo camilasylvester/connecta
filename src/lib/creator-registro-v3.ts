@@ -1,4 +1,10 @@
 import type { OnboardingPayload } from "@/lib/onboarding";
+import {
+  geoShortLabel,
+  isCompleteGeo,
+  parseGeo,
+  type GeoUbicacion,
+} from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 
 export const UBICACION_OPTIONS = [
@@ -200,7 +206,9 @@ export const CATEGORY_TREE: Record<string, string[]> = {
 export type CreatorRegistroV3Draft = {
   nombre: string;
   phone: string;
+  /** Legado: los 6 chips viejos. Los perfiles nuevos usan `geo`. */
   ubicacion: string | null;
+  geo: GeoUbicacion | null;
   genero: string | null;
   idiomas: string[];
   categoriaSet: string[];
@@ -215,6 +223,7 @@ export function emptyCreatorDraft(instagram = ""): CreatorRegistroV3Draft {
     nombre: "",
     phone: "",
     ubicacion: null,
+    geo: null,
     genero: null,
     idiomas: [],
     categoriaSet: [],
@@ -233,20 +242,18 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
   const instagramFollowers = draft.redes.Instagram ?? 0;
   const tiktokFollowers = draft.redes.TikTok ?? 0;
 
-  const province =
-    draft.ubicacion === "Palermo"
+  // La provincia sale de la escalera nueva; el mapeo viejo queda solo para
+  // borradores guardados antes del cambio (y termina en "Otro" como antes).
+  const geo = isCompleteGeo(draft.geo) ? draft.geo : null;
+  const province = geo
+    ? geo.provincia
+    : draft.ubicacion === "Palermo" || draft.ubicacion === "CABA"
       ? "CABA"
-      : draft.ubicacion === "CABA"
-        ? "CABA"
-        : draft.ubicacion === "Córdoba"
-          ? "Córdoba"
-          : draft.ubicacion === "Rosario"
-            ? "Otro"
-            : draft.ubicacion === "La Plata"
-              ? "Buenos Aires"
-              : draft.ubicacion === "Mendoza"
-                ? "Otro"
-                : "Otro";
+      : draft.ubicacion === "Córdoba"
+        ? "Córdoba"
+        : draft.ubicacion === "La Plata"
+          ? "Buenos Aires"
+          : "Otro";
 
   return {
     fullName: draft.nombre.trim(),
@@ -269,7 +276,8 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
     avatarUrl: "",
     followers: instagramFollowers > 0 ? String(instagramFollowers) : "",
     tiktokFollowers: tiktokFollowers > 0 ? String(tiktokFollowers) : "",
-    ubicacion: draft.ubicacion,
+    ubicacion: geo ? geoShortLabel(geo) : draft.ubicacion,
+    geo,
     genero: draft.genero,
     idiomas: draft.idiomas,
     categoriaSet: draft.categoriaSet,
@@ -279,6 +287,7 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
 
 export type CreatorMeta = {
   ubicacion: string | null;
+  geo: GeoUbicacion | null;
   genero: string | null;
   idiomas: string[];
   categoriaSet: string[];
@@ -288,6 +297,7 @@ export type CreatorMeta = {
 export function emptyCreatorMeta(): CreatorMeta {
   return {
     ubicacion: null,
+    geo: null,
     genero: null,
     idiomas: [],
     categoriaSet: [],
@@ -324,13 +334,23 @@ export function payloadToCreatorMeta(data: OnboardingPayload): CreatorMeta {
     if (redes[platform] == null) redes[platform] = platform === "Instagram" ? ig : platform === "TikTok" ? tt : 0;
   }
 
+  const geo = parseGeo(data.geo);
   return {
-    ubicacion: data.ubicacion || null,
+    ubicacion: geo ? geoShortLabel(geo) : data.ubicacion || null,
+    geo,
     genero: data.genero || null,
     idiomas: Array.isArray(data.idiomas) ? data.idiomas : [],
     categoriaSet,
     redes,
   };
+}
+
+/**
+ * Marcas: de todo `creator_meta` solo usan `geo` (su ubicación). Se guarda ahí
+ * para no migrar la base; el resto de los campos quedan como estaban.
+ */
+export function brandMetaWithGeo(existing: unknown, data: OnboardingPayload): CreatorMeta {
+  return { ...parseCreatorMeta(existing), geo: parseGeo(data.geo) };
 }
 
 export function profileToCreatorDraft(data: OnboardingPayload): CreatorRegistroV3Draft {
@@ -340,6 +360,7 @@ export function profileToCreatorDraft(data: OnboardingPayload): CreatorRegistroV
     phone: data.phone || "",
     instagram: data.instagram,
     ubicacion: meta.ubicacion,
+    geo: meta.geo,
     genero: meta.genero,
     idiomas: meta.idiomas,
     categoriaSet: meta.categoriaSet,
@@ -353,6 +374,7 @@ export function parseCreatorMeta(raw: unknown): CreatorMeta {
   const value = raw as Partial<CreatorMeta>;
   return {
     ubicacion: typeof value.ubicacion === "string" ? value.ubicacion : null,
+    geo: parseGeo(value.geo),
     genero: typeof value.genero === "string" ? value.genero : null,
     idiomas: Array.isArray(value.idiomas)
       ? value.idiomas.filter((x): x is string => typeof x === "string")
@@ -399,6 +421,7 @@ export function loadCreatorDraft(): CreatorRegistroV3Draft | null {
       nombre: typeof parsed.nombre === "string" ? parsed.nombre : "",
       phone: typeof parsed.phone === "string" ? parsed.phone : "",
       ubicacion: parsed.ubicacion || null,
+      geo: parseGeo(parsed.geo),
       genero: parsed.genero || null,
       idiomas: Array.isArray(parsed.idiomas) ? parsed.idiomas : [],
       categoriaSet: Array.isArray(parsed.categoriaSet)

@@ -12,7 +12,8 @@ import {
   type OnboardingPayload,
   validateOnboarding,
 } from "@/lib/onboarding";
-import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
+import { brandMetaWithGeo, payloadToCreatorMeta } from "@/lib/creator-registro-v3";
+import { parseGeo } from "@/lib/geo";
 import { isAllowedStoredImageUrl, parseImageUrlsField } from "@/lib/image-compress";
 import {
   detectPostPlatform,
@@ -265,6 +266,12 @@ export async function applyToEvent(eventId: string, formData: FormData) {
   if (profile.accountStatus === "rejected") {
     throw new Error("Tu cuenta fue rechazada");
   }
+  // Regla de producto (26/09): sin foto de perfil no hay postulación. Las
+  // marcas eligen mirando la ficha; una ficha con iniciales no se elige. Se
+  // chequea acá (no solo en la UI) porque es la única puerta de postulación.
+  if (!profile.avatarUrl?.trim()) {
+    throw new Error("Subí tu foto de perfil para poder postularte.");
+  }
 
   const db = getDb();
   const [event] = await db
@@ -296,6 +303,37 @@ export async function applyToEvent(eventId: string, formData: FormData) {
   redirect("/mis-postulaciones");
 }
 
+/**
+ * El creador logueado guarda su foto de perfil (URL ya subida a Vercel Blob
+ * con `uploadConnectaImage`). Se usa en /aplicar cuando le falta la foto.
+ */
+export async function setMyAvatar(url: string) {
+  const profile = await requireProfile();
+  if (profile.role !== "creator") throw new Error("No autorizado");
+  const clean = url.trim();
+  // Solo URLs de Vercel Blob (donde sube uploadConnectaImage): así nadie puede
+  // "cumplir" la foto obligatoria pegando cualquier link.
+  let fromBlob = false;
+  try {
+    const u = new URL(clean);
+    fromBlob =
+      u.protocol === "https:" && u.hostname.endsWith(".blob.vercel-storage.com");
+  } catch {
+    fromBlob = false;
+  }
+  if (!fromBlob) {
+    throw new Error("La foto no es válida. Probá subirla de nuevo.");
+  }
+  const db = getDb();
+  await db
+    .update(profiles)
+    .set({ avatarUrl: clean, updatedAt: new Date() })
+    .where(eq(profiles.id, profile.id));
+  revalidatePath("/mi-perfil");
+  revalidatePath("/dashboard/explorar");
+  return { ok: true as const };
+}
+
 /** Logged-in user updates their own ficha (brand or creator). Role cannot change. */
 async function applyProfilePayload(
   target: typeof profiles.$inferSelect,
@@ -311,7 +349,7 @@ async function applyProfilePayload(
   if (!check.ok) throw new Error(check.error);
 
   const { normalizeInstagramHandle } = await import("@/lib/instagram");
-  const { formatArMobileDisplay } = await import("@/lib/phone");
+  const { formatMobileDisplay } = await import("@/lib/phone");
   const handle = normalizeInstagramHandle(effective.instagram);
   const ageNum = effective.age ? Number(effective.age) : null;
   const igFollowers = Number(String(effective.followers || "").replace(/\D/g, ""));
@@ -327,13 +365,15 @@ async function applyProfilePayload(
       handle,
       tiktokHandle: effective.tiktok.trim() || null,
       province: effective.province || null,
+      // `city` = municipio de la escalera (src/lib/geo.ts), para los dos roles.
       city:
-        formRole === "brand"
-          ? effective.companyLocation.trim() || effective.province || null
-          : effective.province || null,
+        parseGeo(effective.geo)?.municipio ||
+        (formRole === "brand" ? effective.companyLocation.trim() : "") ||
+        effective.province ||
+        null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: effective.phone.trim()
-        ? formatArMobileDisplay(effective.phone) || effective.phone.trim()
+        ? formatMobileDisplay(effective.phone) || effective.phone.trim()
         : null,
       email: effective.contactEmail.trim().toLowerCase() || target.email,
       brandName:
@@ -382,7 +422,9 @@ async function applyProfilePayload(
             : null
           : target.tiktokFollowers,
       creatorMeta:
-        formRole === "creator" ? payloadToCreatorMeta(effective) : target.creatorMeta,
+        formRole === "creator"
+          ? payloadToCreatorMeta(effective)
+          : brandMetaWithGeo(target.creatorMeta, effective),
       onboardingCompleted: true,
       updatedAt: new Date(),
     })

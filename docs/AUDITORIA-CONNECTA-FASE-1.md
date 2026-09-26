@@ -11,6 +11,15 @@
 **Producción:** https://www.connectainf.com
 
 
+> **Nota mía del 26/09/2026:** esta auditoría es una foto de agosto y la dejo como registro, pero varias cosas ya cambiaron:
+> - Hoy **sí** hay OAuth de TikTok ([TIKTOK_CONNECT.md](TIKTOK_CONNECT.md)).
+> - El alta pide la ficha completa antes de crear la cuenta.
+> - La ubicación es una escalera País → Provincia → Municipio.
+> - El celular acepta Argentina, Uruguay, Chile y España.
+> - La foto es obligatoria para postularse.
+>
+> Para saber cómo está la app hoy, leé la [bitácora](BITACORA.md) y el resumen de arriba de [TAREAS.md](TAREAS.md).
+
 ---
 
 ## Portada / control del documento
