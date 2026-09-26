@@ -16,15 +16,24 @@ import {
 import { LoginClerkSignIn } from "@/components/LoginClerkSignIn";
 import { PreferEmailCodeLink } from "@/components/PreferEmailCodeLink";
 import { RegistroClerkSignUp } from "@/components/RegistroClerkSignUp";
+import { RegistroCreadorV3Form } from "@/components/RegistroCreadorV3Form";
+import { RegistroMarcaForm } from "@/components/RegistroMarcaForm";
 import {
   persistAuthNext,
   persistAuthRole,
   type AuthProfileRole,
 } from "@/lib/clerk-auth";
+import {
+  brandDraftToSignupMetadata,
+  creatorDraftToSignupMetadata,
+  type SignupMetadata,
+} from "@/lib/signup-draft";
 
 type AuthMode = "login" | "signup";
 type AuthProfile = "creador" | "marca";
-type WizardStep = "intent" | "role" | "access";
+// En el alta, "profile" es la ficha completa por etapas: va ANTES del acceso
+// para que ninguna solicitud llegue vacía al admin (T-36).
+type WizardStep = "intent" | "role" | "profile" | "access";
 
 function buildHref(parts: {
   mode?: AuthMode | null;
@@ -79,6 +88,9 @@ export function AuthEntry() {
   const [signingOut, setSigningOut] = useState(false);
   const [pickedIntent, setPickedIntent] = useState<AuthMode | null>(null);
   const [pickedProfile, setPickedProfile] = useState<AuthProfile | null>(null);
+  // Contacto de la ficha terminada; viaja a Clerk como unsafeMetadata al crear
+  // la cuenta. null = la ficha todavía no se completó.
+  const [signupMeta, setSignupMeta] = useState<SignupMetadata | null>(null);
 
   useEffect(() => {
     persistAuthNext(next);
@@ -97,8 +109,13 @@ export function AuthEntry() {
     setProfile(initialProfile);
   }
 
-  const step: WizardStep =
-    !mode ? "intent" : !profile && !isAdminLink ? "role" : "access";
+  const step: WizardStep = !mode
+    ? "intent"
+    : !profile && !isAdminLink
+      ? "role"
+      : mode === "signup" && !isAdminLink && !signupMeta
+        ? "profile"
+        : "access";
 
   const roleMismatch = errorParam === "role_mismatch";
 
@@ -135,6 +152,7 @@ export function AuthEntry() {
     window.setTimeout(() => {
       setMode(nextMode);
       setProfile(null);
+      setSignupMeta(null);
       persistAuthRole(null);
       go({ mode: nextMode, profile: null, clearError: true });
       setPickedIntent(null);
@@ -146,17 +164,34 @@ export function AuthEntry() {
     setPickedProfile(nextProfile);
     window.setTimeout(() => {
       setProfile(nextProfile);
+      setSignupMeta(null);
       persistAuthRole(profileToRole(nextProfile));
       go({ mode, profile: nextProfile, clearError: true });
       setPickedProfile(null);
     }, 220);
   }
 
+  /** Sale de la ficha (o del acceso en login) y vuelve a elegir Creador/Marca. */
+  function backToRole() {
+    setProfile(null);
+    setSignupMeta(null);
+    persistAuthRole(null);
+    go({ mode, profile: null, clearError: true });
+  }
+
   function goBack() {
     if (step === "access") {
-      setProfile(null);
-      persistAuthRole(null);
-      go({ mode, profile: null, clearError: true });
+      // En el alta, volver desde el acceso reabre la ficha (sigue cargada
+      // desde el borrador local, no se pierde nada).
+      if (mode === "signup" && signupMeta && !isAdminLink) {
+        setSignupMeta(null);
+        return;
+      }
+      backToRole();
+      return;
+    }
+    if (step === "profile") {
+      backToRole();
       return;
     }
     if (step === "role") {
@@ -236,7 +271,7 @@ export function AuthEntry() {
           />
           <AuthSelectCard
             title="Crear cuenta"
-            description="Primera vez: armamos tu acceso y después el perfil."
+            description="Primera vez: completás tu perfil y al final creás el acceso."
             icon={<IconSignup />}
             selected={pickedIntent === "signup"}
             onClick={() => chooseIntent("signup")}
@@ -284,27 +319,60 @@ export function AuthEntry() {
         <p className="auth-wizard-foot">
           {mode === "login"
             ? "Después vas a entrar con Google o email."
-            : "Después creás el acceso; el perfil viene después."}
+            : "Primero completás tu perfil por etapas; al final creás el acceso."}
         </p>
       </AuthFrame>
     );
   }
 
-  // access
   const role = profile ? profileToRole(profile) : "creator";
+
+  // profile: ficha completa por etapas, antes de que exista la cuenta
+  if (step === "profile") {
+    return role === "brand" ? (
+      <RegistroMarcaForm
+        variant="signup"
+        onCancel={backToRole}
+        onComplete={(data) => {
+          setSignupMeta(brandDraftToSignupMetadata(data));
+          window.scrollTo({ top: 0 });
+        }}
+      />
+    ) : (
+      <RegistroCreadorV3Form
+        variant="signup"
+        next={next}
+        onCancel={backToRole}
+        onComplete={(draft) => {
+          setSignupMeta(creatorDraftToSignupMetadata(draft));
+          window.scrollTo({ top: 0 });
+        }}
+      />
+    );
+  }
+
+  // access
   const accessTitle = mode === "login" ? "Iniciá sesión" : "Creá tu cuenta";
 
   return (
     <AuthAccessLayout
       title={accessTitle}
-      description=""
+      description={
+        mode === "signup" && signupMeta
+          ? "Tu ficha está lista. Creá el acceso y la enviamos a revisión."
+          : ""
+      }
       onBack={isAdminLink ? undefined : goBack}
       progress={
         !isAdminLink ? (
           <AuthProgress
             total={2}
             current={2}
-            labels={["Tipo de cuenta", "Acceso"]}
+            labels={
+              mode === "signup"
+                ? ["Tu perfil", "Último paso: tu acceso"]
+                : ["Tipo de cuenta", "Acceso"]
+            }
           />
         ) : undefined
       }
@@ -330,7 +398,11 @@ export function AuthEntry() {
           <PreferEmailCodeLink />
         </>
       ) : (
-        <RegistroClerkSignUp role={role} next={next} />
+        <RegistroClerkSignUp
+          role={role}
+          next={next}
+          extraMetadata={signupMeta || undefined}
+        />
       )}
     </AuthAccessLayout>
   );

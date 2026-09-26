@@ -393,6 +393,35 @@ El pedido dice "siempre que técnicamente sea posible" — esta es la respuesta 
 
 ---
 
+### T-36 · Solicitudes que llegan vacías por el orden del wizard — `M`
+
+**Reportado:** al dueño le llegan solicitudes con la ficha casi vacía y el panel **no le deja aceptarlas**.
+
+**Por qué pasa:** el wizard de auth (`a1fc48b`, 20/09) invirtió el orden del alta. Antes el creador llenaba los 5 pasos y *recién ahí* se creaba la cuenta; ahora la cuenta se crea primero en `/login` y el perfil viene después. Está escrito en el código: `src/components/RegistroCreadorV3Form.tsx` → `// Legacy signup path: access is created first on /login now.`
+
+Apenas hay sesión, `ensureProfile()` inserta la fila en `profiles` con `accountStatus='pending'` y todo lo demás en null. Si la persona abandona el formulario, esa fila queda igual y cae en la lista de solicitudes. Encima el mismo lote sumó dos pantallas obligatorias más (`/completar-telefono`, `/aceptar-terminos`), o sea más lugares donde abandonar.
+
+**Por qué no se puede aceptar:** candado que ya existía desde antes (no vino con el wizard), en `src/app/actions.ts` → `adminSetAccountStatus`: si `!onboardingCompleted`, tira *"La ficha está incompleta. No se puede aceptar todavía."*. Nunca se había activado porque antes no llegaban fichas incompletas.
+
+**Lo que hay que decidir con el jefe.** En la bitácora, la entrada de `a1fc48b` dice: *"pediste que creación e inicio de sesión sean intuitivos como las referencias (selección primero, datos después)"*. La pregunta concreta es:
+
+> ¿El pedido era que **la elección vaya primero**, o que **no se pidan datos antes de crear la cuenta**?
+
+Son dos cosas distintas:
+
+- Si era lo primero, el arreglo implementado lo respeta: acción → rol → **4 datos mínimos** → Google/email.
+- Si era literalmente "no le pidas nada antes de la cuenta", el arreglo va contra el pedido y hay que buscar otra salida. **No hay forma de tener las dos**: o pedís algo antes, o seguís recibiendo fichas vacías.
+
+**Restricción técnica a tener en cuenta:** con Google **no se puede** pedir datos antes de crear la cuenta. El OAuth crea el usuario de Clerk en el callback; cuando volvés a Connecta la cuenta ya existe. Un "volver al orden viejo" literal solo es implementable en el camino de email.
+
+**El costo de cada lado, para que lo decida con la información:** cada dato que pedís antes de crear la cuenta es fricción y algo de abandono — pero un abandono *antes* de la cuenta no deja basura en la base. El abandono *después* sí, y además te deja sin forma de contactar a esa persona.
+
+**Decisión (2026-09-26, el jefe):** *"quiere que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*. Se descartó la variante de los "4 datos mínimos antes de la cuenta".
+
+**Hecho:** 🟡 2026-09-26 — Amadeo Rodríguez — `pendiente de commit`. Alta = Creador/Marca → ficha completa por etapas (creador 5, marca 4) → Google/email. La ficha viaja como borrador local y se sube apenas existe la cuenta; el contacto va también por metadata de Clerk. El admin vuelve a aceptar solo fichas completas. Falta: prueba de punta a punta creando una cuenta real (email y Google) y limpiar a mano las fichas vacías que ya entraron.
+
+---
+
 ### T-11 · Rediseñar el footer — `S`
 
 **Hoy:** `SiteFooter.tsx` ya tiene los cinco links legales, en dos variantes (landing y feed).
@@ -488,6 +517,7 @@ Estas no las puedo decidir yo. Cuanto antes me las contesten, mejor:
 5. **T-18** — ¿Aceptan cerrar el tema de la foto de Instagram con carga manual + TikTok? (ver la tarea)
 6. **T-04** — El mail, ¿al crear la cuenta, al aprobarla, o los dos?
 7. **T-21** — Marcas con las que trabajó, ¿texto libre o vinculado a marcas de Connecta?
+8. ~~**T-36** — El wizard de alta: ¿la elección va primero, o no se piden datos antes de crear la cuenta?~~ **Respondida 2026-09-26:** ficha completa por etapas y después la cuenta.
 
 ---
 

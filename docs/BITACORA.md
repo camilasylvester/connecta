@@ -42,6 +42,43 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+
+**Qué cambié:** el alta volvió a ser **perfil primero, cuenta después** (tarea **T-36**, decisión del jefe: *"que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*). Al crear cuenta el orden ahora es: Crear cuenta → Creador/Marca → **ficha completa por etapas** → Google/email. La cuenta recién existe cuando la ficha está terminada.
+
+- **Creador:** el wizard de 5 etapas que ya existía (Datos básicos → Redes → Sobre vos → Categorías → Revisión). El último botón dice "Continuar a crear la cuenta".
+- **Marca:** wizard nuevo de 4 etapas (Tu marca → Contacto → Objetivos → Revisión), con el mismo estilo que el del creador. Reemplaza al formulario largo de una sola página, también en `/completar-perfil`.
+
+**Cómo viajan los datos hasta la cuenta:** la ficha entera queda como borrador en el navegador (`localStorage`) y `/completar-perfil` la sube con `syncOnboarding` apenas se crea la cuenta; en el mismo salto se marca `onboardingCompleted`. Además, el contacto (nombre, celular, Instagram/marca, términos) viaja con la cuenta como `unsafeMetadata` de Clerk y `ensureProfile()` lo escribe al crear la fila, como red de seguridad. La ficha no va entera a Clerk porque la metadata tiene un tope de ~8 KB y un creador con muchas categorías se acerca.
+
+**El candado del admin vuelve a pedir la ficha completa** (`onboardingCompleted`). Se descartó la "ficha mínima" que había armado el 23/09 (paso "Tus datos" + aceptar con nombre/celular/IG): con este orden ya no hace falta.
+
+**Por qué:** al dueño le llegaban solicitudes casi vacías que no podía aceptar. Desde `a1fc48b` (20/09) la cuenta se creaba antes que el perfil y cada abandono dejaba una fila `pending` vacía.
+
+**Dónde:** nuevo `src/lib/signup-draft.ts` (borrador de marca + metadata del alta); nuevo `src/components/RegistroMarcaForm.tsx`; `src/components/AuthEntry.tsx` (paso "profile" antes del acceso); `src/components/RegistroCreadorV3Form.tsx` (modo alta con `onComplete`/`onCancel`); `src/components/CompletarPerfilForm.tsx` (sube también el borrador de marca y usa el wizard nuevo); `src/lib/auth.ts` (`ensureProfile` guarda celular y persona de contacto desde la metadata).
+
+**Cómo probarlo:** `/login` → Crear cuenta → Marca: tienen que aparecer las 4 etapas y **no** Google/email hasta terminar la revisión y aceptar términos. Crear la cuenta (email y Google) → tiene que caer en "Guardando tu ficha" y después en `/pendiente`. En `/admin/solicitudes` la ficha tiene que estar completa y aceptable. Repetir con Creador (5 etapas). Probar "Atrás" desde el acceso: vuelve a la ficha con todo cargado.
+
+**Riesgo / qué mirar:** **medio** — toca el alta en producción. Si el borrador local se pierde entre la ficha y la cuenta (por ejemplo, el mail de verificación se abre en otro navegador), la cuenta nace con el contacto pero sin la ficha: esa persona **no** aparece como aceptable y al entrar cae en `/completar-perfil` para terminarla. **No se tocó la base**: sin migración. Las fichas vacías que ya existen siguen ahí; hay que limpiarlas a mano.
+
+**Verificación:** `npm run lint` → limpio. `tsc --noEmit` → limpio. `next build` → compila. En local se recorrieron las etapas de marca y creador hasta la pantalla de crear cuenta (validaciones incluidas). **No** se creó una cuenta real de punta a punta: falta probar el salto cuenta → `/completar-perfil` → `/pendiente` contra un Clerk y una base de prueba.
+
+---
+
+## 2026-09-26 — `ef702bc` — Amadeo Rodríguez
+
+**Qué cambié:** dejé `npm run lint` en cero. Venía fallando con 12 errores y 1 warning: nueve viejos (de agosto) y tres del lote del 12-20/09. Casi todos eran `setState` sincrónico dentro de un `useEffect`, que dispara renders en cascada; los pasé al patrón que recomienda React (ajuste durante el render para estado derivado de props). En el registro del creador, el flag de términos guardado se lee con `useSyncExternalStore`, para no romper la hidratación del checkbox.
+
+**Por qué:** el lint roto tapaba errores nuevos. Se trabajó el 23/09 y se commiteó aparte del cambio del alta (una idea por commit). Esta entrada va en el commit siguiente porque el lint se separó después.
+
+**Dónde:** `scripts/check-env.mjs`, `src/app/admin/eventos/page.tsx`, `src/app/sso-callback/page.tsx`, `AuthEntry`, `CompletarPerfilForm`, `CreatorSocialProfile`, `EmailPasswordSignIn`, `RegistroCreadorV3Form`.
+
+**Cómo probarlo:** `npm run lint` → 0 errores, 0 warnings.
+
+**Riesgo / qué mirar:** bajo. No busca cambiar comportamiento; revisar que el login, el registro y admin/eventos se vean igual.
+
+---
+
 ## 2026-09-20 — `a1fc48b` — Camila Sylvester
 
 **Qué cambié:** rediseñé el flujo de **Iniciar sesión** y **Crear cuenta** al estilo wizard (primero elegís la acción, después Creador/Marca, después Google/email). El login ya no pide Instagram. El perfil del creador (5 pasos) arranca después del acceso, con barra de progreso y términos al final. Si entrás por el tipo de cuenta equivocado, te lo aclara y te pide el camino correcto.

@@ -78,12 +78,20 @@ export function RegistroCreadorV3Form({
   next = "",
   variant = "signup",
   onComplete,
+  onCancel,
 }: {
   initialInstagram?: string;
   initialDraft?: CreatorRegistroV3Draft;
   next?: string;
+  /**
+   * signup: la ficha se llena ANTES de crear la cuenta; al terminar se llama
+   * a `onComplete` y el que la contiene (AuthEntry) muestra el acceso.
+   * profile: la cuenta ya existe y la ficha se guarda directo en la base.
+   */
   variant?: "signup" | "profile";
   onComplete?: (draft: CreatorRegistroV3Draft) => void | Promise<void>;
+  /** Salir del wizard desde el paso 1 (vuelve a elegir Creador/Marca). */
+  onCancel?: () => void;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -204,18 +212,18 @@ export function RegistroCreadorV3Form({
         })();
         return;
       }
-      // Legacy signup path: access is created first on /login now.
-      const params = new URLSearchParams();
-      params.set("tab", "signup");
-      params.set("as", "creador");
-      if (next) params.set("next", next);
-      router.push(`/login?${params.toString()}`);
+      // Alta: la ficha ya quedo en el borrador local; ahora se crea la cuenta.
+      void onComplete?.(profile);
     }
   }
 
   function goBack() {
     setError(null);
     if (step === 1) {
+      if (onCancel) {
+        onCancel();
+        return;
+      }
       if (variant === "profile") {
         router.push("/after-auth");
         return;
@@ -280,9 +288,15 @@ export function RegistroCreadorV3Form({
     <div className="registro-v3-page">
       <header className="auth-header registro-v3-header">
         <Logo href="/" className="auth-logo" />
-        <Link href="/login?tab=signup&as=creador" className="auth-back">
-          ← Cancelar
-        </Link>
+        {onCancel ? (
+          <button type="button" className="auth-back" onClick={onCancel}>
+            ← Cancelar
+          </button>
+        ) : (
+          <Link href="/login?tab=signup&as=creador" className="auth-back">
+            ← Cancelar
+          </Link>
+        )}
       </header>
 
       <main className="registro-v3-main">
@@ -622,7 +636,11 @@ export function RegistroCreadorV3Form({
               {step === 1 ? "Cancelar" : "Atrás"}
             </button>
             <button type="button" className="auth-primary registro-next-btn" onClick={goNext}>
-              {step === 5 ? "Enviar solicitud" : "Continuar"}
+              {step === 5
+                ? variant === "signup"
+                  ? "Continuar a crear la cuenta"
+                  : "Enviar solicitud"
+                : "Continuar"}
             </button>
           </div>
         </div>
