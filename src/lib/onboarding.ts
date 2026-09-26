@@ -4,7 +4,7 @@ import {
   parseGeo,
   type GeoUbicacion,
 } from "@/lib/geo";
-import { arMobileValidationError } from "@/lib/phone";
+import { mobileValidationError } from "@/lib/phone";
 
 export const PROVINCES = [
   "Buenos Aires",
@@ -211,10 +211,10 @@ export function validateOnboarding(
   }
 
   if (requirePhone) {
-    const phoneErr = arMobileValidationError(data.phone);
+    const phoneErr = mobileValidationError(data.phone);
     if (phoneErr) return { ok: false, error: phoneErr };
   } else if (data.phone.trim()) {
-    const phoneErr = arMobileValidationError(data.phone);
+    const phoneErr = mobileValidationError(data.phone);
     if (phoneErr) return { ok: false, error: phoneErr };
   }
 

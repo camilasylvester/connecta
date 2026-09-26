@@ -349,7 +349,7 @@ async function applyProfilePayload(
   if (!check.ok) throw new Error(check.error);
 
   const { normalizeInstagramHandle } = await import("@/lib/instagram");
-  const { formatArMobileDisplay } = await import("@/lib/phone");
+  const { formatMobileDisplay } = await import("@/lib/phone");
   const handle = normalizeInstagramHandle(effective.instagram);
   const ageNum = effective.age ? Number(effective.age) : null;
   const igFollowers = Number(String(effective.followers || "").replace(/\D/g, ""));
@@ -372,7 +372,7 @@ async function applyProfilePayload(
           : parseGeo(effective.geo)?.municipio || effective.province || null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: effective.phone.trim()
-        ? formatArMobileDisplay(effective.phone) || effective.phone.trim()
+        ? formatMobileDisplay(effective.phone) || effective.phone.trim()
         : null,
       email: effective.contactEmail.trim().toLowerCase() || target.email,
       brandName:

@@ -18,11 +18,12 @@ import {
   validateOnboarding,
 } from "@/lib/onboarding";
 import { UbicacionPicker } from "@/components/GeoPicker";
+import { PhoneInput } from "@/components/PhoneInput";
 import { geoShortLabel } from "@/lib/geo";
 import { instagramUrl, normalizeInstagramHandle } from "@/lib/instagram";
 import { cropToSquareDataUrl } from "@/lib/avatar-crop";
 import { uploadConnectaImage } from "@/lib/blob-upload";
-import { formatArMobileDisplay, whatsappUrl } from "@/lib/phone";
+import { formatMobileDisplay, whatsappUrl } from "@/lib/phone";
 import { platformLabel, tiktokProfileUrl } from "@/lib/posts";
 import type { CreatorPost, PostPlatform } from "@/db/schema";
 
@@ -606,20 +607,17 @@ export function CreatorSocialProfile({
                 </label>
                 <label className="block">
                   <span className={labelCls}>Celular (WhatsApp) *</span>
-                  <input
-                    className={field}
-                    type="tel"
-                    inputMode="tel"
+                  <PhoneInput
+                    inputClassName={field}
                     value={data.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    placeholder="+54 9 11 1234-5678"
-                    autoComplete="tel"
+                    defaultCountry={data.geo?.pais}
+                    onChange={(phone) => set("phone", phone)}
                     required
                   />
                   <p className="mt-1 text-xs text-muted-dark">
                     Obligatorio. Las marcas pueden escribirte por WhatsApp
                     {data.phone && waLink
-                      ? ` · ${formatArMobileDisplay(data.phone)}`
+                      ? ` · ${formatMobileDisplay(data.phone)}`
                       : ""}
                     .
                   </p>

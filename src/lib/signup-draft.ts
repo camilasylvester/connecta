@@ -1,7 +1,7 @@
 import type { CreatorRegistroV3Draft } from "@/lib/creator-registro-v3";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { emptyOnboarding, type OnboardingPayload } from "@/lib/onboarding";
-import { formatArMobileDisplay } from "@/lib/phone";
+import { formatMobileDisplay } from "@/lib/phone";
 import { TERMS_VERSION } from "@/lib/terms";
 
 /**
@@ -26,7 +26,7 @@ export function creatorDraftToSignupMetadata(
 ): SignupMetadata {
   const meta: SignupMetadata = {
     display_name: draft.nombre.trim(),
-    phone: formatArMobileDisplay(draft.phone) || draft.phone.trim(),
+    phone: formatMobileDisplay(draft.phone) || draft.phone.trim(),
     terms_accepted: "true",
     terms_version: TERMS_VERSION,
   };
@@ -43,7 +43,7 @@ export function brandDraftToSignupMetadata(
     display_name: data.brandName.trim(),
     brand_name: data.brandName.trim(),
     contact_name: data.contactPerson.trim(),
-    phone: formatArMobileDisplay(data.phone) || data.phone.trim(),
+    phone: formatMobileDisplay(data.phone) || data.phone.trim(),
     terms_accepted: "true",
     terms_version: TERMS_VERSION,
   };

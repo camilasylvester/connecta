@@ -16,6 +16,7 @@ import {
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 import { UbicacionPicker } from "@/components/GeoPicker";
+import { PhoneInput } from "@/components/PhoneInput";
 
 const field =
   "w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none focus:border-purple";
@@ -272,18 +273,15 @@ export function OnboardingForm({
               <span className={labelClass}>
                 Celular (WhatsApp){requirePhone ? " *" : ""}
               </span>
-              <input
-                className={fieldCls}
-                type="tel"
-                inputMode="tel"
+              <PhoneInput
+                inputClassName={fieldCls}
                 value={data.phone}
-                onChange={(e) => set("phone", e.target.value)}
-                placeholder="+54 9 11 1234-5678"
-                autoComplete="tel"
+                defaultCountry={data.geo?.pais}
+                onChange={(phone) => set("phone", phone)}
                 required={requirePhone}
               />
               <span className={hintClass}>
-                Solo celular argentino
+                Celular de Argentina, Uruguay, Chile o España
                 {requirePhone
                   ? ". Se muestra como link a WhatsApp en el perfil."
                   : " (opcional). Si lo cargás, se linkea a WhatsApp."}

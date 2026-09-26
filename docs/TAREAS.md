@@ -432,13 +432,15 @@ Son dos cosas distintas:
 
 ---
 
-### T-38 · Celular de otros países — `S` — **pregunta abierta**
+### T-38 · Celular de otros países — `S`
 
 **Hoy:** el celular solo acepta números argentinos (`src/lib/phone.ts`), y es obligatorio en el registro y en el bloqueo `/completar-telefono`. Desde T-14 la ubicación admite Uruguay, Chile y España, pero **una persona de esos países no puede terminar el registro** porque su celular no valida.
 
 **A decidir:** ¿aceptamos celulares de UY/CL/ES (con su prefijo, y el link a WhatsApp con el código de país), o esos países solo pueden cargarse con un celular argentino?
 
-**Hecho:** ⬜
+**Decisión (2026-09-26, el jefe):** aceptar celulares de Uruguay, Chile y España.
+
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit`. Selector de prefijo en todos los formularios, validación de celular por país y WhatsApp con el código correcto. Los números viejos sin "+" siguen siendo argentinos.
 
 ---
 
@@ -538,7 +540,7 @@ Estas no las puedo decidir yo. Cuanto antes me las contesten, mejor:
 6. **T-04** — El mail, ¿al crear la cuenta, al aprobarla, o los dos?
 7. **T-21** — Marcas con las que trabajó, ¿texto libre o vinculado a marcas de Connecta?
 8. ~~**T-36** — El wizard de alta: ¿la elección va primero, o no se piden datos antes de crear la cuenta?~~ **Respondida 2026-09-26:** ficha completa por etapas y después la cuenta.
-9. **T-38** — ¿Aceptamos celulares de Uruguay, Chile y España? Hoy un creador de esos países no puede terminar el registro.
+9. ~~**T-38** — ¿Aceptamos celulares de Uruguay, Chile y España?~~ **Respondida 2026-09-26:** sí.
 
 ---
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AuthProgress } from "@/components/AuthWizardBits";
 import { Logo } from "@/components/Logo";
+import { PhoneInput } from "@/components/PhoneInput";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 import { normalizeInstagramHandle } from "@/lib/instagram";
 import {
@@ -14,7 +15,7 @@ import {
   validateOnboarding,
   type OnboardingPayload,
 } from "@/lib/onboarding";
-import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
+import { mobileValidationError, formatMobileDisplay } from "@/lib/phone";
 import { loadBrandDraft, saveBrandDraft } from "@/lib/signup-draft";
 
 const STEPS = [
@@ -118,7 +119,7 @@ export function RegistroMarcaForm({
       if (!data.contactPerson.trim()) {
         return "Poné quién es la persona de contacto y su cargo.";
       }
-      const phoneErr = arMobileValidationError(data.phone);
+      const phoneErr = mobileValidationError(data.phone);
       if (phoneErr) return phoneErr;
       if (!data.contactEmail.trim() || !data.contactEmail.includes("@")) {
         return "Poné un email de contacto válido.";
@@ -150,7 +151,7 @@ export function RegistroMarcaForm({
       ...data,
       role: "brand",
       instagram: normalizeInstagramHandle(data.instagram) || data.instagram.trim(),
-      phone: formatArMobileDisplay(data.phone) || data.phone.trim(),
+      phone: formatMobileDisplay(data.phone) || data.phone.trim(),
     };
   }
 
@@ -318,16 +319,14 @@ export function RegistroMarcaForm({
                 </div>
                 <div className="auth-field">
                   <label htmlFor="brandPhone">Celular (WhatsApp) *</label>
-                  <input
+                  <PhoneInput
                     id="brandPhone"
-                    type="tel"
-                    inputMode="tel"
                     value={data.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    placeholder="+54 9 11 1234-5678"
-                    autoComplete="tel"
+                    onChange={(phone) => set("phone", phone)}
                   />
-                  <p className="auth-hint">Solo celular argentino.</p>
+                  <p className="auth-hint">
+                    Celular de Argentina, Uruguay, Chile o España.
+                  </p>
                 </div>
                 <div className="auth-field">
                   <label htmlFor="contactEmail">Email de contacto *</label>
@@ -420,7 +419,7 @@ export function RegistroMarcaForm({
                 />
                 <ReviewRow
                   label="Celular / WhatsApp"
-                  value={data.phone ? formatArMobileDisplay(data.phone) || data.phone : ""}
+                  value={data.phone ? formatMobileDisplay(data.phone) || data.phone : ""}
                 />
                 <ReviewRow label="Email" value={data.contactEmail} />
                 <ReviewRow label="Experiencia con influencers" value={data.influencerExperience} />

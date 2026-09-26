@@ -17,9 +17,10 @@ import {
 } from "@/lib/creator-registro-v3";
 import { persistAuthNext } from "@/lib/clerk-auth";
 import { UbicacionPicker } from "@/components/GeoPicker";
+import { PhoneInput } from "@/components/PhoneInput";
 import { geoLabel, isCompleteGeo } from "@/lib/geo";
 import { normalizeInstagramHandle } from "@/lib/instagram";
-import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
+import { mobileValidationError, formatMobileDisplay } from "@/lib/phone";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 import { syncTermsAcceptance } from "@/app/after-auth/actions";
 
@@ -146,7 +147,7 @@ export function RegistroCreadorV3Form({
 
   function validate(current: number): boolean {
     if (current === 1) {
-      const phoneErr = arMobileValidationError(profile.phone);
+      const phoneErr = mobileValidationError(profile.phone);
       const ok =
         profile.nombre.trim().length > 0 &&
         Boolean(
@@ -342,23 +343,7 @@ export function RegistroCreadorV3Form({
                     autoComplete="off"
                   />
                 </div>
-                <div className="auth-field">
-                  <label htmlFor="phone">Celular *</label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    inputMode="tel"
-                    value={profile.phone}
-                    onChange={(e) =>
-                      setProfile((p) => ({ ...p, phone: e.target.value }))
-                    }
-                    placeholder="+54 9 11 1234-5678"
-                    autoComplete="tel"
-                  />
-                  <p className="auth-hint">
-                    Solo celular argentino. Va a aparecer como link a WhatsApp en tu perfil.
-                  </p>
-                </div>
+                {/* Ubicación antes que el celular: el prefijo sugerido sale del país. */}
                 <div className="auth-field">
                   <label>¿Dónde vivís?</label>
                   <p className="auth-hint" style={{ marginTop: 0 }}>
@@ -369,6 +354,18 @@ export function RegistroCreadorV3Form({
                     value={profile.geo}
                     onChange={(geo) => setProfile((p) => ({ ...p, geo }))}
                   />
+                </div>
+                <div className="auth-field">
+                  <label htmlFor="phone">Celular *</label>
+                  <PhoneInput
+                    id="phone"
+                    value={profile.phone}
+                    defaultCountry={profile.geo?.pais}
+                    onChange={(phone) => setProfile((p) => ({ ...p, phone }))}
+                  />
+                  <p className="auth-hint">
+                    Va a aparecer como link a WhatsApp en tu perfil.
+                  </p>
                 </div>
               </>
             ) : null}
@@ -562,7 +559,7 @@ export function RegistroCreadorV3Form({
                   <div className="registro-review-label">Celular / WhatsApp</div>
                   <div className="registro-review-value">
                     {profile.phone
-                      ? formatArMobileDisplay(profile.phone)
+                      ? formatMobileDisplay(profile.phone)
                       : "—"}
                   </div>
                 </div>

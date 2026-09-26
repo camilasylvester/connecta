@@ -42,6 +42,26 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+
+**Qué cambié:** el celular ahora acepta **Argentina, Uruguay, Chile y España** (tarea **T-38**), los mismos países que la ubicación. En todos los formularios que piden celular (registro de creador y de marca, `/completar-telefono`, `/mi-perfil` y la edición del admin) hay un selector de prefijo al lado del número. En el registro del creador la ubicación pasó arriba del celular, así el prefijo ya viene con el país elegido.
+
+**Reglas por país:** Argentina igual que antes (10 dígitos, WhatsApp con 549); Uruguay 9X XXX XXX (se acepta con el 0 adelante); Chile 9 XXXX XXXX; España 6XX o 7XX XX XX XX. Solo celulares: los fijos se rechazan porque el número es para WhatsApp. El link `wa.me` sale con el código de cada país.
+
+**Compatibilidad:** todo número guardado sin "+" se sigue leyendo como argentino, así que los que ya están cargados no cambian.
+
+**Por qué:** desde la ubicación en escalera (T-14) un creador de Uruguay, Chile o España podía cargar dónde vive pero no podía terminar el registro, porque su celular no validaba. El jefe decidió aceptarlos.
+
+**Dónde:** `src/lib/phone.ts` (reescrito: `parseMobile`, `mobileValidationError`, `isValidMobile`, `formatMobileDisplay`; se renombraron las funciones `…ArMobile…` porque ya no son solo argentinas); nuevo `src/components/PhoneInput.tsx` + `phone-input.css`; formularios `RegistroCreadorV3Form`, `RegistroMarcaForm`, `CompletarTelefonoForm`, `CreatorSocialProfile`, `OnboardingForm`; y los usos del servidor (`auth.ts`, `account-gate.ts`, `onboarding.ts`, `actions.ts`, `after-auth/actions.ts`, `signup-draft.ts`), que solo cambian de nombre.
+
+**Cómo probarlo:** registro creador → paso 1 → elegir Uruguay en la ubicación: el prefijo pasa solo a +598. Un fijo (2 123 4567) tiene que dar error y un celular (094 123 456) tiene que pasar; en la revisión se ve "+598 94 123 456". Probar un número argentino viejo en `/mi-perfil`: tiene que seguir mostrándose y guardándose igual.
+
+**Riesgo / qué mirar:** medio-bajo. Toca la validación del celular, que es obligatorio en todo el alta. Argentina quedó idéntica (verificado contra la versión anterior). Sin cambios de base.
+
+**Verificación:** lint, `tsc` y `next build` limpios. 14 casos del validador (los 4 países, fijos, otros países). En local: registro de una creadora de Uruguay hasta la revisión y wizard de marca con celular de España.
+
+---
+
 ## 2026-09-26 — `36ba24c` — Amadeo Rodríguez
 
 **Qué cambié:** la **foto de perfil es obligatoria para postularse** (solo creadores). Crear la cuenta sigue sin pedirla; recién cuando quiere postularse a un evento, si no tiene foto, en `/aplicar` aparece "Subí tu foto de perfil" en lugar del botón de enviar. La sube ahí mismo (se recorta cuadrada, va a Vercel Blob y queda guardada en su perfil) y sigue con la postulación.

@@ -12,8 +12,8 @@ import {
 } from "@/lib/onboarding";
 import { payloadToCreatorMeta } from "@/lib/creator-registro-v3";
 import {
-  arMobileValidationError,
-  formatArMobileDisplay,
+  mobileValidationError,
+  formatMobileDisplay,
 } from "@/lib/phone";
 
 /** Save full onboarding questionnaire into the profile. */
@@ -55,7 +55,7 @@ export async function syncOnboarding(raw: OnboardingPayload) {
           : parseGeo(raw.geo)?.municipio || raw.province || null,
       age: ageNum && Number.isFinite(ageNum) ? ageNum : null,
       phone: raw.phone.trim()
-        ? formatArMobileDisplay(raw.phone) || raw.phone.trim()
+        ? formatMobileDisplay(raw.phone) || raw.phone.trim()
         : null,
       email: raw.contactEmail.trim().toLowerCase() || existing[0].email,
       followers:
@@ -93,12 +93,12 @@ export async function syncOnboarding(raw: OnboardingPayload) {
 /** Solo celular: para usuarios viejos bloqueados hasta cargarlo. */
 export async function syncPhone(rawPhone: string) {
   const userId = await requireUserId();
-  const err = arMobileValidationError(rawPhone);
+  const err = mobileValidationError(rawPhone);
   if (err) return { ok: false as const, error: err };
 
   await ensureProfile();
   const db = getDb();
-  const formatted = formatArMobileDisplay(rawPhone) || rawPhone.trim();
+  const formatted = formatMobileDisplay(rawPhone) || rawPhone.trim();
 
   await db
     .update(profiles)

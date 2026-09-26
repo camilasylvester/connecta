@@ -122,11 +122,11 @@ export async function ensureProfile(): Promise<Profile | null> {
     const patch: Partial<typeof profiles.$inferInsert> = {};
     if (email && existing[0].email !== email) patch.email = email;
     if (!existing[0].phone && typeof meta.phone === "string" && meta.phone) {
-      const { formatArMobileDisplay, isValidArMobile } = await import(
+      const { formatMobileDisplay, isValidMobile } = await import(
         "@/lib/phone"
       );
-      if (isValidArMobile(meta.phone)) {
-        patch.phone = formatArMobileDisplay(meta.phone) || meta.phone.trim();
+      if (isValidMobile(meta.phone)) {
+        patch.phone = formatMobileDisplay(meta.phone) || meta.phone.trim();
       }
     }
     if (!existing[0].termsAcceptedAt && termsAccepted) {
@@ -177,11 +177,11 @@ export async function ensureProfile(): Promise<Profile | null> {
   // celular, Instagram/marca, terminos) llega por unsafeMetadata, tanto en el
   // alta con email como en la de Google. La ficha entera la sube despues
   // /completar-perfil desde el borrador local (ver src/lib/signup-draft.ts).
-  const { formatArMobileDisplay, isValidArMobile } = await import("@/lib/phone");
+  const { formatMobileDisplay, isValidMobile } = await import("@/lib/phone");
   const rawPhone = typeof meta.phone === "string" ? meta.phone : "";
   const phone =
-    rawPhone && isValidArMobile(rawPhone)
-      ? formatArMobileDisplay(rawPhone) || rawPhone.trim()
+    rawPhone && isValidMobile(rawPhone)
+      ? formatMobileDisplay(rawPhone) || rawPhone.trim()
       : null;
 
   const [created] = await db

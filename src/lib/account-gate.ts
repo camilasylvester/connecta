@@ -1,15 +1,15 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import type { Profile } from "@/db/schema";
-import { isValidArMobile } from "@/lib/phone";
+import { isValidMobile } from "@/lib/phone";
 import { profileHasAcceptedTerms } from "@/lib/terms";
 
 export function profileHasValidPhone(profile: Profile): boolean {
-  return isValidArMobile(profile.phone || "");
+  return isValidMobile(profile.phone || "");
 }
 
 /**
- * Usuarios con onboarding hecho pero sin celular AR válido
+ * Usuarios con onboarding hecho pero sin celular válido (AR/UY/CL/ES)
  * no pueden usar la app hasta cargarlo.
  */
 export function redirectIfPhoneMissing(profile: Profile): void {

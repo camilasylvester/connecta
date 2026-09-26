@@ -1,0 +1,18 @@
+/* Celular con prefijo (PhoneInput.tsx). El input hereda la clase de cada
+   formulario; el selector trae su propio estilo oscuro de marca. */
+
+.phone-input { display: flex; gap: 8px; align-items: stretch; }
+.phone-input-number { flex: 1; min-width: 0; }
+.phone-input-select {
+  flex: 0 0 auto;
+  max-width: 46%;
+  padding: 0 12px;
+  border: 1.5px solid rgba(244, 243, 239, 0.14);
+  border-radius: 10px;
+  background: #0d0d10;
+  color: #f4f3ef;
+  font-size: 14px;
+  cursor: pointer;
+}
+.phone-input-select:focus { outline: none; border-color: #9c98ec; }
+.phone-input-select:disabled { opacity: 0.5; cursor: not-allowed; }
