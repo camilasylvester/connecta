@@ -440,7 +440,7 @@ Son dos cosas distintas:
 
 **Decisión (2026-09-26, el jefe):** aceptar celulares de Uruguay, Chile y España.
 
-**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit`. Selector de prefijo en todos los formularios, validación de celular por país y WhatsApp con el código correcto. Los números viejos sin "+" siguen siendo argentinos.
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `ff7bc1c`. Selector de prefijo en todos los formularios, validación de celular por país y WhatsApp con el código correcto. Los números viejos sin "+" siguen siendo argentinos.
 
 ---
 

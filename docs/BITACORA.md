@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+## 2026-09-26 — `ff7bc1c` — Amadeo Rodríguez
 
 **Qué cambié:** el celular ahora acepta **Argentina, Uruguay, Chile y España** (tarea **T-38**), los mismos países que la ubicación. En todos los formularios que piden celular (registro de creador y de marca, `/completar-telefono`, `/mi-perfil` y la edición del admin) hay un selector de prefijo al lado del número. En el registro del creador la ubicación pasó arriba del celular, así el prefijo ya viene con el país elegido.
 
