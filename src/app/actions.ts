@@ -266,6 +266,12 @@ export async function applyToEvent(eventId: string, formData: FormData) {
   if (profile.accountStatus === "rejected") {
     throw new Error("Tu cuenta fue rechazada");
   }
+  // Regla de producto (26/09): sin foto de perfil no hay postulación. Las
+  // marcas eligen mirando la ficha; una ficha con iniciales no se elige. Se
+  // chequea acá (no solo en la UI) porque es la única puerta de postulación.
+  if (!profile.avatarUrl?.trim()) {
+    throw new Error("Subí tu foto de perfil para poder postularte.");
+  }
 
   const db = getDb();
   const [event] = await db
@@ -295,6 +301,37 @@ export async function applyToEvent(eventId: string, formData: FormData) {
 
   revalidatePath("/mis-postulaciones");
   redirect("/mis-postulaciones");
+}
+
+/**
+ * El creador logueado guarda su foto de perfil (URL ya subida a Vercel Blob
+ * con `uploadConnectaImage`). Se usa en /aplicar cuando le falta la foto.
+ */
+export async function setMyAvatar(url: string) {
+  const profile = await requireProfile();
+  if (profile.role !== "creator") throw new Error("No autorizado");
+  const clean = url.trim();
+  // Solo URLs de Vercel Blob (donde sube uploadConnectaImage): así nadie puede
+  // "cumplir" la foto obligatoria pegando cualquier link.
+  let fromBlob = false;
+  try {
+    const u = new URL(clean);
+    fromBlob =
+      u.protocol === "https:" && u.hostname.endsWith(".blob.vercel-storage.com");
+  } catch {
+    fromBlob = false;
+  }
+  if (!fromBlob) {
+    throw new Error("La foto no es válida. Probá subirla de nuevo.");
+  }
+  const db = getDb();
+  await db
+    .update(profiles)
+    .set({ avatarUrl: clean, updatedAt: new Date() })
+    .where(eq(profiles.id, profile.id));
+  revalidatePath("/mi-perfil");
+  revalidatePath("/dashboard/explorar");
+  return { ok: true as const };
 }
 
 /** Logged-in user updates their own ficha (brand or creator). Role cannot change. */

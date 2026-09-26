@@ -1,9 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import { applyToEvent } from "@/app/actions";
+import { useRef, useState } from "react";
+import { applyToEvent, setMyAvatar } from "@/app/actions";
 import { InstagramHandleInput } from "@/components/InstagramHandleInput";
+import { cropToSquareDataUrl } from "@/lib/avatar-crop";
+import { uploadConnectaImage } from "@/lib/blob-upload";
 import type { Profile } from "@/lib/types";
+
+/**
+ * Paso previo a postularse cuando el creador no tiene foto de perfil
+ * (obligatoria desde 26/09; el servidor también lo exige en applyToEvent).
+ */
+function AvatarRequired({ onDone }: { onDone: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onFile(file: File | null) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Elegí una imagen (JPG o PNG).");
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      const dataUrl = await cropToSquareDataUrl(file);
+      setPreview(dataUrl);
+      const fd = new FormData();
+      fd.set("folder", "avatars");
+      fd.set("dataUrl", dataUrl);
+      const { url } = await uploadConnectaImage(fd);
+      await setMyAvatar(url);
+      onDone(url);
+    } catch (err) {
+      setPreview(null);
+      setError(err instanceof Error ? err.message : "No se pudo subir la foto.");
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold">Subí tu foto de perfil</h2>
+      <p className="text-sm text-muted-dark">
+        Para postularte necesitás una foto de perfil: es lo primero que ve la
+        marca cuando revisa las postulaciones. Se guarda en tu perfil y la
+        podés cambiar cuando quieras desde Mi perfil.
+      </p>
+      <div className="flex items-center gap-4">
+        <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border border-white/15 bg-black/30 text-2xl text-muted-dark">
+          {preview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={preview} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <span aria-hidden>＋</span>
+          )}
+        </div>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => fileRef.current?.click()}
+          className="rounded-full bg-purple px-6 py-3 text-sm font-bold text-white hover:bg-purple-2 disabled:opacity-60"
+        >
+          {busy ? "Subiendo…" : "Elegir foto"}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => void onFile(e.target.files?.[0] || null)}
+        />
+      </div>
+      {error ? <p className="text-sm font-semibold text-red-400">{error}</p> : null}
+    </div>
+  );
+}
 
 export function ApplyForm({
   eventId,
@@ -14,7 +90,13 @@ export function ApplyForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl || "");
   const readyProfile = Boolean(profile?.handle);
+
+  // Creador logueado sin foto: primero la foto, después el formulario.
+  if (profile?.role === "creator" && !avatarUrl) {
+    return <AvatarRequired onDone={setAvatarUrl} />;
+  }
 
   async function action(formData: FormData) {
     setError(null);

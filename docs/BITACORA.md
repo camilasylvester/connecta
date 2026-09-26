@@ -42,6 +42,22 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — `pendiente de commit (foto)` — Amadeo Rodríguez
+
+**Qué cambié:** la **foto de perfil es obligatoria para postularse** (solo creadores). Crear la cuenta sigue sin pedirla; recién cuando quiere postularse a un evento, si no tiene foto, en `/aplicar` aparece "Subí tu foto de perfil" en lugar del botón de enviar. La sube ahí mismo (se recorta cuadrada, va a Vercel Blob y queda guardada en su perfil) y sigue con la postulación.
+
+**Por qué:** pedido de producto: las marcas eligen mirando la ficha, y una ficha con iniciales no se elige.
+
+**Dónde:** `src/app/actions.ts` (`applyToEvent` rechaza sin foto; acción nueva `setMyAvatar`, que solo acepta URLs de Vercel Blob para que no se pueda "cumplir" pegando cualquier link); `src/components/ApplyForm.tsx` (paso "Subí tu foto"); nuevo `src/lib/avatar-crop.ts` (el recorte que antes vivía dentro de `CreatorSocialProfile`, ahora compartido).
+
+**Cómo probarlo:** con un creador sin foto, abrir un link de evento `/aplicar/...`: tiene que pedir la foto y no mostrar "Enviar postulación". Subir una foto: aparece el formulario normal y la foto queda en `/mi-perfil`. Con un creador que ya tiene foto no cambia nada.
+
+**Riesgo / qué mirar:** medio-bajo. Los creadores que hoy no tienen foto no van a poder postularse hasta subirla (es lo pedido). El chequeo está en el servidor, así que también frena cualquier otro camino de postulación. Sin cambios de base.
+
+**Verificación:** lint, `tsc` y `next build` limpios. El paso de foto se vio en local con el `ApplyForm` real y un creador sin foto. No se probó la subida real a Blob ni una postulación real: requieren sesión.
+
+---
+
 ## 2026-09-26 — `pendiente de commit (ubicación)` — Amadeo Rodríguez
 
 **Qué cambié:** la ubicación de los creadores pasó a ser una **escalera País → Provincia → Municipio** con Argentina, Uruguay, Chile y España completos (tarea **T-14**). Se usa en el registro, en la edición de `/mi-perfil`, en la ficha que edita el admin, y en el **filtro de Ubicación del buscador de marcas**, que sigue la misma lógica.

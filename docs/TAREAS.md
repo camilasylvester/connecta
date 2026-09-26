@@ -424,6 +424,14 @@ Son dos cosas distintas:
 
 ---
 
+### T-37 · Foto de perfil obligatoria para postularse (creadores) — `S`
+
+**Pedido (2026-09-26):** que al crear la cuenta no sea obligatoria, pero sí para postularse.
+
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit (foto)`. `/aplicar` pide la foto si falta y `applyToEvent` la exige en el servidor.
+
+---
+
 ### T-38 · Celular de otros países — `S` — **pregunta abierta**
 
 **Hoy:** el celular solo acepta números argentinos (`src/lib/phone.ts`), y es obligatorio en el registro y en el bloqueo `/completar-telefono`. Desde T-14 la ubicación admite Uruguay, Chile y España, pero **una persona de esos países no puede terminar el registro** porque su celular no valida.
