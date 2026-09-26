@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+## 2026-09-26 — `a84a509` — Amadeo Rodríguez
 
 **Qué cambié:** las **marcas cargan su ubicación con la misma escalera País → Provincia → Municipio** que los creadores (extensión de **T-14**). Reemplaza la provincia suelta (5 opciones) + el texto libre "Ciudad / barrio". Está en el wizard de alta de la marca (paso "Tu marca"), en la edición de su perfil (`/dashboard/config`) y en la ficha que edita el admin. El prefijo del celular de la marca también sale de su país.
 
