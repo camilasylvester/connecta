@@ -42,117 +42,171 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — Resumen del día — Amadeo Rodríguez
+
+> Hoy metí bastante, así que dejo este resumen arriba para que no haya que leer las siete entradas para saber qué cambió. Todo está en la rama `fix/alta-perfil-completo`, commit por commit, y cada cosa tiene su entrada abajo.
+
+1. **Lint en cero** (`ef702bc`).
+2. **Alta con la ficha completa antes de crear la cuenta** (`05ad37f`, T-36): se terminaron las solicitudes vacías.
+3. **Ubicación en escalera País → Provincia → Municipio** para creadores, con Argentina, Uruguay, Chile y España (`5e31226`, T-14), y el **filtro de marcas** con la misma lógica.
+4. **Foto de perfil obligatoria para postularse** (`36ba24c`, T-37).
+5. **Celulares de Uruguay, Chile y España** (`ff7bc1c`, T-38).
+6. **Ubicación en escalera también para las marcas** (`a84a509`).
+
+**Nada de esto tocó la base:** no hay migraciones para correr en Neon.
+
+**Lo que no pude probar de punta a punta** porque necesita sesión real: crear una cuenta de verdad (email y Google), el buscador logueado como marca, la subida real de la foto y una postulación real. Antes de mergear conviene hacer esa pasada con cuentas de prueba.
+
+**Una cosa que noté y no es mía:** los ajustes visuales que subió Camila el 20/09 después del wizard (`513467c` a `57ee4bc`: la card de acceso estilo Marz y los arreglos de Clerk 7) no tienen entrada en la bitácora. Estaría bueno sumarla.
+
+---
+
 ## 2026-09-26 — `a84a509` — Amadeo Rodríguez
 
-**Qué cambié:** las **marcas cargan su ubicación con la misma escalera País → Provincia → Municipio** que los creadores (extensión de **T-14**). Reemplaza la provincia suelta (5 opciones) + el texto libre "Ciudad / barrio". Está en el wizard de alta de la marca (paso "Tu marca"), en la edición de su perfil (`/dashboard/config`) y en la ficha que edita el admin. El prefijo del celular de la marca también sale de su país.
+**Qué cambié:** las marcas ahora cargan su ubicación con **la misma escalera País → Provincia → Municipio** que los creadores. Saqué la provincia suelta (tenía 5 opciones) y el campo libre "Ciudad / barrio". Lo cambié en el alta de la marca (paso "Tu marca"), en la edición de su perfil (`/dashboard/config`) y en la ficha que edita el admin. El prefijo del celular de la marca también sale de su país.
 
-**Cómo se guarda:** igual que en creadores, en `creator_meta.geo` (jsonb que ya existía; **sin migración**, el nombre de la columna es histórico). Además se copian `province` = provincia, `city` = municipio y `company_location` = "Tigre, Buenos Aires", para las pantallas que ya leían esos campos (ficha del admin, etc.). La lógica quedó en un solo helper, `withGeo` (`src/lib/onboarding.ts`), que usan todos los formularios.
+**Cómo lo guardo:** igual que en creadores, en `creator_meta.geo`. Es un jsonb que ya existía, así que **no hice migración**. Ya sé que el nombre de la columna no le queda bien a una marca, pero preferí eso antes que tocar la base; si molesta, más adelante se hace una columna propia. Además copio `province` = provincia, `city` = municipio y `company_location` = "Tigre, Buenos Aires", porque otras pantallas (como la ficha del admin) leen esos campos. Toda esa lógica quedó en un solo helper, `withGeo` (`src/lib/onboarding.ts`), y lo usan todos los formularios.
 
-**Por qué:** pedido de producto: que la ubicación de las marcas siga la misma lógica que la de los creadores.
+**Por qué:** me lo pidieron: que la ubicación de las marcas siga la misma lógica que la de los creadores.
 
-**Dónde:** `RegistroMarcaForm`, `OnboardingForm` (la escalera ahora es para los dos roles; se sacaron el select de provincia y el campo libre de ciudad), `CreatorSocialProfile` (usa `withGeo`), `src/lib/onboarding.ts` (`withGeo`, la validación de ubicación completa pasa a valer para marcas; se borró `PROVINCES`, que quedó sin uso), `creator-registro-v3.ts` (`brandMetaWithGeo`), `signup-draft.ts`, `after-auth/actions.ts` y `actions.ts` (guardado).
+**Dónde:** `RegistroMarcaForm` y `OnboardingForm` (ahora la escalera es para los dos roles). En `CreatorSocialProfile` pasé a usar `withGeo`. En `src/lib/onboarding.ts` están `withGeo` y la validación de ubicación completa, que ahora vale también para marcas; ahí borré `PROVINCES`, que quedó sin uso. En `creator-registro-v3.ts`, `brandMetaWithGeo`. El guardado está en `signup-draft.ts`, `after-auth/actions.ts` y `actions.ts`.
 
-**Cómo probarlo:** `/login` → Crear cuenta → Marca → paso "Tu marca": elegir país, provincia y municipio (sin municipio no avanza) y ver en la revisión "Tigre, Buenos Aires, Argentina". Con una marca existente, `/dashboard/config`: la ubicación aparece como escalera; guardar.
+**Cómo probarlo:** `/login` → Crear cuenta → Marca → paso "Tu marca". Elegí país, provincia y municipio: sin municipio no te deja avanzar, y en la revisión tiene que decir "Tigre, Buenos Aires, Argentina". Con una marca que ya existe, entrá a `/dashboard/config`: la ubicación aparece como escalera; cambiala y guardá.
 
-**Riesgo / qué mirar:** medio-bajo. Las marcas que ya existen tienen la ubicación vieja como texto libre, que no se puede traducir sola: la próxima vez que editen su perfil van a tener que elegirla en la escalera (hasta entonces, lo que muestran no cambia). Los creadores no cambian.
+**Riesgo / qué mirar:** medio-bajo. Las marcas que ya existen tienen la ubicación como texto libre y eso no se puede traducir solo, así que la próxima vez que editen su perfil van a tener que elegirla en la escalera. Hasta entonces, lo que muestran no cambia. A los creadores no les cambia nada.
 
-**Verificación:** lint, `tsc` y `next build` limpios. Ida y vuelta de una marca (validación sin ubicación / sin municipio / completa, lo que guarda el servidor y la reapertura en edición). En local, paso 1 del alta de marca con Argentina › Buenos Aires › Tigre.
+**Cómo lo verifiqué:** lint, `tsc` y `next build` limpios. Probé la ida y vuelta completa de una marca: la validación frena sin ubicación y sin municipio, y una vez guardada se reabre en edición con la escalera cargada. En local hice el paso 1 del alta con Argentina › Buenos Aires › Tigre.
 
 ---
 
 ## 2026-09-26 — `ff7bc1c` — Amadeo Rodríguez
 
-**Qué cambié:** el celular ahora acepta **Argentina, Uruguay, Chile y España** (tarea **T-38**), los mismos países que la ubicación. En todos los formularios que piden celular (registro de creador y de marca, `/completar-telefono`, `/mi-perfil` y la edición del admin) hay un selector de prefijo al lado del número. En el registro del creador la ubicación pasó arriba del celular, así el prefijo ya viene con el país elegido.
+**Qué cambié:** el celular ahora acepta **Argentina, Uruguay, Chile y España** (T-38), los mismos países de la ubicación. En todos los formularios que piden celular (alta de creador y de marca, `/completar-telefono`, `/mi-perfil` y la edición del admin) agregué un selector de prefijo al lado del número. En el alta del creador subí la ubicación arriba del celular, así el prefijo ya viene con el país elegido.
 
-**Reglas por país:** Argentina igual que antes (10 dígitos, WhatsApp con 549); Uruguay 9X XXX XXX (se acepta con el 0 adelante); Chile 9 XXXX XXXX; España 6XX o 7XX XX XX XX. Solo celulares: los fijos se rechazan porque el número es para WhatsApp. El link `wa.me` sale con el código de cada país.
+**Reglas por país:**
+- **Argentina:** igual que antes (10 dígitos, y WhatsApp con 549).
+- **Uruguay:** 9X XXX XXX; lo acepto también con el 0 adelante.
+- **Chile:** 9 XXXX XXXX.
+- **España:** 6XX o 7XX XX XX XX.
 
-**Compatibilidad:** todo número guardado sin "+" se sigue leyendo como argentino, así que los que ya están cargados no cambian.
+Acepto solo celulares, no fijos, porque el número es para WhatsApp. El link `wa.me` sale con el código de cada país.
 
-**Por qué:** desde la ubicación en escalera (T-14) un creador de Uruguay, Chile o España podía cargar dónde vive pero no podía terminar el registro, porque su celular no validaba. El jefe decidió aceptarlos.
+**Compatibilidad:** todo número guardado sin "+" se sigue leyendo como argentino, así que los que ya estaban cargados no cambian.
 
-**Dónde:** `src/lib/phone.ts` (reescrito: `parseMobile`, `mobileValidationError`, `isValidMobile`, `formatMobileDisplay`; se renombraron las funciones `…ArMobile…` porque ya no son solo argentinas); nuevo `src/components/PhoneInput.tsx` + `phone-input.css`; formularios `RegistroCreadorV3Form`, `RegistroMarcaForm`, `CompletarTelefonoForm`, `CreatorSocialProfile`, `OnboardingForm`; y los usos del servidor (`auth.ts`, `account-gate.ts`, `onboarding.ts`, `actions.ts`, `after-auth/actions.ts`, `signup-draft.ts`), que solo cambian de nombre.
+**Por qué:** cuando hice la ubicación en escalera me di cuenta de que un creador de Uruguay, Chile o España podía cargar dónde vive pero no podía terminar el registro, porque su celular no validaba. Lo hablé con el jefe y me dijo que los aceptemos.
 
-**Cómo probarlo:** registro creador → paso 1 → elegir Uruguay en la ubicación: el prefijo pasa solo a +598. Un fijo (2 123 4567) tiene que dar error y un celular (094 123 456) tiene que pasar; en la revisión se ve "+598 94 123 456". Probar un número argentino viejo en `/mi-perfil`: tiene que seguir mostrándose y guardándose igual.
+**Dónde:** reescribí `src/lib/phone.ts` (`parseMobile`, `mobileValidationError`, `isValidMobile`, `formatMobileDisplay`); renombré las funciones `…ArMobile…` porque ya no son solo argentinas. El campo nuevo es `src/components/PhoneInput.tsx` + `phone-input.css`, y está en los formularios `RegistroCreadorV3Form`, `RegistroMarcaForm`, `CompletarTelefonoForm`, `CreatorSocialProfile` y `OnboardingForm`. En el servidor (`auth.ts`, `account-gate.ts`, `onboarding.ts`, `actions.ts`, `after-auth/actions.ts`, `signup-draft.ts`) solo cambió el nombre de las funciones.
 
-**Riesgo / qué mirar:** medio-bajo. Toca la validación del celular, que es obligatorio en todo el alta. Argentina quedó idéntica (verificado contra la versión anterior). Sin cambios de base.
+**Cómo probarlo:** alta de creador → paso 1 → elegí Uruguay en la ubicación y fijate que el prefijo pasa solo a +598. Un fijo (2 123 4567) tiene que dar error y un celular (094 123 456) tiene que pasar; en la revisión se ve "+598 94 123 456". Probá también un número argentino viejo en `/mi-perfil`: se tiene que seguir mostrando y guardando igual.
 
-**Verificación:** lint, `tsc` y `next build` limpios. 14 casos del validador (los 4 países, fijos, otros países). En local: registro de una creadora de Uruguay hasta la revisión y wizard de marca con celular de España.
+**Riesgo / qué mirar:** medio-bajo. Toca la validación del celular, que es obligatorio en todo el alta. Argentina quedó idéntica: lo comparé contra la versión anterior. No toqué la base.
+
+**Dos formatos argentinos que no acepta** (ya no los aceptaba antes, no lo cambié): "11 15 2345-6789", con el 15 en el medio, y las áreas de 3 dígitos como el 351 de Córdoba, que se muestran "35 1123-4567". Queda anotado para otro momento.
+
+**Cómo lo verifiqué:** lint, `tsc` y `next build` limpios, y 14 casos del validador (los 4 países, fijos y países de afuera). En local hice el alta de una creadora de Uruguay hasta la revisión, y el wizard de marca con un celular de España.
 
 ---
 
 ## 2026-09-26 — `36ba24c` — Amadeo Rodríguez
 
-**Qué cambié:** la **foto de perfil es obligatoria para postularse** (solo creadores). Crear la cuenta sigue sin pedirla; recién cuando quiere postularse a un evento, si no tiene foto, en `/aplicar` aparece "Subí tu foto de perfil" en lugar del botón de enviar. La sube ahí mismo (se recorta cuadrada, va a Vercel Blob y queda guardada en su perfil) y sigue con la postulación.
+**Qué cambié:** ahora la **foto de perfil es obligatoria para postularse** (solo creadores). Crear la cuenta sigue sin pedirla. Recién cuando alguien quiere postularse a un evento y no tiene foto, en `/aplicar` le aparece "Subí tu foto de perfil" en lugar del botón de enviar. La sube ahí mismo (se recorta cuadrada, va a Vercel Blob y queda guardada en su perfil) y sigue con la postulación.
 
-**Por qué:** pedido de producto: las marcas eligen mirando la ficha, y una ficha con iniciales no se elige.
+**Por qué:** me lo pidieron. Las marcas eligen mirando la ficha, y una ficha con iniciales no la elige nadie.
 
-**Dónde:** `src/app/actions.ts` (`applyToEvent` rechaza sin foto; acción nueva `setMyAvatar`, que solo acepta URLs de Vercel Blob para que no se pueda "cumplir" pegando cualquier link); `src/components/ApplyForm.tsx` (paso "Subí tu foto"); nuevo `src/lib/avatar-crop.ts` (el recorte que antes vivía dentro de `CreatorSocialProfile`, ahora compartido).
+**Dónde:** en `src/app/actions.ts`, `applyToEvent` ahora rechaza la postulación si no hay foto. Sumé la acción `setMyAvatar`, que solo acepta URLs de Vercel Blob, para que nadie pueda "cumplir" pegando cualquier link. El paso "Subí tu foto" está en `src/components/ApplyForm.tsx`. El recorte de la foto, que antes vivía adentro de `CreatorSocialProfile`, lo pasé a `src/lib/avatar-crop.ts` para compartirlo.
 
-**Cómo probarlo:** con un creador sin foto, abrir un link de evento `/aplicar/...`: tiene que pedir la foto y no mostrar "Enviar postulación". Subir una foto: aparece el formulario normal y la foto queda en `/mi-perfil`. Con un creador que ya tiene foto no cambia nada.
+**Cómo probarlo:** con un creador sin foto, abrí el link de un evento (`/aplicar/...`). Tiene que pedirte la foto y no mostrar "Enviar postulación". Subí una: aparece el formulario normal y la foto queda en `/mi-perfil`. Con un creador que ya tiene foto no cambia nada.
 
-**Riesgo / qué mirar:** medio-bajo. Los creadores que hoy no tienen foto no van a poder postularse hasta subirla (es lo pedido). El chequeo está en el servidor, así que también frena cualquier otro camino de postulación. Sin cambios de base.
+**Riesgo / qué mirar:** medio-bajo. Los creadores que hoy no tienen foto no se van a poder postular hasta subirla, que es justamente lo pedido. El chequeo está en el servidor, así que frena también cualquier otro camino de postulación. No toqué la base.
 
-**Verificación:** lint, `tsc` y `next build` limpios. El paso de foto se vio en local con el `ApplyForm` real y un creador sin foto. No se probó la subida real a Blob ni una postulación real: requieren sesión.
+**Cómo lo verifiqué:** lint, `tsc` y `next build` limpios. Vi el paso de la foto en local con el `ApplyForm` real y un creador sin foto. **No** probé la subida real a Blob ni una postulación real, porque requieren sesión.
 
 ---
 
 ## 2026-09-26 — `5e31226` — Amadeo Rodríguez
 
-**Qué cambié:** la ubicación de los creadores pasó a ser una **escalera País → Provincia → Municipio** con Argentina, Uruguay, Chile y España completos (tarea **T-14**). Se usa en el registro, en la edición de `/mi-perfil`, en la ficha que edita el admin, y en el **filtro de Ubicación del buscador de marcas**, que sigue la misma lógica.
+**Qué cambié:** la ubicación de los creadores pasó a ser una **escalera País → Provincia → Municipio**, con Argentina, Uruguay, Chile y España completos (T-14). La puse en el alta, en la edición de `/mi-perfil` y en la ficha que edita el admin. El **filtro de Ubicación del buscador de marcas** sigue la misma lógica.
 
-- **Datos:** Argentina 24 provincias / 2.289 municipios (en CABA, los 48 barrios); Uruguay 19 departamentos / 217 (municipios + capitales + barrios de Montevideo); Chile 16 regiones / 346 comunas; España 52 provincias / 8.131 municipios. Viven en `public/geo/*.json` y se bajan solo cuando alguien elige ese país. Se regeneran con `node scripts/build-geo.mjs` (el script explica las fuentes y los parches: Georef no tiene municipios de Santa Cruz ni Santiago del Estero → localidades; las capitales de Uruguay no son municipio → se agregan).
-- **Buscador:** cada nivel tiene buscador que ignora tildes ("cordoba" encuentra "Córdoba").
-- **Filtro de marcas:** tildás países; adentro de cada país podés sumar provincias, y adentro de cada provincia, municipios. **Manda lo más específico**: Argentina + Córdoba busca solo en Córdoba; entre elecciones hermanas es "o" (Córdoba o Madrid).
-- **Perfiles viejos:** "Palermo", "Rosario", "La Plata", provincia "CABA"… se traducen solos a la escalera (Rosario → Argentina › Santa Fe › Rosario), así que aparecen en los filtros sin migrar nada. Cuando editen su perfil, la escalera arranca cargada.
+- **Datos:**
 
-**Por qué:** pedido de producto: que las personas carguen bien dónde viven y que las marcas puedan buscar exactamente la zona que quieren. La lista vieja tenía 6 valores mezclados (una provincia, una ciudad y un barrio en la misma lista).
+  | País | Primer nivel | Segundo nivel |
+  |---|---|---|
+  | Argentina | 24 provincias | 2.289 municipios (en CABA, los 48 barrios) |
+  | Uruguay | 19 departamentos | 217 (municipios, capitales y barrios de Montevideo) |
+  | Chile | 16 regiones | 346 comunas |
+  | España | 52 provincias | 8.131 municipios |
 
-**Dónde:** nuevos `src/lib/geo.ts` (países, carga, regla del filtro), `src/components/GeoPicker.tsx` + `geo-picker.css`, `scripts/build-geo.mjs`, `public/geo/`. Tocados: `RegistroCreadorV3Form`, `CreatorSocialProfile`, `OnboardingForm`, `CreatorExplorer` + `explorer.css`, `creator-search.ts`, `creator-registro-v3.ts`, `onboarding.ts`, `after-auth/actions.ts` y `actions.ts` (guardan `province` = provincia y `city` = municipio), `schema.ts` (solo el tipo del jsonb), `middleware.ts` (`/geo/*` público: sin eso el registro no podía bajar las listas).
+  Están en `public/geo/*.json` y el navegador los baja recién cuando alguien elige ese país. Se regeneran con `node scripts/build-geo.mjs`; ahí dejé explicadas las fuentes y los parches que tuve que hacer:
+  - Georef no tiene municipios de Santa Cruz ni de Santiago del Estero, así que para esas dos provincias usé las localidades.
+  - En Uruguay las capitales departamentales no son municipio, así que las agregué a mano.
+- **Buscador:** cada nivel tiene un buscador que ignora las tildes ("cordoba" encuentra "Córdoba").
+- **Filtro de marcas:** tildás países; adentro de cada país sumás provincias, y adentro de cada provincia, municipios. **Manda lo más específico:** Argentina + Córdoba busca solo en Córdoba. Entre elecciones del mismo nivel es "o" (Córdoba o Madrid).
+- **Perfiles viejos:** "Palermo", "Rosario", "La Plata", la provincia "CABA"… se traducen solos a la escalera (por ejemplo, Rosario → Argentina › Santa Fe › Rosario). Así aparecen en los filtros sin migrar nada, y cuando editen su perfil la escalera ya arranca cargada.
 
-**Base de datos:** **sin migración.** La escalera se guarda en `creator_meta.geo` (jsonb que ya existía) y se copia a las columnas `province` / `city`.
+**Por qué:** me lo pidieron: que la gente cargue bien dónde vive y que las marcas puedan buscar exactamente la zona que quieren. La lista vieja tenía 6 valores mezclados: una provincia, una ciudad y un barrio en la misma lista.
 
-**Cómo probarlo:** registro creador → paso 1 → elegir país, provincia y municipio (sin municipio no avanza). `/mi-perfil` → Editar → cambiar la ubicación y guardar. Como marca, `/dashboard/explorar` → Ubicación → Argentina → sumar Córdoba → sumar Río Cuarto: la lista se achica en cada paso.
+**Dónde:**
+- **Nuevos:** `src/lib/geo.ts` (los países, la carga y la regla del filtro), `src/components/GeoPicker.tsx` + `geo-picker.css`, `scripts/build-geo.mjs` y `public/geo/`.
+- **Formularios y buscador:** `RegistroCreadorV3Form`, `CreatorSocialProfile`, `OnboardingForm`, `CreatorExplorer` + `explorer.css`, `creator-search.ts`, `creator-registro-v3.ts` y `onboarding.ts`.
+- **Guardado:** `after-auth/actions.ts` y `actions.ts` guardan `province` = provincia y `city` = municipio. En `schema.ts` solo cambié el tipo del jsonb.
+- **Middleware:** en `middleware.ts` hice público `/geo/*`. Sin eso el alta no podía bajar las listas; lo encontré probando.
 
-**Riesgo / qué mirar:** medio. Validación nueva: un creador sin ubicación completa no puede guardar su perfil hasta completarla (los viejos con "Córdoba" solo tienen que elegir el municipio). **Ojo:** el celular sigue aceptando solo números argentinos, así que un creador de Uruguay, Chile o España hoy no puede terminar el registro. Ver T-38 en TAREAS.
+**Base de datos:** **sin migración.** La escalera se guarda en `creator_meta.geo`, un jsonb que ya existía, y la copio a las columnas `province` y `city`.
 
-**Verificación:** lint, `tsc` y `next build` limpios. 11 casos de la regla del filtro probados. En local se probaron el filtro (con creadores de ejemplo en los 4 países) y el paso 1 del registro con España › Madrid › Alcobendas, hasta la revisión. La ficha resultante pasa la validación del servidor y guarda `province`/`city`/`geo`.
+**Cómo probarlo:**
+- Alta de creador → paso 1: elegí país, provincia y municipio. Sin municipio no avanza.
+- `/mi-perfil` → Editar: cambiá la ubicación y guardá.
+- Como marca, `/dashboard/explorar` → Ubicación → Argentina → sumá Córdoba → sumá Río Cuarto. La lista se tiene que achicar en cada paso.
+
+**Riesgo / qué mirar:** medio. Hay una validación nueva: un creador sin ubicación completa no puede guardar su perfil hasta completarla. Los viejos que tenían "Córdoba" solo tienen que elegir el municipio.
+
+**Cómo lo verifiqué:** lint, `tsc` y `next build` limpios, y 11 casos de la regla del filtro. En local probé:
+- El filtro, con creadores de ejemplo en los 4 países.
+- El paso 1 del alta con España › Madrid › Alcobendas, hasta la revisión.
+
+La ficha que sale de ahí pasa la validación del servidor y guarda `province`, `city` y `geo`.
 
 ---
 
 ## 2026-09-26 — `05ad37f` — Amadeo Rodríguez
 
-**Qué cambié:** el alta volvió a ser **perfil primero, cuenta después** (tarea **T-36**, decisión del jefe: *"que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*). Al crear cuenta el orden ahora es: Crear cuenta → Creador/Marca → **ficha completa por etapas** → Google/email. La cuenta recién existe cuando la ficha está terminada.
+**Qué cambié:** el alta volvió a ser **perfil primero, cuenta después** (T-36). Lo hablé con el jefe y me dijo: *"que los perfiles lleguen completos: que se pidan los datos de a etapas y una vez hecho se cree la cuenta"*. El orden al crear cuenta ahora es: Crear cuenta → Creador/Marca → **ficha completa por etapas** → Google/email. La cuenta recién existe cuando la ficha está terminada.
 
-- **Creador:** el wizard de 5 etapas que ya existía (Datos básicos → Redes → Sobre vos → Categorías → Revisión). El último botón dice "Continuar a crear la cuenta".
-- **Marca:** wizard nuevo de 4 etapas (Tu marca → Contacto → Objetivos → Revisión), con el mismo estilo que el del creador. Reemplaza al formulario largo de una sola página, también en `/completar-perfil`.
+- **Creador:** el wizard de 5 etapas que ya teníamos (Datos básicos → Redes → Sobre vos → Categorías → Revisión). El último botón ahora dice "Continuar a crear la cuenta".
+- **Marca:** le armé un wizard nuevo de 4 etapas (Tu marca → Contacto → Objetivos → Revisión), con el mismo estilo que el del creador. Reemplaza el formulario largo de una sola página, también en `/completar-perfil`.
 
-**Cómo viajan los datos hasta la cuenta:** la ficha entera queda como borrador en el navegador (`localStorage`) y `/completar-perfil` la sube con `syncOnboarding` apenas se crea la cuenta; en el mismo salto se marca `onboardingCompleted`. Además, el contacto (nombre, celular, Instagram/marca, términos) viaja con la cuenta como `unsafeMetadata` de Clerk y `ensureProfile()` lo escribe al crear la fila, como red de seguridad. La ficha no va entera a Clerk porque la metadata tiene un tope de ~8 KB y un creador con muchas categorías se acerca.
+**Cómo llegan los datos a la cuenta:** la ficha entera queda guardada como borrador en el navegador (`localStorage`), y `/completar-perfil` la sube con `syncOnboarding` apenas se crea la cuenta. En ese mismo paso queda marcado `onboardingCompleted`. Además, el contacto (nombre, celular, Instagram/marca y términos) viaja con la cuenta como `unsafeMetadata` de Clerk, y `ensureProfile()` lo escribe al crear la fila: es la red de seguridad. No mando la ficha entera a Clerk porque la metadata tiene un tope de ~8 KB, y un creador con muchas categorías se acerca a ese número.
 
-**El candado del admin vuelve a pedir la ficha completa** (`onboardingCompleted`). Se descartó la "ficha mínima" que había armado el 23/09 (paso "Tus datos" + aceptar con nombre/celular/IG): con este orden ya no hace falta.
+**El candado del admin vuelve a pedir la ficha completa** (`onboardingCompleted`). La "ficha mínima" que había armado el 23/09 (el paso "Tus datos" y aceptar solicitudes con nombre, celular e IG) la descarté y no llegó a subirse: con este orden ya no hace falta.
 
-**Por qué:** al dueño le llegaban solicitudes casi vacías que no podía aceptar. Desde `a1fc48b` (20/09) la cuenta se creaba antes que el perfil y cada abandono dejaba una fila `pending` vacía.
+**Por qué:** al dueño le llegaban solicitudes casi vacías que no podía aceptar. Desde `a1fc48b` (20/09) la cuenta se creaba antes que el perfil, y cada vez que alguien abandonaba a la mitad quedaba una fila `pending` vacía.
 
-**Dónde:** nuevo `src/lib/signup-draft.ts` (borrador de marca + metadata del alta); nuevo `src/components/RegistroMarcaForm.tsx`; `src/components/AuthEntry.tsx` (paso "profile" antes del acceso); `src/components/RegistroCreadorV3Form.tsx` (modo alta con `onComplete`/`onCancel`); `src/components/CompletarPerfilForm.tsx` (sube también el borrador de marca y usa el wizard nuevo); `src/lib/auth.ts` (`ensureProfile` guarda celular y persona de contacto desde la metadata).
+**Dónde:** nuevos `src/lib/signup-draft.ts` (borrador de la marca y metadata del alta) y `src/components/RegistroMarcaForm.tsx`. Además toqué `src/components/AuthEntry.tsx` (el paso de la ficha antes del acceso), `src/components/RegistroCreadorV3Form.tsx` (modo alta, con `onComplete`/`onCancel`), `src/components/CompletarPerfilForm.tsx` (sube también el borrador de la marca y usa el wizard nuevo) y `src/lib/auth.ts` (`ensureProfile` guarda el celular y la persona de contacto desde la metadata).
 
-**Cómo probarlo:** `/login` → Crear cuenta → Marca: tienen que aparecer las 4 etapas y **no** Google/email hasta terminar la revisión y aceptar términos. Crear la cuenta (email y Google) → tiene que caer en "Guardando tu ficha" y después en `/pendiente`. En `/admin/solicitudes` la ficha tiene que estar completa y aceptable. Repetir con Creador (5 etapas). Probar "Atrás" desde el acceso: vuelve a la ficha con todo cargado.
+**Cómo probarlo:**
+1. `/login` → Crear cuenta → Marca: tienen que aparecer las 4 etapas, y **no** Google/email hasta terminar la revisión y aceptar los términos.
+2. Creá la cuenta con email y con Google: tiene que caer en "Guardando tu ficha" y después en `/pendiente`.
+3. En `/admin/solicitudes` la ficha tiene que estar completa y ser aceptable.
+4. Repetí lo mismo con Creador (5 etapas).
+5. Probá "Atrás" desde el acceso: vuelve a la ficha con todo cargado.
 
-**Riesgo / qué mirar:** **medio** — toca el alta en producción. Si el borrador local se pierde entre la ficha y la cuenta (por ejemplo, el mail de verificación se abre en otro navegador), la cuenta nace con el contacto pero sin la ficha: esa persona **no** aparece como aceptable y al entrar cae en `/completar-perfil` para terminarla. **No se tocó la base**: sin migración. Las fichas vacías que ya existen siguen ahí; hay que limpiarlas a mano.
+**Riesgo / qué mirar:** medio, porque toca el alta en producción. Si el borrador del navegador se pierde entre la ficha y la cuenta (por ejemplo, alguien abre el mail de verificación en otro navegador), la cuenta nace con el contacto pero sin la ficha. Esa persona **no** aparece como aceptable, y al entrar cae en `/completar-perfil` para terminarla. No toqué la base. Las fichas vacías que ya entraron siguen ahí: hay que limpiarlas a mano.
 
-**Verificación:** `npm run lint` → limpio. `tsc --noEmit` → limpio. `next build` → compila. En local se recorrieron las etapas de marca y creador hasta la pantalla de crear cuenta (validaciones incluidas). **No** se creó una cuenta real de punta a punta: falta probar el salto cuenta → `/completar-perfil` → `/pendiente` contra un Clerk y una base de prueba.
+**Cómo lo verifiqué:** lint, `tsc` y `next build` limpios. En local recorrí las etapas de marca y de creador hasta la pantalla de crear cuenta, validaciones incluidas. **No** creé una cuenta real de punta a punta: falta probar el salto cuenta → `/completar-perfil` → `/pendiente` contra un Clerk y una base de prueba.
 
 ---
 
 ## 2026-09-26 — `ef702bc` — Amadeo Rodríguez
 
-**Qué cambié:** dejé `npm run lint` en cero. Venía fallando con 12 errores y 1 warning: nueve viejos (de agosto) y tres del lote del 12-20/09. Casi todos eran `setState` sincrónico dentro de un `useEffect`, que dispara renders en cascada; los pasé al patrón que recomienda React (ajuste durante el render para estado derivado de props). En el registro del creador, el flag de términos guardado se lee con `useSyncExternalStore`, para no romper la hidratación del checkbox.
+**Qué cambié:** dejé `npm run lint` en cero. Venía fallando con 12 errores y 1 warning: nueve eran viejos (de agosto) y tres los trajo el lote del 12 al 20/09. Casi todos eran `setState` sincrónico adentro de un `useEffect`, que dispara renders en cascada; los pasé al patrón que recomienda React (ajustar el estado durante el render cuando depende de props). En el alta del creador, el tilde de términos guardado se lee con `useSyncExternalStore`, para no romper la hidratación del checkbox.
 
-**Por qué:** el lint roto tapaba errores nuevos. Se trabajó el 23/09 y se commiteó aparte del cambio del alta (una idea por commit). Esta entrada va en el commit siguiente porque el lint se separó después.
+**Por qué:** con el lint roto no se ven los errores nuevos. Lo trabajé el 23/09 y lo subí aparte del cambio del alta, para respetar lo de una idea por commit. Esta entrada va en un commit posterior porque separé el lint después.
 
-**Dónde:** `scripts/check-env.mjs`, `src/app/admin/eventos/page.tsx`, `src/app/sso-callback/page.tsx`, `AuthEntry`, `CompletarPerfilForm`, `CreatorSocialProfile`, `EmailPasswordSignIn`, `RegistroCreadorV3Form`.
+**Dónde:** `scripts/check-env.mjs`, `src/app/admin/eventos/page.tsx`, `src/app/sso-callback/page.tsx`, `AuthEntry`, `CompletarPerfilForm`, `CreatorSocialProfile`, `EmailPasswordSignIn` y `RegistroCreadorV3Form`.
 
 **Cómo probarlo:** `npm run lint` → 0 errores, 0 warnings.
 
-**Riesgo / qué mirar:** bajo. No busca cambiar comportamiento; revisar que el login, el registro y admin/eventos se vean igual.
+**Riesgo / qué mirar:** bajo. No busqué cambiar ningún comportamiento; solo revisar que el login, el alta y admin/eventos se vean igual que antes.
 
 ---
 
