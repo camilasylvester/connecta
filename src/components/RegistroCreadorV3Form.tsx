@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { AuthProgress } from "@/components/AuthWizardBits";
 import { Logo } from "@/components/Logo";
 import {
@@ -21,6 +21,21 @@ import { normalizeInstagramHandle } from "@/lib/instagram";
 import { arMobileValidationError, formatArMobileDisplay } from "@/lib/phone";
 import { TermsAcceptCheckbox } from "@/components/TermsAcceptCheckbox";
 import { syncTermsAcceptance } from "@/app/after-auth/actions";
+
+const TERMS_SESSION_KEY = "connecta-terms-accepted";
+
+/** El flag de terminos no cambia solo: no hace falta suscribirse a nada. */
+function subscribeToNothing(): () => void {
+  return () => {};
+}
+
+function readPersistedTerms(): boolean {
+  try {
+    return sessionStorage.getItem(TERMS_SESSION_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 const STEPS = [
   { label: "Datos básicos" },
@@ -95,17 +110,17 @@ export function RegistroCreadorV3Form({
   const [error, setError] = useState<string | null>(null);
   const [catSearch, setCatSearch] = useState("");
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
-  const [termsAccepted, setTermsAccepted] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (sessionStorage.getItem("connecta-terms-accepted") === "1") {
-        setTermsAccepted(true);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  // El valor persistido se lee con useSyncExternalStore: en SSR/hidratacion
+  // devuelve false (igual que el HTML del servidor) y recien despues toma el
+  // valor real de sessionStorage, asi que no hay hydration mismatch.
+  const persistedTerms = useSyncExternalStore(
+    subscribeToNothing,
+    readPersistedTerms,
+    () => false
+  );
+  const [termsOverride, setTermsOverride] = useState<boolean | null>(null);
+  const termsAccepted = termsOverride ?? persistedTerms;
+  const setTermsAccepted = setTermsOverride;
 
   useEffect(() => {
     persistAuthNext(next);

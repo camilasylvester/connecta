@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AuthFrame } from "@/components/AuthFrame";
 import { OnboardingForm } from "@/components/OnboardingForm";
@@ -29,25 +29,32 @@ export function CompletarPerfilForm({
   const [, startTransition] = useTransition();
   const [syncingDraft, setSyncingDraft] = useState(initialRole === "creator");
 
+  // Sincroniza el borrador local con el servidor una sola vez al montar.
+  // El trabajo vive dentro de la transicion async, asi que el effect no hace
+  // setState sincronico (el estado arranca en true y solo se apaga al terminar).
+  const syncStartedRef = useRef(false);
   useEffect(() => {
-    if (initialRole !== "creator") {
-      setSyncingDraft(false);
-      return;
-    }
-    const draft = loadCreatorDraft();
-    if (!draft) {
-      setSyncingDraft(false);
-      return;
-    }
-
-    const merged: CreatorRegistroV3Draft = {
-      ...draft,
-      instagram: draft.instagram || initial.instagram,
-      nombre: draft.nombre || initial.fullName,
-      phone: draft.phone || initial.phone,
-    };
+    if (syncStartedRef.current) return;
+    syncStartedRef.current = true;
 
     startTransition(async () => {
+      if (initialRole !== "creator") {
+        setSyncingDraft(false);
+        return;
+      }
+      const draft = loadCreatorDraft();
+      if (!draft) {
+        setSyncingDraft(false);
+        return;
+      }
+
+      const merged: CreatorRegistroV3Draft = {
+        ...draft,
+        instagram: draft.instagram || initial.instagram,
+        nombre: draft.nombre || initial.fullName,
+        phone: draft.phone || initial.phone,
+      };
+
       const res = await syncOnboarding(v3DraftToOnboarding(merged));
       if (!res.ok) {
         setError(res.error || "No se pudo guardar el perfil.");
@@ -62,7 +69,14 @@ export function CompletarPerfilForm({
       const qs = params.toString();
       router.replace(`/after-auth/go${qs ? `?${qs}` : ""}`);
     });
-  }, [initialRole, initial.instagram, initial.fullName, next, router]);
+  }, [
+    initialRole,
+    initial.instagram,
+    initial.fullName,
+    initial.phone,
+    next,
+    router,
+  ]);
 
   function goAfterAuth() {
     const params = new URLSearchParams();

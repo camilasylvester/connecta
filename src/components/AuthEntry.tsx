@@ -84,10 +84,18 @@ export function AuthEntry() {
     persistAuthNext(next);
   }, [next]);
 
-  useEffect(() => {
+  // La URL manda: cuando cambia (back/forward o router.replace), reajustamos
+  // el estado durante el render. Es el patron que recomienda React para estado
+  // derivado de props y evita el efecto que solo copiaba valores.
+  const [urlSync, setUrlSync] = useState({
+    mode: initialMode,
+    profile: initialProfile,
+  });
+  if (urlSync.mode !== initialMode || urlSync.profile !== initialProfile) {
+    setUrlSync({ mode: initialMode, profile: initialProfile });
     setMode(initialMode);
     setProfile(initialProfile);
-  }, [initialMode, initialProfile]);
+  }
 
   const step: WizardStep =
     !mode ? "intent" : !profile && !isAdminLink ? "role" : "access";

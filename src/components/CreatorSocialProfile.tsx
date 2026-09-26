@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   createCreatorPost,
@@ -125,17 +125,27 @@ export function CreatorSocialProfile({
   const [tiktokBusy, setTiktokBusy] = useState(false);
   const [, startTransition] = useTransition();
 
-  useEffect(() => {
+  // Sincronizacion props -> estado durante el render (sin effects que solo
+  // copian). Se mantiene el comportamiento original: al salir del modo edicion
+  // los datos vuelven a los del servidor.
+  const [propsSync, setPropsSync] = useState({
+    initial,
+    initialPosts,
+    tiktokConnected,
+    editing,
+  });
+  if (propsSync.initial !== initial || propsSync.editing !== editing) {
+    setPropsSync((s) => ({ ...s, initial, editing }));
     if (!editing) setData(initial);
-  }, [initial, editing]);
-
-  useEffect(() => {
+  }
+  if (propsSync.initialPosts !== initialPosts) {
+    setPropsSync((s) => ({ ...s, initialPosts }));
     setPosts(initialPosts);
-  }, [initialPosts]);
-
-  useEffect(() => {
+  }
+  if (propsSync.tiktokConnected !== tiktokConnected) {
+    setPropsSync((s) => ({ ...s, tiktokConnected }));
     setConnected(tiktokConnected);
-  }, [tiktokConnected]);
+  }
 
   const handle =
     normalizeInstagramHandle(data.instagram) ||
