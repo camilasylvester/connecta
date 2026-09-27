@@ -63,8 +63,11 @@ export default async function AdminUserDetailPage({
         ? "status-ok"
         : "status-bad";
 
+  const isBrand = u.role === "brand";
+
   return (
     <>
+      {isBrand ? null : (
       <div className="topbar">
         <div style={{ width: "100%" }}>
           <Link
@@ -79,14 +82,7 @@ export default async function AdminUserDetailPage({
           </Link>
           <div className="detail-header" style={{ marginBottom: 0 }}>
             <div>
-              <h1>
-                {u.role === "brand"
-                  ? u.brandName || u.displayName || "Sin nombre"
-                  : u.displayName || "Sin nombre"}
-              </h1>
-              {u.role === "brand" && brandRegistrant(u) ? (
-                <p className="sub">{brandRegistrant(u)}</p>
-              ) : null}
+              <h1>{u.displayName || "Sin nombre"}</h1>
               <div className="badge-row">
                 <RolePill role={u.role} />
                 <span className={`status-badge ${statusClass}`}>
@@ -124,6 +120,7 @@ export default async function AdminUserDetailPage({
           </div>
         </div>
       </div>
+      )}
 
       <div className="content">
         {canReview && u.role !== "brand" ? (
@@ -248,6 +245,7 @@ export default async function AdminUserDetailPage({
           </section>
         ) : null}
 
+        {isBrand ? null : (
         <Section title="Sistema">
           <Row label="ID" value={u.id} />
           <Row label="Alta" value={u.createdAt.toLocaleString("es-AR")} />
@@ -261,19 +259,17 @@ export default async function AdminUserDetailPage({
               u.reviewedAt ? u.reviewedAt.toLocaleString("es-AR") : null
             }
           />
-          {u.role === "brand" ? (
-            <Row
-              label="Términos aceptados"
-              value={
-                u.termsAcceptedAt
-                  ? `${u.termsVersion || "—"} · ${u.termsAcceptedAt.toLocaleString("es-AR")}`
-                  : "No"
-              }
-            />
-          ) : null}
         </Section>
+        )}
 
-        {canDelete ? (
+        {canDelete && isBrand ? (
+          <div className="brand-ficha-delete">
+            <AdminDeleteUserButton
+              profileId={u.id}
+              label={u.brandName || u.displayName || u.email || u.id}
+            />
+          </div>
+        ) : canDelete ? (
           <section className="danger-zone">
             <div>
               <h3 className="section-label">Zona de peligro</h3>
@@ -300,19 +296,6 @@ export default async function AdminUserDetailPage({
       </div>
     </>
   );
-}
-
-function brandRegistrant(u: {
-  brandName: string | null;
-  displayName: string | null;
-  contactPerson: string | null;
-}): string {
-  const brandName = (u.brandName || "").trim().toLowerCase();
-  const person = (u.displayName || "").trim();
-  const contact = (u.contactPerson || "").trim();
-  if (person && person.toLowerCase() !== brandName) return person;
-  if (contact && contact.toLowerCase() !== brandName) return contact;
-  return "";
 }
 
 function Section({
