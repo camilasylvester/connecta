@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `bd0e934` — Camila Sylvester
 
 **Qué cambié:** dejé andando “Continuar con Google” en producción (**T-39**). No hubo cambio de código. En Clerk Production cargamos Client ID y Client Secret propios, y en el Google Cloud de la empresa creamos el cliente OAuth. El redirect es `https://clerk.connectainf.com/v1/oauth_callback`. La app de Clerk pasó al workspace de la empresa.
 
