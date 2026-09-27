@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `pendiente` — Camila Sylvester
+
+**Qué cambié:** la invitación de un evento usa el mismo formato que la ficha de marca: logo, nombre, fotos y datos en filas.
+
+**Por qué:** Camila pidió esa estética para las postulaciones, después de verla en una prueba con La Chacra x Costa 7070.
+
+**Dónde:** `src/app/aplicar/[token]/page.tsx`, `src/app/aplicar/[token]/aplicar.css`, `src/components/EventInvite.tsx`.
+
+**Cómo probarlo:** abrir una invitación, por ejemplo La Chacra x Costa 7070. En el celular se ve una sola foto y el logo al lado del nombre. “Ver más fotos” abre todas en grande.
+
+**Riesgo / qué mirar:** postularse, iniciar sesión y la vista admin de la invitación siguen en la misma pantalla. No cambia quién puede enviarla.
+
+---
+
 ## 2026-09-27 — `78a85f3` — Camila Sylvester
 
 **Qué cambié:** la cuenta admin ya no rebota al panel cuando abre la invitación de un evento. Se queda en la misma pantalla que ve el influencer.
