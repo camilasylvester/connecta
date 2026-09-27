@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `af9ee43` — Camila Sylvester
 
 **Qué cambié:** la invitación de un evento usa el mismo formato que la ficha de marca: logo, nombre, fotos y datos en filas.
 
