@@ -79,7 +79,14 @@ export default async function AdminUserDetailPage({
           </Link>
           <div className="detail-header" style={{ marginBottom: 0 }}>
             <div>
-              <h1>{u.displayName || "Sin nombre"}</h1>
+              <h1>
+                {u.role === "brand"
+                  ? u.brandName || u.displayName || "Sin nombre"
+                  : u.displayName || "Sin nombre"}
+              </h1>
+              {u.role === "brand" && brandRegistrant(u) ? (
+                <p className="sub">{brandRegistrant(u)}</p>
+              ) : null}
               <div className="badge-row">
                 <RolePill role={u.role} />
                 <span className={`status-badge ${statusClass}`}>
@@ -119,7 +126,7 @@ export default async function AdminUserDetailPage({
       </div>
 
       <div className="content">
-        {canReview ? (
+        {canReview && u.role !== "brand" ? (
           <div className="invite-box">
             <h3>Revisar solicitud de acceso</h3>
             {u.accountStatus === "pending" && !u.onboardingCompleted ? (
@@ -293,6 +300,19 @@ export default async function AdminUserDetailPage({
       </div>
     </>
   );
+}
+
+function brandRegistrant(u: {
+  brandName: string | null;
+  displayName: string | null;
+  contactPerson: string | null;
+}): string {
+  const brandName = (u.brandName || "").trim().toLowerCase();
+  const person = (u.displayName || "").trim();
+  const contact = (u.contactPerson || "").trim();
+  if (person && person.toLowerCase() !== brandName) return person;
+  if (contact && contact.toLowerCase() !== brandName) return contact;
+  return "";
 }
 
 function Section({
