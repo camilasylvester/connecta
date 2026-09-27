@@ -99,6 +99,9 @@ export default async function ApplyPage({
 
   return (
     <div className="apply-page">
+      <Link href="/eventos" className="apply-back">
+        ← Volver a eventos
+      </Link>
       <EventInvite
         title={event.title}
         brandLabel={brandLabel}
@@ -153,11 +156,6 @@ export default async function ApplyPage({
               <p>
                 Así ve esta invitación un influencer. Desde la cuenta admin no
                 se envía la postulación.
-              </p>
-              <p style={{ marginTop: 16 }}>
-                <Link href="/eventos" className="apply-link">
-                  Volver a eventos →
-                </Link>
               </p>
             </>
           ) : existingApp ? (

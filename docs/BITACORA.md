@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `pendiente` — Camila Sylvester
+
+**Qué cambié:** “Volver a eventos” queda arriba a la izquierda en la invitación y en la ficha de la marca.
+
+**Por qué:** Camila lo pidió para no tener que buscar el regreso al listado abajo o a la derecha.
+
+**Dónde:** `src/app/aplicar/[token]/page.tsx`, `src/app/aplicar/[token]/aplicar.css`, `src/app/marcas/[id]/page.tsx`.
+
+**Cómo probarlo:** abrir una invitación y la ficha de la marca desde el nombre. El enlace está arriba a la izquierda.
+
+**Riesgo / qué mirar:** bajo. Una marca que mira otra marca sigue volviendo a su panel.
+
+---
+
 ## 2026-09-27 — `af9ee43` — Camila Sylvester
 
 **Qué cambié:** la invitación de un evento usa el mismo formato que la ficha de marca: logo, nombre, fotos y datos en filas.
