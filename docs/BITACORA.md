@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `5d12fc8` — Camila Sylvester
+
+**Qué cambié:** en el admin, la ficha de marca aparece sola y centrada. Saqué el encabezado de arriba (título, chapas y botones). Borrar registro quedó al final.
+
+**Por qué:** Camila lo pidió al ver AFT Amantes: la ficha tenía que ser la pantalla, no un bloque debajo de otro título.
+
+**Dónde:** `src/app/admin/usuarios/[id]/page.tsx`, `src/components/brand-ficha.css`.
+
+**Cómo probarlo:** Admin → AFT Amantes. Se ve la ficha centrada, sin el bloque de arriba. Borrar registro está debajo de todo.
+
+**Riesgo / qué mirar:** la ficha de creador en el admin sigue con el encabezado de siempre. Volver a Usuarios se hace por el menú de la izquierda.
+
+---
+
 ## 2026-09-27 — `c22155a` — Camila Sylvester
 
 **Qué cambié:** en la ficha de marca saqué el recuadro “Revisar solicitud de acceso”. El título grande es el nombre de la marca y debajo está quien la inscribió. La ficha ya no se estira a todo el ancho.

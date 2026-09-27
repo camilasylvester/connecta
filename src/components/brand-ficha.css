@@ -1,6 +1,6 @@
 .brand-ficha {
   max-width: 760px;
-  margin-bottom: 28px;
+  margin: 0 auto 28px;
   --bf-line: rgba(244, 243, 239, 0.12);
   --bf-text: #f4f3ef;
   --bf-muted: rgba(244, 243, 239, 0.62);
@@ -166,6 +166,13 @@
 
 .brand-ficha-more {
   margin-top: 12px;
+}
+
+.brand-ficha-delete {
+  max-width: 760px;
+  margin: 8px auto 0;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .brand-ficha-overlay {
