@@ -236,6 +236,20 @@ La ficha que sale de ahí pasa la validación del servidor y guarda `province`, 
 
 ---
 
+## 2026-09-27 — `pendiente` — Camila Sylvester
+
+**Qué cambié:** dejé en `docs` los previews estáticos del login (desktop y mobile) y las capturas mobile de creador y marca. El wizard de acceso ya estaba en `a1fc48b`; los commits siguientes hasta `57ee4bc` son ajustes de esa misma pantalla (logo, tarjetas, card, títulos, Volver), más tres arreglos del código por email para Clerk 7.
+
+**Por qué:** para poder revisar el diseño sin desplegar, y para que la bitácora no parezca que ese pulido es otro flujo.
+
+**Dónde:** `docs/preview-auth-desktop.html`, `docs/preview-auth-mobile.html`, `docs/screenshots-auth-mobile/`.
+
+**Cómo probarlo:** abrir los dos HTML en el navegador. La app en producción no cambia.
+
+**Riesgo / qué mirar:** bajo. Solo archivos de documentación.
+
+---
+
 ## 2026-09-20 — `a1fc48b` — Camila Sylvester
 
 **Qué cambié:** rediseñé el flujo de **Iniciar sesión** y **Crear cuenta** al estilo wizard (primero elegís la acción, después Creador/Marca, después Google/email). El login ya no pide Instagram. El perfil del creador (5 pasos) arranca después del acceso, con barra de progreso y términos al final. Si entrás por el tipo de cuenta equivocado, te lo aclara y te pide el camino correcto.
