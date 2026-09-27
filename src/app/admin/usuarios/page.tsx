@@ -132,6 +132,14 @@ export default async function AdminUsersPage({
                 : "No hay usuarios en este filtro."}
             </p>
           </div>
+        ) : roleFilter === "brand" ? (
+          <div className="brand-name-list">
+            {users.map((u) => (
+              <Link key={u.id} href={`/admin/usuarios/${u.id}`}>
+                {u.brandName || u.displayName || "Marca"}
+              </Link>
+            ))}
+          </div>
         ) : (
           <div className="table-wrap">
             <table className="creator-table">

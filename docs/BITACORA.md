@@ -42,6 +42,34 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — pendiente — Camila Sylvester
+
+**Qué cambié:** en la vista influencer, abrir un evento ya no manda al admin. La invitación se ve como la ve el influencer, y el nombre de la marca abre esa ficha, no la del panel.
+
+**Por qué:** Camila, con la cuenta admin en vista influencer, al abrir un evento caía en el admin. Quiere ver la misma pantalla que el influencer.
+
+**Dónde:** `src/app/aplicar/[token]/page.tsx`, `src/app/marcas/[id]/page.tsx`.
+
+**Cómo probarlo:** Admin → Vista influencer → abrir un evento. Se ve la invitación, con el nombre de la marca. Tocarlo abre la ficha de lectura. “Abrir en admin” sigue yendo al panel.
+
+**Riesgo / qué mirar:** una marca que abre su propia ficha sigue yendo a Mi perfil. El influencer no ve el enlace de admin.
+
+---
+
+## 2026-09-27 — pendiente — Camila Sylvester
+
+**Qué cambié:** en Marcas, el listado muestra solo el nombre de la marca. En la ficha, Marca / Aprobada / Completo pasó al final. En el celular el texto es más chico, el logo queda al lado del nombre y se ve una sola foto.
+
+**Por qué:** Camila lo pidió al ver el admin en el teléfono: el listado traía datos de más y la ficha se leía apretada.
+
+**Dónde:** `src/app/admin/usuarios/page.tsx`, `src/app/dashboard/brand-dash.css`, `src/components/BrandFicha.tsx`, `src/components/brand-ficha.css`.
+
+**Cómo probarlo:** Admin → Marcas, en el teléfono y en la compu. Cada fila es solo el nombre. Al abrir una marca, el estado está debajo del contacto y en el celular hay una sola foto.
+
+**Riesgo / qué mirar:** Influencers y Admin siguen con la tabla de siempre. La ficha de creador no cambió.
+
+---
+
 ## 2026-09-27 — `5d12fc8` — Camila Sylvester
 
 **Qué cambié:** en el admin, la ficha de marca aparece sola y centrada. Saqué el encabezado de arriba (título, chapas y botones). Borrar registro quedó al final.

@@ -23,6 +23,14 @@
   flex-wrap: wrap;
 }
 
+.brand-ficha-id {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+}
+
 .brand-ficha-avatar {
   width: 112px;
   height: 112px;
@@ -45,7 +53,7 @@
 
 .brand-ficha-who {
   flex: 1;
-  min-width: 220px;
+  min-width: 0;
 }
 
 .brand-ficha-who h1 {
@@ -168,6 +176,10 @@
   margin-top: 12px;
 }
 
+.brand-ficha-more-mobile {
+  display: none;
+}
+
 .brand-ficha-delete {
   max-width: 760px;
   margin: 8px auto 0;
@@ -250,17 +262,107 @@
 }
 
 @media (max-width: 640px) {
-  .brand-ficha-row {
-    grid-template-columns: 1fr;
-    gap: 2px;
+  .brand-ficha-card {
+    padding: 16px 14px 20px;
+    border-radius: 16px;
   }
+
+  .brand-ficha-top {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .brand-ficha-id {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: center;
+  }
+
+  .brand-ficha-who {
+    display: contents;
+  }
+
+  .brand-ficha-avatar {
+    width: 72px;
+    height: 72px;
+    font-size: 20px;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .brand-ficha-titles {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    align-self: center;
+  }
+
   .brand-ficha-who h1 {
-    font-size: 22px;
+    font-size: 18px;
   }
+
+  .brand-ficha-sub,
+  .brand-ficha-bio {
+    font-size: 13px;
+  }
+
+  .brand-ficha-bio {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .brand-ficha-pills {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+  }
+
+  .brand-ficha-pill {
+    font-size: 12px;
+  }
+
+  .brand-ficha-block {
+    margin-top: 20px;
+  }
+
+  .brand-ficha-row {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 8px;
+    font-size: 13px;
+    align-items: baseline;
+  }
+
+  .brand-ficha-row div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
   .brand-ficha-gallery {
     grid-template-columns: 1fr;
   }
+
+  .brand-ficha-gallery img {
+    height: auto;
+    aspect-ratio: 3 / 2;
+    max-height: 220px;
+  }
+
+  .brand-ficha-gallery img:nth-child(n + 2) {
+    display: none;
+  }
+
+  .brand-ficha-more-mobile {
+    display: inline-flex;
+  }
+
   .brand-ficha-stats {
-    gap: 20px;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .brand-ficha-stats b {
+    font-size: 15px;
   }
 }

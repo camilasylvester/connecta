@@ -141,23 +141,27 @@ export function BrandFicha({
     <div className="brand-ficha">
       <article className="brand-ficha-card">
         <div className="brand-ficha-top">
-          <div className="brand-ficha-avatar" aria-hidden={logo ? undefined : true}>
-            {logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" />
-            ) : (
-              initials(title)
-            )}
-          </div>
-          <div className="brand-ficha-who">
-            <h1>{title}</h1>
-            {subtitle ? <p className="brand-ficha-sub">{subtitle}</p> : null}
-            {brand.summary ? <p className="brand-ficha-bio">{brand.summary}</p> : null}
-            {rubro ? (
-              <div className="brand-ficha-pills">
-                <span className="brand-ficha-pill">{rubro}</span>
+          <div className="brand-ficha-id">
+            <div className="brand-ficha-avatar" aria-hidden={logo ? undefined : true}>
+              {logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logo} alt="" />
+              ) : (
+                initials(title)
+              )}
+            </div>
+            <div className="brand-ficha-who">
+              <div className="brand-ficha-titles">
+                <h1>{title}</h1>
+                {subtitle ? <p className="brand-ficha-sub">{subtitle}</p> : null}
               </div>
-            ) : null}
+              {brand.summary ? <p className="brand-ficha-bio">{brand.summary}</p> : null}
+              {rubro ? (
+                <div className="brand-ficha-pills">
+                  <span className="brand-ficha-pill">{rubro}</span>
+                </div>
+              ) : null}
+            </div>
           </div>
           {canEdit ? (
             <button
@@ -173,23 +177,6 @@ export function BrandFicha({
             </button>
           ) : null}
         </div>
-
-        {audience === "admin" ? (
-          <div className="brand-ficha-stats">
-            <div>
-              <b>Marca</b>
-              <span>Perfil</span>
-            </div>
-            <div>
-              <b>{statusLabel}</b>
-              <span>Cuenta</span>
-            </div>
-            <div>
-              <b>{brand.onboardingCompleted ? "Completo" : "Incompleto"}</b>
-              <span>Formulario</span>
-            </div>
-          </div>
-        ) : null}
 
         {editing && initial ? (
           <div className="brand-ficha-edit">
@@ -219,6 +206,15 @@ export function BrandFicha({
                     Ver más fotos
                   </button>
                 ) : null}
+                {photos.length === 2 ? (
+                  <button
+                    type="button"
+                    className="brand-ficha-btn brand-ficha-more brand-ficha-more-mobile"
+                    onClick={() => setPhotosOpen(true)}
+                  >
+                    Ver más fotos
+                  </button>
+                ) : null}
               </section>
             ) : null}
 
@@ -242,6 +238,23 @@ export function BrandFicha({
                   </div>
                 ))}
               </section>
+            ) : null}
+
+            {audience === "admin" ? (
+              <div className="brand-ficha-stats">
+                <div>
+                  <b>Marca</b>
+                  <span>Perfil</span>
+                </div>
+                <div>
+                  <b>{statusLabel}</b>
+                  <span>Cuenta</span>
+                </div>
+                <div>
+                  <b>{brand.onboardingCompleted ? "Completo" : "Incompleto"}</b>
+                  <span>Formulario</span>
+                </div>
+              </div>
             ) : null}
           </>
         )}

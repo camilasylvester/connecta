@@ -34,10 +34,11 @@ export default async function MarcaPublicaPage({
   if (viewer.role === "brand" && viewer.id === id) {
     redirect("/dashboard/config");
   }
-  if (viewer.role === "admin") {
-    redirect(`/admin/usuarios/${id}`);
-  }
-  if (viewer.role !== "creator" && viewer.role !== "brand") {
+  if (
+    viewer.role !== "creator" &&
+    viewer.role !== "brand" &&
+    viewer.role !== "admin"
+  ) {
     redirect(destinationForProfile(viewer));
   }
 
@@ -61,6 +62,14 @@ export default async function MarcaPublicaPage({
             <Link href={backHref} className="font-semibold text-purple-2 hover:text-white">
               Volver
             </Link>
+            {viewer.role === "admin" ? (
+              <Link
+                href={`/admin/usuarios/${id}`}
+                className="text-muted-dark hover:text-white"
+              >
+                Abrir en admin
+              </Link>
+            ) : null}
             <LogoutButton className="text-muted-dark hover:text-white" />
           </div>
         </div>
