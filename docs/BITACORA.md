@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `2fcc6c2` — Camila Sylvester
+
+**Qué cambié:** si la invitación tiene una sola foto, se ve entera, centrada, y se puede abrir en grande.
+
+**Por qué:** Camila lo pidió. Con una sola imagen quedaba chica y a la izquierda.
+
+**Dónde:** `src/components/EventInvite.tsx`, `src/app/aplicar/[token]/aplicar.css`.
+
+**Cómo probarlo:** abrir una invitación con una sola foto, por ejemplo TH Group. La imagen está al centro y “Ver en grande” la abre completa.
+
+**Riesgo / qué mirar:** las invitaciones con dos o más fotos siguen igual.
+
+---
+
 ## 2026-09-27 — `98503cf` — Camila Sylvester
 
 **Qué cambié:** “Volver a eventos” queda arriba a la izquierda en la invitación y en la ficha de la marca.

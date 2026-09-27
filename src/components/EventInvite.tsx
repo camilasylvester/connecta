@@ -90,12 +90,35 @@ export function EventInvite({
         {shown.length > 0 ? (
           <section className="brand-ficha-block">
             <h2>Fotos</h2>
-            <div className="brand-ficha-gallery">
-              {shown.map((src) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={src} src={src} alt="" />
-              ))}
+            <div
+              className={`brand-ficha-gallery${photos.length === 1 ? " is-single" : ""}`}
+            >
+              {shown.map((src) =>
+                photos.length === 1 ? (
+                  <button
+                    key={src}
+                    type="button"
+                    className="apply-single-photo"
+                    onClick={() => setPhotosOpen(true)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" />
+                  </button>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={src} src={src} alt="" />
+                )
+              )}
             </div>
+            {photos.length === 1 ? (
+              <button
+                type="button"
+                className="brand-ficha-btn brand-ficha-more"
+                onClick={() => setPhotosOpen(true)}
+              >
+                Ver en grande
+              </button>
+            ) : null}
             {photos.length > 2 ? (
               <button
                 type="button"
