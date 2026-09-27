@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { CompletarPerfilForm } from "@/components/CompletarPerfilForm";
 import { ensureProfile } from "@/lib/auth";
 import { profileHasValidPhone } from "@/lib/account-gate";
-import { destinationForProfile } from "@/lib/roles";
+import { destinationForProfile, isInfluencerPreviewPath, safeNextPath } from "@/lib/roles";
 import { profileToOnboarding } from "@/lib/onboarding";
 import "../auth.css";
 
@@ -16,6 +16,8 @@ export default async function CompletarPerfilPage({
   if (!profile) redirect("/login?next=/completar-perfil");
 
   if (profile.role === "admin") {
+    const preview = safeNextPath(next);
+    if (preview && isInfluencerPreviewPath(preview)) redirect(preview);
     redirect("/admin");
   }
 

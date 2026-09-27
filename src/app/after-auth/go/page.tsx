@@ -5,7 +5,7 @@ import {
 } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
 import { roleFromAsParam } from "@/lib/clerk-auth";
-import { destinationForProfile } from "@/lib/roles";
+import { destinationForProfile, isInfluencerPreviewPath, safeNextPath } from "@/lib/roles";
 import { profileHasAcceptedTerms } from "@/lib/terms";
 
 function isNextRedirect(err: unknown): boolean {
@@ -38,6 +38,8 @@ export default async function AfterAuthGoPage({
   if (!profile) redirect("/login");
 
   if (profile.role === "admin") {
+    const preview = safeNextPath(next);
+    if (preview && isInfluencerPreviewPath(preview)) redirect(preview);
     redirect("/admin");
   }
 

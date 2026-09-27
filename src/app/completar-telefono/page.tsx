@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { CompletarTelefonoForm } from "@/components/CompletarTelefonoForm";
 import { ensureProfile } from "@/lib/auth";
 import { profileHasValidPhone } from "@/lib/account-gate";
-import { destinationForProfile } from "@/lib/roles";
+import { destinationForProfile, isInfluencerPreviewPath, safeNextPath } from "@/lib/roles";
 import "../auth.css";
 
 export default async function CompletarTelefonoPage({
@@ -15,6 +15,8 @@ export default async function CompletarTelefonoPage({
   if (!profile) redirect("/login?next=/completar-telefono");
 
   if (profile.role === "admin") {
+    const preview = safeNextPath(next);
+    if (preview && isInfluencerPreviewPath(preview)) redirect(preview);
     redirect("/admin");
   }
 

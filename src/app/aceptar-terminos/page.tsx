@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AceptarTerminosForm } from "@/components/AceptarTerminosForm";
 import { ensureProfile } from "@/lib/auth";
-import { destinationForProfile } from "@/lib/roles";
+import { destinationForProfile, isInfluencerPreviewPath, safeNextPath } from "@/lib/roles";
 import { profileHasAcceptedTerms } from "@/lib/terms";
 import "../auth.css";
 
@@ -14,7 +14,11 @@ export default async function AceptarTerminosPage({
   const profile = await ensureProfile();
   if (!profile) redirect("/login?next=/aceptar-terminos");
 
-  if (profile.role === "admin") redirect("/admin");
+  if (profile.role === "admin") {
+    const preview = safeNextPath(next);
+    if (preview && isInfluencerPreviewPath(preview)) redirect(preview);
+    redirect("/admin");
+  }
 
   if (!profile.onboardingCompleted) {
     const params = new URLSearchParams();
