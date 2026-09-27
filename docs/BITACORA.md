@@ -42,6 +42,18 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — sin cambio de código — Amadeo Rodríguez
+
+**Qué pasó:** después del deploy me avisaron que Google no funcionaba en el sitio. Lo investigué y **no es código: es configuración**. Google de la instancia de producción de Clerk no tiene cargado el Client ID, y Google corta con *"Missing required parameter: client_id — Error 400"*. Falla igual en "Crear cuenta" y en "Iniciar sesión", así que no lo rompió el cambio del alta: por lo que vi, en producción no anduvo nunca. En local anda porque la instancia de desarrollo de Clerk trae credenciales compartidas.
+
+**Qué hice:** lo reproduje en www.connectainf.com hasta la pantalla de error de Google, sin crear ninguna cuenta. Dejé los pasos para arreglarlo en **T-39** ([TAREAS.md](TAREAS.md)). Hace falta alguien con acceso al Clerk de producción y al Google Cloud de Connecta; yo no lo tengo, y se lo pasé a los jefes sin respuesta por ahora.
+
+**Mientras tanto:** crear cuenta e iniciar sesión con **email** funciona.
+
+**También encontré** un bug mío de T-14: escribir "CABA" en el buscador de provincia no encuentra nada. Quedó anotado como **T-40**.
+
+---
+
 ## 2026-09-26 — Resumen del día — Amadeo Rodríguez
 
 > Hoy metí bastante, así que dejo este resumen arriba para que no haya que leer las siete entradas para saber qué cambió. Todo está en la rama `fix/alta-perfil-completo`, commit por commit, y cada cosa tiene su entrada abajo.

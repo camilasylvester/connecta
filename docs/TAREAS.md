@@ -29,7 +29,7 @@ Lo actualicé el 2026-09-26, después de una tanda grande de cambios en la rama 
 | Celulares de Uruguay, Chile y España | T-38 | `ff7bc1c` |
 | `npm run lint` en cero | — | `ef702bc` |
 
-**Lo más urgente que queda:** T-04 (mail de bienvenida: arrancar ya con el DNS de `connectainf.com`), T-26 (el scroll: primero reproducirlo), T-07 (imágenes de eventos enmarcadas) y T-09 (foto en solicitudes, casi gratis).
+**Lo más urgente que queda:** **T-39 (Google no funciona en producción: es configuración de Clerk y Google Cloud, no código; está bloqueada esperando a alguien con acceso)**, T-04 (mail de bienvenida: arrancar ya con el DNS de `connectainf.com`), T-26 (el scroll: primero reproducirlo), T-07 (imágenes de eventos enmarcadas) y T-09 (foto en solicitudes, casi gratis).
 
 **Antes de mergear la rama:** hacer una pasada con cuentas de prueba creando una cuenta real (email y Google) de creador y de marca, y postularse con un creador sin foto. Yo lo probé todo en local hasta donde se puede sin sesión.
 
@@ -480,6 +480,46 @@ Lo de Google que decía arriba se resuelve así: la ficha se completa entera **a
 
 ---
 
+### T-39 · Google no funciona en producción — `XS` — **BLOQUEADA: necesito que alguien con acceso a Clerk y a Google Cloud lo configure**
+
+**Reportado (26/09):** me avisaron que "Continuar con Google" no funciona en www.connectainf.com.
+
+**Lo que encontré:** lo reproduje en el sitio en vivo. Completé una ficha de prueba, apreté "Continuar con Google" y Google corta con este error:
+
+> Acceso bloqueado: Error de autorización — *Missing required parameter: client_id* — Error 400: invalid_request
+
+O sea, **Google de la instancia de producción de Clerk no tiene cargado el Client ID**. No es un problema del código ni del cambio del alta: falla igual en "Crear cuenta" y en "Iniciar sesión".
+
+**Por qué en local sí andaba:** mi `.env.local` usa la instancia de *desarrollo* de Clerk (`pk_test_…`), que trae credenciales de Google compartidas. La de *producción* (`pk_live_…`, `clerk.connectainf.com`) exige credenciales propias, y ahí están vacías. Lo confirmé mirando la configuración pública de Clerk: Google figura habilitado, pero sin credenciales. Creo que el arreglo de Google del 20/09 (`fd7d563`) se probó contra desarrollo, así que esto no se veía.
+
+**Qué hay que hacer** (no toca código ni hace falta deploy):
+
+1. **Google Cloud Console** → APIs y servicios → Credenciales → Crear credenciales → *ID de cliente de OAuth* → tipo *Aplicación web*.
+2. En *URIs de redireccionamiento autorizados* pegar el que muestra Clerk en el paso 3. Tendría que ser `https://clerk.connectainf.com/v1/oauth_callback`.
+3. **Clerk Dashboard** → instancia **Production** → Configure → SSO connections → Google → activar *Use custom credentials* y pegar el **Client ID** y el **Client Secret**.
+4. En Google Cloud, *Pantalla de consentimiento de OAuth*: fijarse que la app esté **publicada**. Si queda en modo *Testing*, solo pueden entrar las cuentas cargadas como testers.
+5. Probar con una cuenta de Google cualquiera: crear cuenta de creador y de marca, e iniciar sesión.
+
+**Por qué no lo hice yo:** no tengo acceso al Clerk de producción ni al Google Cloud de Connecta, y las credenciales (el Client Secret) no se pasan por el repo ni por el chat. Las tiene que cargar el dueño de esas cuentas.
+
+**Mientras tanto:** crear cuenta e iniciar sesión **con email funciona**. Si alguien pregunta, que use el email.
+
+**Estado:** se lo pasé a los jefes y todavía no me contestaron. Lo dejo anotado para que quien tenga el acceso lo pueda hacer sin preguntarme nada.
+
+**Hecho:** ⬜ — esperando a alguien con acceso a Clerk producción + Google Cloud
+
+---
+
+### T-40 · El buscador de provincia no encuentra "CABA" — `XS`
+
+**Encontrado (26/09), mientras probaba T-39. Es un bug mío de T-14:** en el buscador de provincia, escribir "CABA" no encuentra nada. El buscador compara contra el nombre oficial ("Ciudad Autónoma de Buenos Aires") y no contra el que se muestra en pantalla ("CABA"). Hoy hay que escribir "ciudad" o "buenos aires". Pasa lo mismo con "Tierra del Fuego".
+
+**Hacer:** que `GeoCombobox` (`src/components/GeoPicker.tsx`) busque también en el texto que muestra (`display`). Es una línea, más probarlo.
+
+**Hecho:** ⬜
+
+---
+
 ### T-11 · Rediseñar el footer — `S`
 
 **Hoy:** `SiteFooter.tsx` ya tiene los cinco links legales, en dos variantes (landing y feed).
@@ -577,6 +617,7 @@ Estas no las puedo decidir yo. Cuanto antes me las contesten, mejor:
 7. **T-21** — Marcas con las que trabajó, ¿texto libre o vinculado a marcas de Connecta?
 8. ~~**T-36** — El wizard de alta: ¿la elección va primero, o no se piden datos antes de crear la cuenta?~~ **Respondida 2026-09-26:** ficha completa por etapas y después la cuenta.
 9. ~~**T-38** — ¿Aceptamos celulares de Uruguay, Chile y España?~~ **Respondida 2026-09-26:** sí.
+10. **T-39** — ⚠️ **La más urgente.** ¿Quién tiene acceso al Clerk de producción y al Google Cloud de Connecta? Hay que cargar las credenciales de Google; sin eso nadie puede entrar con Google. Los pasos están en la tarea.
 
 ---
 
