@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `pendiente` — Camila Sylvester
+
+**Qué cambié:** el perfil de influencer usa el mismo formato que la ficha de marca: foto redonda, nombre, una pastilla y los datos en filas.
+
+**Por qué:** Camila lo pidió después de ver la prueba con Avril Cabaleiro. La foto es la que ya subió a Connecta. Instagram no deja bajar la de la red.
+
+**Dónde:** `src/components/CreatorFicha.tsx`, `src/components/CreatorSocialProfile.tsx`, `src/app/mi-perfil/page.tsx`, `src/app/dashboard/creadores/[id]/page.tsx`, `src/components/brand-ficha.css`.
+
+**Cómo probarlo:** entrar a Mi perfil como influencer, o abrir un creador desde Explorar. Tiene que verse la ficha, no el encabezado anterior.
+
+**Riesgo / qué mirar:** editar el perfil, cambiar la foto y el feed siguen en la misma pantalla.
+
+---
+
 ## 2026-09-27 — `2fcc6c2` — Camila Sylvester
 
 **Qué cambié:** si la invitación tiene una sola foto, se ve entera, centrada, y se puede abrir en grande.

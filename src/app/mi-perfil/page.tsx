@@ -69,15 +69,13 @@ export default async function MiPerfilPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-ink-2 p-5 sm:p-8">
-          <CreatorSocialProfile
-            initial={initial}
-            posts={posts}
-            tiktokConnected={tiktokConnected}
-            tiktokConfigured={isTikTokConfigured()}
-            tiktokFlash={tiktokFlash}
-          />
-        </div>
+        <CreatorSocialProfile
+          initial={initial}
+          posts={posts}
+          tiktokConnected={tiktokConnected}
+          tiktokConfigured={isTikTokConfigured()}
+          tiktokFlash={tiktokFlash}
+        />
       </div>
     </div>
   );

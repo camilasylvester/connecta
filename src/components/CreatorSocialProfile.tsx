@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   createCreatorPost,
@@ -10,6 +10,8 @@ import {
   updateSelfProfile,
 } from "@/app/actions";
 import { CreatorFeed } from "@/components/CreatorFeed";
+import { CreatorFicha } from "@/components/CreatorFicha";
+import { isAllowedStoredImageUrl } from "@/lib/image-compress";
 import { initialsFromName, avatarColor } from "@/app/dashboard/brand-helpers";
 import {
   CONTENT_THEME_GROUPS,
@@ -60,11 +62,6 @@ function Chip({
       {children}
     </button>
   );
-}
-
-function formatCount(n: number): string {
-  if (!n) return "0";
-  return n.toLocaleString("es-AR");
 }
 
 export function CreatorSocialProfile({
@@ -183,12 +180,44 @@ export function CreatorSocialProfile({
     }
   }
 
-  const collabs = posts.filter((p) => p.brandLabel).length;
-  const bio =
-    data.contentThemes.slice(0, 3).join(" · ") ||
-    "Creador de contenido en CONNECTA";
   const color = avatarColor(handle || data.fullName || "u");
   const initials = initialsFromName(data.fullName || handle || "U");
+  const place =
+    geoShortLabel(data.geo) || data.ubicacion || data.province || "";
+  const pill = (data.contentThemes[0] || "").split("·")[0].trim() || null;
+  const avatar =
+    data.avatarUrl && isAllowedStoredImageUrl(data.avatarUrl)
+      ? data.avatarUrl
+      : null;
+  const profileRows: Array<[string, ReactNode]> = [];
+  if (place) profileRows.push(["Ubicación", place]);
+  if (handle && igLink) {
+    profileRows.push([
+      "Instagram",
+      <a key="ig" href={igLink} target="_blank" rel="noopener noreferrer">
+        {handle}
+      </a>,
+    ]);
+  }
+  profileRows.push(["Seguidores", igFollowers.toLocaleString("es-AR")]);
+  if (data.tiktok || ttFollowers > 0) {
+    const ttLabel = data.tiktok
+      ? ttLink
+        ? (
+            <a key="tt" href={ttLink} target="_blank" rel="noopener noreferrer">
+              {data.tiktok}
+            </a>
+          )
+        : data.tiktok
+      : `${ttFollowers.toLocaleString("es-AR")} seguidores`;
+    profileRows.push(["TikTok", ttLabel]);
+    if (data.tiktok && ttFollowers > 0) {
+      profileRows.push([
+        "Seguidores TikTok",
+        ttFollowers.toLocaleString("es-AR"),
+      ]);
+    }
+  }
 
   function set<K extends keyof OnboardingPayload>(
     key: K,
@@ -343,152 +372,84 @@ export function CreatorSocialProfile({
         </div>
       </section>
 
-      {/* Header */}
-      <div className="flex flex-wrap items-start gap-5 border-b border-white/10 pb-7 sm:gap-7">
-        <button
-          type="button"
-          disabled={!editing}
-          onClick={() => editing && fileRef.current?.click()}
-          className={`relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[26px] border border-white/10 sm:h-[100px] sm:w-[100px] ${
-            editing ? "cursor-pointer ring-2 ring-purple/40" : "cursor-default"
-          }`}
-          aria-label={editing ? "Cambiar foto" : "Foto de perfil"}
-        >
-          {data.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={data.avatarUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span
-              className="flex h-full w-full items-center justify-center text-2xl font-extrabold text-white"
-              style={{ background: color }}
-            >
-              {initials}
-            </span>
-          )}
-        </button>
-
-        <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-extrabold sm:text-[22px]">
-            {handle || data.fullName || "Sin usuario"}
-          </h1>
-          {data.fullName && handle ? (
-            <p className="mt-0.5 text-sm text-muted-dark">{data.fullName}</p>
-          ) : null}
-          <p className="mt-2 max-w-md text-sm text-muted-dark">{bio}</p>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            {data.contentThemes[0] ? (
-              <span className="rounded-full bg-purple/20 px-3 py-1 text-xs font-bold text-purple-2">
-                {data.contentThemes[0]}
-              </span>
-            ) : null}
-            {data.geo || data.province ? (
-              <span className="rounded-full bg-purple/20 px-3 py-1 text-xs font-bold text-purple-2">
-                {geoShortLabel(data.geo) || data.province}
-              </span>
-            ) : null}
-            {igLink ? (
-              <a
-                href={igLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-muted-dark hover:border-purple-2 hover:text-white"
-              >
-                Instagram
-              </a>
-            ) : null}
-            {ttLink ? (
-              <a
-                href={ttLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-muted-dark hover:border-purple-2 hover:text-white"
-              >
-                TikTok
-              </a>
-            ) : null}
-            {waLink ? (
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-white/15 px-3 py-1 text-xs font-bold text-muted-dark hover:border-purple-2 hover:text-white"
-              >
-                WhatsApp
-              </a>
-            ) : null}
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-6">
-            <Stat value={formatCount(posts.length)} label="Publicaciones" />
-            <Stat value={formatCount(igFollowers)} label="Seguidores IG" />
-            {data.tiktok ? (
-              <Stat value={formatCount(ttFollowers)} label="Seguidores TikTok" />
-            ) : null}
-            <Stat value={formatCount(collabs)} label="Colaboraciones" />
-          </div>
-          {!editing && igFollowers === 0 ? (
-            <p className="mt-3 text-xs text-muted-dark">
-              Todavía no cargaste seguidores. Tocá{" "}
-              <button
-                type="button"
-                className="font-bold text-purple-2 hover:underline"
-                onClick={() => {
-                  setEditing(true);
-                  setSaved(false);
-                }}
-              >
-                Editar perfil
-              </button>{" "}
-              y completá el número (Instagram no permite sincronizarlo
-              automáticamente).
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {!editing ? (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  setAdding(true);
-                  setError(null);
-                }}
-                className="rounded-full bg-purple px-4 py-2.5 text-sm font-bold text-white hover:bg-purple-2"
-              >
-                + Nueva publicación
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditing(true);
-                  setSaved(false);
-                  setError(null);
-                }}
-                className="rounded-full border border-white/20 px-4 py-2.5 text-sm font-bold text-white hover:border-purple-2"
-              >
-                Editar perfil
-              </button>
-            </>
-          ) : (
+      {!editing ? (
+        <CreatorFicha
+          name={data.fullName || handle || "Sin usuario"}
+          subtitle={handle || null}
+          subtitleHref={igLink}
+          avatarUrl={avatar}
+          initials={initials}
+          pill={pill}
+          rows={profileRows}
+          actions={
             <button
               type="button"
+              className="brand-ficha-btn brand-ficha-btn-solid"
               onClick={() => {
-                setData(initial);
-                setEditing(false);
+                setEditing(true);
+                setSaved(false);
                 setError(null);
               }}
-              className="rounded-full border border-white/15 px-4 py-2.5 text-sm font-bold text-muted-dark hover:text-white"
             >
-              Cancelar
+              Editar perfil
             </button>
-          )}
+          }
+        />
+      ) : (
+        <div className="mb-6 flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-full border border-white/10 ring-2 ring-purple/40"
+            aria-label="Cambiar foto"
+          >
+            {avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatar} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span
+                className="flex h-full w-full items-center justify-center text-2xl font-extrabold text-white"
+                style={{ background: color }}
+              >
+                {initials}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setData(initial);
+              setEditing(false);
+              setError(null);
+            }}
+            className="brand-ficha-btn"
+          >
+            Cancelar
+          </button>
         </div>
-      </div>
+      )}
+
+      {!editing && igFollowers === 0 ? (
+        <p className="mt-4 text-xs text-muted-dark">
+          Todavía no cargaste seguidores. Tocá Editar perfil y completá el
+          número. Instagram no permite sincronizarlo.
+        </p>
+      ) : null}
 
       {!editing ? (
         <div className="pt-7">
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => {
+                setAdding(true);
+                setError(null);
+              }}
+              className="brand-ficha-btn brand-ficha-btn-solid"
+            >
+              + Nueva publicación
+            </button>
+          </div>
           <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.12em] text-muted-dark">
             Feed de acciones
           </h2>
@@ -706,13 +667,9 @@ export function CreatorSocialProfile({
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <b className="block text-[17px] font-extrabold">{value}</b>
-      <span className="text-xs text-muted-dark">{label}</span>
-    </div>
-  );
+function formatCount(n: number): string {
+  if (!n) return "0";
+  return n.toLocaleString("es-AR");
 }
 
 function AddPostModal({
