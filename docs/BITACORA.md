@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `98503cf` — Camila Sylvester
 
 **Qué cambié:** “Volver a eventos” queda arriba a la izquierda en la invitación y en la ficha de la marca.
 
