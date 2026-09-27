@@ -51,6 +51,12 @@
   object-fit: contain;
 }
 
+.brand-ficha-avatar.is-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .brand-ficha-who {
   flex: 1;
   min-width: 0;
@@ -67,6 +73,12 @@
   margin: 4px 0 0;
   color: var(--bf-muted);
   font-size: 15px;
+}
+
+.brand-ficha-sub a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .brand-ficha-bio {
