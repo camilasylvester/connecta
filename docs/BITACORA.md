@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — pendiente — Camila Sylvester
+## 2026-09-27 — `78a85f3` — Camila Sylvester
 
 **Qué cambié:** la cuenta admin ya no rebota al panel cuando abre la invitación de un evento. Se queda en la misma pantalla que ve el influencer.
 
