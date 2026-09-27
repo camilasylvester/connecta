@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `78a85f3` — Camila Sylvester
+
+**Qué cambié:** la cuenta admin ya no rebota al panel cuando abre la invitación de un evento. Se queda en la misma pantalla que ve el influencer.
+
+**Por qué:** Camila seguía cayendo en el admin. La invitación pedía completar el perfil y esa pantalla, para un admin, manda siempre al panel.
+
+**Dónde:** `src/app/aplicar/[token]/page.tsx`, `src/app/completar-perfil/page.tsx`, `src/app/completar-telefono/page.tsx`, `src/app/aceptar-terminos/page.tsx`, `src/app/after-auth/go/page.tsx`, `src/lib/roles.ts`.
+
+**Cómo probarlo:** Admin → Vista influencer → abrir un evento. Tiene que verse la invitación, no el panel.
+
+**Riesgo / qué mirar:** el admin sigue entrando al panel cuando abre Connecta desde el login, sin un evento de por medio.
+
+---
+
 ## 2026-09-27 — `0e1a983` — Camila Sylvester
 
 **Qué cambié:** en la vista influencer, abrir un evento ya no manda al admin. La invitación se ve como la ve el influencer, y el nombre de la marca abre esa ficha, no la del panel.

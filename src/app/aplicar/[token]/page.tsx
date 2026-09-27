@@ -54,9 +54,10 @@ export default async function ApplyPage({
 
   const { userId } = await auth();
   const profile = userId ? await ensureProfile() : null;
-  if (profile) {
+  if (profile && profile.role !== "admin") {
     // Pending creators can apply. Incomplete fichas finish onboarding, then
-    // come back to this event.
+    // come back to this event. Admin se queda en la invitación para verla
+    // igual que un influencer; si no, completar-perfil lo manda al panel.
     if (!profile.onboardingCompleted) {
       redirect(
         `/completar-perfil?next=${encodeURIComponent(`/aplicar/${token}`)}`

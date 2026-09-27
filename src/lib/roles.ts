@@ -5,6 +5,26 @@ import {
 } from "@/lib/account-gate";
 import { profileHasAcceptedTerms } from "@/lib/terms";
 
+/** Ruta interna que se puede usar como `next`, sin abrir otro sitio. */
+export function safeNextPath(next: string | null | undefined): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
+/** Pantallas que el admin puede mirar como las ve un influencer. */
+export function isInfluencerPreviewPath(path: string): boolean {
+  return (
+    path.startsWith("/aplicar/") ||
+    path === "/eventos" ||
+    path.startsWith("/eventos?") ||
+    path.startsWith("/marcas/") ||
+    path === "/mis-postulaciones" ||
+    path.startsWith("/mis-postulaciones?") ||
+    path === "/mi-perfil" ||
+    path.startsWith("/mi-perfil?")
+  );
+}
+
 export function homeForRole(role: UserRole | null | undefined): string {
   switch (role) {
     case "admin":
