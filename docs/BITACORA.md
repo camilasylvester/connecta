@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `c22155a` — Camila Sylvester
 
 **Qué cambié:** en la ficha de marca saqué el recuadro “Revisar solicitud de acceso”. El título grande es el nombre de la marca y debajo está quien la inscribió. La ficha ya no se estira a todo el ancho.
 
