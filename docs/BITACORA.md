@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `2fcc6c2` — Camila Sylvester
 
 **Qué cambié:** si la invitación tiene una sola foto, se ve entera, centrada, y se puede abrir en grande.
 
