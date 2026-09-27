@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+## 2026-09-26 — `3debe68` — Amadeo Rodríguez
 
 **Qué cambié:** arreglé el buscador de provincia, que no encontraba "CABA" (**T-40**, un bug mío de T-14). Comparaba solo contra el nombre oficial ("Ciudad Autónoma de Buenos Aires") y no contra el que se muestra en pantalla ("CABA"). Ahora busca en los dos. Lo mismo pasaba con "Tierra del Fuego".
 

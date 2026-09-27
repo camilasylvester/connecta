@@ -516,7 +516,7 @@ O sea, **Google de la instancia de producción de Clerk no tiene cargado el Clie
 
 **Hacer:** que `GeoCombobox` (`src/components/GeoPicker.tsx`) busque también en el texto que muestra (`display`). Es una línea, más probarlo.
 
-**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `pendiente de commit`. Pasé la búsqueda a una función, `searchGeoOptions` en `src/lib/geo.ts`, que compara contra el nombre oficial y contra el que se muestra. La probé con los datos reales: "CABA", "caba", "ciudad", "tierra" y "cordoba" encuentran lo que tienen que encontrar, y el orden sigue poniendo primero lo que empieza con lo escrito.
+**Hecho:** ✅ 2026-09-26 — Amadeo Rodríguez — `3debe68`. Pasé la búsqueda a una función, `searchGeoOptions` en `src/lib/geo.ts`, que compara contra el nombre oficial y contra el que se muestra. La probé con los datos reales: "CABA", "caba", "ciudad", "tierra" y "cordoba" encuentran lo que tienen que encontrar, y el orden sigue poniendo primero lo que empieza con lo escrito.
 
 ---
 
