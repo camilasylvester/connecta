@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `5d12fc8` — Camila Sylvester
 
 **Qué cambié:** en el admin, la ficha de marca aparece sola y centrada. Saqué el encabezado de arriba (título, chapas y botones). Borrar registro quedó al final.
 
