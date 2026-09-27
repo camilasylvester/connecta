@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `pendiente` — Camila Sylvester
+
+**Qué cambié:** la ficha de marca ahora se lee primero (logo, resumen, rubro, fotos y contacto). Editar queda detrás del botón. La ve el admin, la marca en Mi perfil, y el creador desde el evento. La ficha de creador no se tocó.
+
+**Por qué:** Camila pidió subir la ficha de marca a producción, con el mismo criterio del prototipo: si la marca tiene web, de ahí salen el logo y las fotos. El resumen solo se escribe cuando la marca está confirmada.
+
+**Dónde:** `src/components/BrandFicha.tsx`, `src/app/admin/usuarios/[id]/page.tsx`, `src/app/dashboard/config/page.tsx`, `src/app/marcas/[id]/page.tsx`, `drizzle/0010_brand_ficha.sql`. La migración ya se corrió en Neon.
+
+**Cómo probarlo:** (1) Admin → una marca, por ejemplo AFT Amantes: se ve la ficha, no el formulario. Marca / Aprobada / Completo quedan centrados. (2) Ver más fotos abre todas las imágenes en grande, con flecha, sin alargar la página. (3) Editar ficha → cambiar el resumen → guardar → vuelve a la lectura. (4) Como marca, Mi perfil es esa misma ficha. (5) Como creador, en una invitación, el nombre de la marca abre `/marcas/...`.
+
+**Riesgo / qué mirar:** las marcas sin web confirmada quedan sin resumen, sin logo y sin fotos (iniciales). Hay que revisarlas a mano. Si una foto o un logo no carga, el sitio de origen lo bloqueó: se reemplaza en la edición.
+
+---
+
 ## 2026-09-27 — `bd0e934` — Camila Sylvester
 
 **Qué cambié:** dejé andando “Continuar con Google” en producción (**T-39**). No hubo cambio de código. En Clerk Production cargamos Client ID y Client Secret propios, y en el Google Cloud de la empresa creamos el cliente OAuth. El redirect es `https://clerk.connectainf.com/v1/oauth_callback`. La app de Clerk pasó al workspace de la empresa.

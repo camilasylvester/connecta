@@ -363,7 +363,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 ### T-29 · Perfil completo de marca — `XL`
 
-**Hoy:** las marcas tienen apenas `brandName`, `industry`, `companyLocation` y `contactPerson`. **No existe una página de perfil de marca.** Los creadores no pueden ver quién es la marca.
+**Hoy:** la ficha de lectura ya existe (admin, Mi perfil de la marca y `/marcas/[id]` para el creador). Sigue sin el feed de publicaciones de la marca.
 
 **Hacer:** logo, nombre, descripción, a qué se dedica, redes, web, ubicación, y que la marca pueda cargar publicaciones en su propio feed.
 
@@ -371,7 +371,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Requiere migración** + páginas nuevas + reusar el feed de publicaciones que ya existe para creadores.
 
-**Hecho:** ⬜
+**Hecho:** 🟡 2026-09-27 — Camila Sylvester. Quedó la ficha de lectura (logo, resumen, web, fotos, contacto) para admin, la marca y el creador. Migración `0010_brand_ficha.sql` corrida en Neon. Sigue faltando el feed de publicaciones de la marca y el resto de T-29.
 
 ---
 

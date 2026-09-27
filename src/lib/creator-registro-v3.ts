@@ -271,6 +271,8 @@ export function v3DraftToOnboarding(draft: CreatorRegistroV3Draft): OnboardingPa
     contactChannel: "",
     influencerExperience: "",
     goals: [],
+    website: "",
+    summary: "",
     contentThemes,
     platforms,
     avatarUrl: "",

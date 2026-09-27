@@ -37,6 +37,7 @@ export default async function ApplyPage({
   const eventRows = await db
     .select({
       event: events,
+      brandId: profiles.id,
       brandName: profiles.brandName,
       brandDisplay: profiles.displayName,
     })
@@ -49,6 +50,7 @@ export default async function ApplyPage({
   if (!row) notFound();
   const event = row.event;
   const brandLabel = row.brandName || row.brandDisplay || null;
+  const brandHref = row.brandId ? `/marcas/${row.brandId}` : null;
 
   const { userId } = await auth();
   const profile = userId ? await ensureProfile() : null;
@@ -114,7 +116,14 @@ export default async function ApplyPage({
         <section>
           <h1 className="apply-title">{event.title}</h1>
           {brandLabel ? (
-            <p className="apply-brand">Organiza {brandLabel}</p>
+            <p className="apply-brand">
+              Organiza{" "}
+              {brandHref ? (
+                <Link href={brandHref}>{brandLabel}</Link>
+              ) : (
+                brandLabel
+              )}
+            </p>
           ) : null}
           {metaItems.length > 0 ? (
             <ul className="apply-meta">

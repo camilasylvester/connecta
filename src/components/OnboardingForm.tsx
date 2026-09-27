@@ -331,6 +331,30 @@ export function OnboardingForm({
           <p className={hintClass}>Solo para marcas / empresas.</p>
 
           <div className="mt-5 space-y-4">
+            {lockRole ? (
+              <>
+                <label className="block">
+                  <span className={labelClass}>Resumen</span>
+                  <textarea
+                    className={`${fieldCls} min-h-[88px]`}
+                    value={data.summary}
+                    onChange={(e) => set("summary", e.target.value)}
+                    placeholder="Una frase sobre la marca. Si no estás segura, dejalo vacío."
+                  />
+                </label>
+                <label className="block">
+                  <span className={labelClass}>Sitio web</span>
+                  <input
+                    className={fieldCls}
+                    value={data.website}
+                    onChange={(e) => set("website", e.target.value)}
+                    placeholder="https://marca.com"
+                    inputMode="url"
+                  />
+                </label>
+              </>
+            ) : null}
+
             <label className="block">
               <span className={labelClass}>
                 Nombre de la marca / empresa / emprendimiento *

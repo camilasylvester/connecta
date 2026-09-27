@@ -74,6 +74,12 @@ export const profiles = pgTable("profiles", {
     redes: Record<string, number>;
   } | null>(),
   avatarUrl: text("avatar_url"),
+  /** Sitio oficial de la marca. Vacío si no está confirmado. */
+  website: text("website"),
+  /** Resumen corto de la marca. Vacío si no está confirmado. */
+  summary: text("summary"),
+  /** Fotos de la estética de la marca (https). */
+  galleryUrls: jsonb("gallery_urls").$type<string[]>().default([]),
   onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
   termsAcceptedAt: timestamp("terms_accepted_at", { withTimezone: true }),
   termsVersion: text("terms_version"),
