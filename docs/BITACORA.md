@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — pendiente — Camila Sylvester
+## 2026-09-27 — `0e1a983` — Camila Sylvester
 
 **Qué cambié:** en la vista influencer, abrir un evento ya no manda al admin. La invitación se ve como la ve el influencer, y el nombre de la marca abre esa ficha, no la del panel.
 
@@ -56,7 +56,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — pendiente — Camila Sylvester
+## 2026-09-27 — `0e1a983` — Camila Sylvester
 
 **Qué cambié:** en Marcas, el listado muestra solo el nombre de la marca. En la ficha, Marca / Aprobada / Completo pasó al final. En el celular el texto es más chico, el logo queda al lado del nombre y se ve una sola foto.
 
