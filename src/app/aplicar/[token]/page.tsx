@@ -3,29 +3,13 @@ import { and, eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { ApplyForm } from "@/components/ApplyForm";
-import { Logo } from "@/components/Logo";
+import { EventInvite } from "@/components/EventInvite";
 import { getDb } from "@/db";
 import { applications, events, profiles } from "@/db/schema";
 import { redirectIfNotApproved, redirectIfPhoneMissing, redirectIfTermsMissing } from "@/lib/account-gate";
 import { ensureProfile } from "@/lib/auth";
+import { isAllowedStoredImageUrl } from "@/lib/image-compress";
 import "./aplicar.css";
-
-function profileSoughtLines(raw: string): string[] {
-  const normalized = raw.replace(/\r\n/g, "\n").trim();
-  const byNewline = normalized
-    .split("\n")
-    .map((s) => s.replace(/^[-–•]\s*/, "").trim())
-    .filter(Boolean);
-  if (byNewline.length > 1) return byNewline;
-
-  const byBullet = normalized
-    .split(/\s*[-–•]\s+/)
-    .map((s) => s.replace(/^[.,;:]\s*/, "").trim())
-    .filter(Boolean);
-  if (byBullet.length > 1) return byBullet;
-
-  return [normalized];
-}
 
 export default async function ApplyPage({
   params,
@@ -40,6 +24,7 @@ export default async function ApplyPage({
       brandId: profiles.id,
       brandName: profiles.brandName,
       brandDisplay: profiles.displayName,
+      brandAvatar: profiles.avatarUrl,
     })
     .from(events)
     .leftJoin(profiles, eq(events.brandId, profiles.id))
@@ -93,99 +78,39 @@ export default async function ApplyPage({
       })
     : null;
 
-  const images = Array.isArray(event.imageUrls) ? event.imageUrls : [];
-  const cover = images[0] || null;
-  const thumbs = images.slice(1);
-  const soughtLines = event.profileSought
-    ? profileSoughtLines(event.profileSought)
-    : [];
-
-  const metaItems = [
-    event.location,
-    dateLabel,
-    event.category,
-  ].filter(Boolean) as string[];
+  const photos = (Array.isArray(event.imageUrls) ? event.imageUrls : []).filter(
+    (url) => isAllowedStoredImageUrl(url)
+  );
+  const statusLabel =
+    event.status === "active"
+      ? "Abierto a postulaciones"
+      : event.status === "draft"
+        ? "Pendiente de publicación"
+        : "Cerrado";
+  const rows: Array<[string, string]> = [];
+  if (event.location) rows.push(["Lugar", event.location]);
+  if (dateLabel) rows.push(["Fecha", dateLabel]);
+  rows.push(["Cupos", String(event.quota)]);
+  rows.push(["Estado", statusLabel]);
+  const brandAvatar =
+    row.brandAvatar && isAllowedStoredImageUrl(row.brandAvatar)
+      ? row.brandAvatar
+      : null;
 
   return (
     <div className="apply-page">
-      <div className="apply-shell">
-        <header className="apply-top">
-          <Logo href={profile?.role === "admin" || profile?.role === "creator" ? "/eventos" : "/"} />
-          <span className="apply-eyebrow">Invitación privada</span>
-        </header>
-
-        <section>
-          <h1 className="apply-title">{event.title}</h1>
-          {brandLabel ? (
-            <p className="apply-brand">
-              Organiza{" "}
-              {brandHref ? (
-                <Link href={brandHref}>{brandLabel}</Link>
-              ) : (
-                brandLabel
-              )}
-            </p>
-          ) : null}
-          {metaItems.length > 0 ? (
-            <ul className="apply-meta">
-              {metaItems.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
-
-        {cover ? (
-          <div className="apply-media">
-            <div className="apply-media-main">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={cover} alt="" />
-            </div>
-            {thumbs.length > 0 ? (
-              <div className="apply-media-thumbs">
-                {thumbs.map((src, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={i} src={src} alt="" />
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
-        {event.description ? (
-          <section className="apply-section">
-            <h2 className="apply-section-label">Sobre el evento</h2>
-            <p className="apply-prose">{event.description}</p>
-          </section>
-        ) : null}
-
-        {soughtLines.length > 0 ? (
-          <section className="apply-section">
-            <h2 className="apply-section-label">Perfil buscado</h2>
-            {soughtLines.length === 1 ? (
-              <p className="apply-prose">{soughtLines[0]}</p>
-            ) : (
-              <ul className="apply-profile-list">
-                {soughtLines.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            )}
-          </section>
-        ) : null}
-
-        <p className="apply-status">
-          {event.quota} cupos ·{" "}
-          <strong>
-            {event.status === "active"
-              ? "Abierto a postulaciones"
-              : event.status === "draft"
-                ? "Pendiente de publicación"
-                : "Cerrado"}
-          </strong>
-        </p>
-
-        <div className="apply-action">
+      <EventInvite
+        title={event.title}
+        brandLabel={brandLabel}
+        brandHref={brandHref}
+        brandAvatarUrl={brandAvatar}
+        description={event.description}
+        category={event.category}
+        rows={rows}
+        sought={event.profileSought?.trim() || null}
+        photos={photos}
+      >
+        <div className="apply-actions">
           {event.status === "draft" ? (
             <p>
               Este evento todavía no fue aceptado por CONNECTA. Cuando esté
@@ -260,7 +185,7 @@ export default async function ApplyPage({
             </div>
           )}
         </div>
-      </div>
+      </EventInvite>
     </div>
   );
 }
