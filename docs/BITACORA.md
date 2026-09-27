@@ -42,6 +42,48 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `e7d76b1` — Camila Sylvester
+
+**Qué cambié:** la ficha de marca ahora se lee primero (logo, resumen, rubro, fotos y contacto). Editar queda detrás del botón. La ve el admin, la marca en Mi perfil, y el creador desde el evento. La ficha de creador no se tocó.
+
+**Por qué:** Camila pidió subir la ficha de marca a producción, con el mismo criterio del prototipo: si la marca tiene web, de ahí salen el logo y las fotos. El resumen solo se escribe cuando la marca está confirmada.
+
+**Dónde:** `src/components/BrandFicha.tsx`, `src/app/admin/usuarios/[id]/page.tsx`, `src/app/dashboard/config/page.tsx`, `src/app/marcas/[id]/page.tsx`, `drizzle/0010_brand_ficha.sql`. La migración ya se corrió en Neon.
+
+**Cómo probarlo:** (1) Admin → una marca, por ejemplo AFT Amantes: se ve la ficha, no el formulario. Marca / Aprobada / Completo quedan centrados. (2) Ver más fotos abre todas las imágenes en grande, con flecha, sin alargar la página. (3) Editar ficha → cambiar el resumen → guardar → vuelve a la lectura. (4) Como marca, Mi perfil es esa misma ficha. (5) Como creador, en una invitación, el nombre de la marca abre `/marcas/...`.
+
+**Riesgo / qué mirar:** las marcas sin web confirmada quedan sin resumen, sin logo y sin fotos (iniciales). Hay que revisarlas a mano. Si una foto o un logo no carga, el sitio de origen lo bloqueó: se reemplaza en la edición.
+
+---
+
+## 2026-09-27 — `bd0e934` — Camila Sylvester
+
+**Qué cambié:** dejé andando “Continuar con Google” en producción (**T-39**). No hubo cambio de código. En Clerk Production cargamos Client ID y Client Secret propios, y en el Google Cloud de la empresa creamos el cliente OAuth. El redirect es `https://clerk.connectainf.com/v1/oauth_callback`. La app de Clerk pasó al workspace de la empresa.
+
+**Por qué:** Google cortaba con “Missing required parameter: client_id”.
+
+**Dónde:** Clerk (Production → SSO connections → Google) y Google Cloud, proyecto Connecta. En el repo solo esta nota y el cierre de T-39.
+
+**Cómo probarlo:** en www.connectainf.com/login, Continuar con Google, elegir la cuenta y volver a Connecta. Lo probé el 27/09 y pude entrar.
+
+**Riesgo / qué mirar:** bajo para el código. Si más adelante Google dice que la app está en modo de prueba, hay que publicarla en Google Auth Platform.
+
+---
+
+## 2026-09-27 — `1d10698` — Camila Sylvester
+
+**Qué cambié:** dejé en `docs` los previews estáticos del login (desktop y mobile) y las capturas mobile de creador y marca. El wizard de acceso ya estaba en `a1fc48b`; los commits siguientes hasta `57ee4bc` son ajustes de esa misma pantalla (logo, tarjetas, card, títulos, Volver), más tres arreglos del código por email para Clerk 7.
+
+**Por qué:** para poder revisar el diseño sin desplegar, y para que la bitácora no parezca que ese pulido es otro flujo.
+
+**Dónde:** `docs/preview-auth-desktop.html`, `docs/preview-auth-mobile.html`, `docs/screenshots-auth-mobile/`.
+
+**Cómo probarlo:** abrir los dos HTML en el navegador. La app en producción no cambia.
+
+**Riesgo / qué mirar:** bajo. Solo archivos de documentación.
+
+---
+
 ## 2026-09-26 — `3debe68` — Amadeo Rodríguez
 
 **Qué cambié:** arreglé el buscador de provincia, que no encontraba "CABA" (**T-40**, un bug mío de T-14). Comparaba solo contra el nombre oficial ("Ciudad Autónoma de Buenos Aires") y no contra el que se muestra en pantalla ("CABA"). Ahora busca en los dos. Lo mismo pasaba con "Tierra del Fuego".
@@ -233,20 +275,6 @@ La ficha que sale de ahí pasa la validación del servidor y guarda `province`, 
 **Cómo probarlo:** `npm run lint` → 0 errores, 0 warnings.
 
 **Riesgo / qué mirar:** bajo. No busqué cambiar ningún comportamiento; solo revisar que el login, el alta y admin/eventos se vean igual que antes.
-
----
-
-## 2026-09-27 — `1d10698` — Camila Sylvester
-
-**Qué cambié:** dejé en `docs` los previews estáticos del login (desktop y mobile) y las capturas mobile de creador y marca. El wizard de acceso ya estaba en `a1fc48b`; los commits siguientes hasta `57ee4bc` son ajustes de esa misma pantalla (logo, tarjetas, card, títulos, Volver), más tres arreglos del código por email para Clerk 7.
-
-**Por qué:** para poder revisar el diseño sin desplegar, y para que la bitácora no parezca que ese pulido es otro flujo.
-
-**Dónde:** `docs/preview-auth-desktop.html`, `docs/preview-auth-mobile.html`, `docs/screenshots-auth-mobile/`.
-
-**Cómo probarlo:** abrir los dos HTML en el navegador. La app en producción no cambia.
-
-**Riesgo / qué mirar:** bajo. Solo archivos de documentación.
 
 ---
 

@@ -10,6 +10,7 @@ import { requireProfile, requireUserId } from "@/lib/auth";
 import type { ApplicationStatus } from "@/lib/types";
 import {
   type OnboardingPayload,
+  normalizeWebsite,
   validateOnboarding,
 } from "@/lib/onboarding";
 import { brandMetaWithGeo, payloadToCreatorMeta } from "@/lib/creator-registro-v3";
@@ -394,6 +395,20 @@ async function applyProfilePayload(
       influencerExperience:
         formRole === "brand" ? effective.influencerExperience || null : null,
       goals: formRole === "brand" ? effective.goals : target.goals || [],
+      website:
+        formRole === "brand"
+          ? (() => {
+              const site = normalizeWebsite(effective.website || "");
+              if ((effective.website || "").trim() && !site) {
+                throw new Error("La web no es una dirección válida");
+              }
+              return site;
+            })()
+          : target.website,
+      summary:
+        formRole === "brand"
+          ? effective.summary.trim() || null
+          : target.summary,
       contentThemes:
         formRole === "creator" ? effective.contentThemes : target.contentThemes || [],
       platforms:
@@ -444,6 +459,7 @@ export async function updateSelfProfile(raw: OnboardingPayload) {
 
   revalidatePath("/mi-perfil");
   revalidatePath("/dashboard/config");
+  revalidatePath(`/marcas/${profile.id}`);
   revalidatePath("/mis-postulaciones");
   revalidatePath("/eventos");
   revalidatePath("/admin/usuarios");
@@ -477,6 +493,7 @@ export async function adminUpdateProfile(
   await applyProfilePayload(target, target.role, raw);
 
   revalidatePath(`/admin/usuarios/${profileId}`);
+  revalidatePath(`/marcas/${profileId}`);
   revalidatePath("/admin/usuarios");
   revalidatePath("/admin/solicitudes");
   revalidatePath("/mi-perfil");

@@ -1,36 +1,31 @@
 import { redirect } from "next/navigation";
-import { ProfileEditClient } from "@/components/ProfileEditClient";
+import { BrandFicha } from "@/components/BrandFicha";
 import { ensureProfile } from "@/lib/auth";
+import { brandFichaFromProfile } from "@/lib/brand-ficha";
 import { profileToOnboarding } from "@/lib/onboarding";
 
 export default async function ConfigPage() {
   const profile = await ensureProfile();
   if (!profile) redirect("/login?role=brand");
-  if (profile.role !== "brand" && profile.role !== "admin") {
+  if (profile.role !== "brand") {
     redirect("/mi-perfil");
   }
-
-  // Admin opening brand config: if they don't have brand fields, still allow edit of their profile as brand-shaped only when role is brand
-  if (profile.role === "admin") {
-    redirect("/mi-perfil");
-  }
-
-  const initial = profileToOnboarding(profile);
 
   return (
     <>
       <div className="topbar">
         <div>
           <h1>Mi perfil</h1>
-          <div className="sub">
-            Editá la ficha de tu marca. Los creadores y el admin ven esta info.
-          </div>
+          <div className="sub">La ficha que ven los creadores y el admin.</div>
         </div>
       </div>
       <div className="content">
-        <div className="config-card" style={{ maxWidth: 720 }}>
-          <ProfileEditClient initial={initial} />
-        </div>
+        <BrandFicha
+          brand={brandFichaFromProfile(profile)}
+          audience="self"
+          canEdit
+          initial={profileToOnboarding(profile)}
+        />
       </div>
     </>
   );

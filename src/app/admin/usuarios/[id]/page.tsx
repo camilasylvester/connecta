@@ -5,7 +5,9 @@ import { AdminAccountStatusButtons } from "@/components/AdminAccountStatusButton
 import { AdminDeleteUserButton } from "@/components/AdminDeleteUserButton";
 import { CreatorFeed } from "@/components/CreatorFeed";
 import { InstagramLink } from "@/components/InstagramLink";
+import { BrandFicha } from "@/components/BrandFicha";
 import { ProfileEditClient } from "@/components/ProfileEditClient";
+import { brandFichaFromProfile } from "@/lib/brand-ficha";
 import { getDb } from "@/db";
 import { creatorPosts, profiles } from "@/db/schema";
 import { ensureProfile } from "@/lib/auth";
@@ -42,7 +44,6 @@ export default async function AdminUserDetailPage({
   const igUrl = instagramUrl(u.handle);
   const themes = Array.isArray(u.contentThemes) ? u.contentThemes : [];
   const platforms = Array.isArray(u.platforms) ? u.platforms : [];
-  const goals = Array.isArray(u.goals) ? u.goals : [];
   const canDelete = me?.role === "admin" && me.id !== u.id;
   const canReview =
     me?.role === "admin" && u.role !== "admin" && me.id !== u.id;
@@ -135,7 +136,16 @@ export default async function AdminUserDetailPage({
           </div>
         ) : null}
 
-        {canEditProfile ? (
+        {u.role === "brand" ? (
+          <BrandFicha
+            brand={brandFichaFromProfile(u)}
+            audience="admin"
+            canEdit={canEditProfile}
+            initial={profileToOnboarding(u)}
+          />
+        ) : null}
+
+        {canEditProfile && u.role !== "brand" ? (
           <section className="data-section">
             <div className="data-section-head">
               <h3>Editar ficha</h3>
@@ -154,6 +164,7 @@ export default async function AdminUserDetailPage({
           </section>
         ) : null}
 
+        {u.role === "brand" ? null : (
         <Section title="Datos generales">
           <Row label="Nombre y apellido" value={u.displayName} />
           <Row
@@ -182,27 +193,7 @@ export default async function AdminUserDetailPage({
           <Row label="Perfil" value={roleLabel(u.role)} />
           <Row label="Estado de cuenta" value={statusLabel} />
         </Section>
-
-        {u.role === "brand" ? (
-          <Section title="Información de la empresa">
-            <Row label="Marca / empresa" value={u.brandName} />
-            <Row label="Rubro / Industria" value={u.industry || u.category} />
-            <Row
-              label="Ciudad / Provincia"
-              value={u.companyLocation || u.city}
-            />
-            <Row label="Persona de contacto" value={u.contactPerson} />
-            <Row label="Mail / WhatsApp" value={u.contactChannel} />
-            <Row
-              label="Experiencia con influencers"
-              value={u.influencerExperience}
-            />
-            <Row
-              label="Objetivos"
-              value={goals.length ? goals.join(" · ") : null}
-            />
-          </Section>
-        ) : null}
+        )}
 
         {u.role === "creator" ? (
           <Section title="Perfil de creador">
@@ -263,6 +254,16 @@ export default async function AdminUserDetailPage({
               u.reviewedAt ? u.reviewedAt.toLocaleString("es-AR") : null
             }
           />
+          {u.role === "brand" ? (
+            <Row
+              label="Términos aceptados"
+              value={
+                u.termsAcceptedAt
+                  ? `${u.termsVersion || "—"} · ${u.termsAcceptedAt.toLocaleString("es-AR")}`
+                  : "No"
+              }
+            />
+          ) : null}
         </Section>
 
         {canDelete ? (

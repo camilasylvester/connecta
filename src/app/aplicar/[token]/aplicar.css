@@ -63,6 +63,12 @@
   color: var(--a-muted);
 }
 
+.apply-brand a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .apply-meta {
   display: flex;
   flex-wrap: wrap;

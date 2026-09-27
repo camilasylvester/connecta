@@ -133,6 +133,10 @@ export type OnboardingPayload = {
   contactChannel: string;
   influencerExperience: string;
   goals: string[];
+  /** Sitio oficial. Opcional. Solo se muestra en la ficha de marca. */
+  website: string;
+  /** Resumen que la marca puede corregir. Vacío si no está confirmado. */
+  summary: string;
   // Creador
   contentThemes: string[];
   platforms: string[];
@@ -151,6 +155,21 @@ export type OnboardingPayload = {
   categoriaSet?: string[];
   redes?: Record<string, number>;
 };
+
+/** Acepta "aftamantes.net" o una URL completa. Vacío si no hay nada. */
+export function normalizeWebsite(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const withProto = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  let url: URL;
+  try {
+    url = new URL(withProto);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+  return url.toString();
+}
 
 export function emptyOnboarding(
   role: OnboardingRole = "creator"
@@ -171,6 +190,8 @@ export function emptyOnboarding(
     contactChannel: "",
     influencerExperience: "",
     goals: [],
+    website: "",
+    summary: "",
     contentThemes: [],
     platforms: [],
     avatarUrl: "",
@@ -284,6 +305,8 @@ export function profileToOnboarding(profile: {
   contactChannel: string | null;
   influencerExperience: string | null;
   goals: string[] | null;
+  website?: string | null;
+  summary?: string | null;
   contentThemes: string[] | null;
   platforms: string[] | null;
   avatarUrl?: string | null;
@@ -316,6 +339,8 @@ export function profileToOnboarding(profile: {
     contactChannel: profile.contactChannel || "",
     influencerExperience: profile.influencerExperience || "",
     goals: Array.isArray(profile.goals) ? profile.goals : [],
+    website: profile.website || "",
+    summary: profile.summary || "",
     contentThemes: Array.isArray(profile.contentThemes)
       ? profile.contentThemes
       : [],
