@@ -52,16 +52,20 @@ export default async function MarcaPublicaPage({
   if (!brand || brand.role !== "brand") notFound();
 
   const backHref = viewer.role === "brand" ? "/dashboard" : "/eventos";
+  const backLabel =
+    viewer.role === "brand" ? "← Volver al panel" : "← Volver a eventos";
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] px-4 py-8 text-white sm:px-6">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <Logo href={backHref} />
-          <div className="flex flex-wrap items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-4">
             <Link href={backHref} className="font-semibold text-purple-2 hover:text-white">
-              Volver
+              {backLabel}
             </Link>
+            <Logo href={backHref} />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-sm">
             {viewer.role === "admin" ? (
               <Link
                 href={`/admin/usuarios/${id}`}
