@@ -29,7 +29,9 @@ Lo actualicé el 2026-09-26, después de una tanda grande de cambios en la rama 
 | Celulares de Uruguay, Chile y España | T-38 | `ff7bc1c` |
 | `npm run lint` en cero | — | `ef702bc` |
 
-**Lo más urgente que queda:** **T-39 (Google no funciona en producción: es configuración de Clerk y Google Cloud, no código; está bloqueada esperando a alguien con acceso)**, T-04 (mail de bienvenida: arrancar ya con el DNS de `connectainf.com`), T-26 (el scroll: primero reproducirlo), T-07 (imágenes de eventos enmarcadas) y T-09 (foto en solicitudes, casi gratis).
+**Update 27/09:** T-39 cerrada. Google en producción anda: Clerk tiene las credenciales propias y Camila pudo entrar con Google. El detalle está en la bitácora.
+
+**Lo más urgente que queda:** T-04 (mail de bienvenida: arrancar ya con el DNS de `connectainf.com`), T-26 (el scroll: primero reproducirlo), T-07 (imágenes de eventos enmarcadas) y T-09 (foto en solicitudes, casi gratis).
 
 **Antes de mergear la rama:** hacer una pasada con cuentas de prueba creando una cuenta real (email y Google) de creador y de marca, y postularse con un creador sin foto. Yo lo probé todo en local hasta donde se puede sin sesión.
 
@@ -333,7 +335,7 @@ Supuestos: **una persona trabajando**, sin interrupciones, contando el tiempo de
 
 **Update 26/09:** el botón de Google ya anda desde el 20/09 (`fd7d563`, `a1fc48b`, Camila). El problema de fondo (dónde se pregunta si es creador o marca y dónde se pide el Instagram) quedó resuelto con T-36: ahora se elige el rol y se completa toda la ficha **antes** de llegar a Google.
 
-**Hecho:** 🟡 2026-09-26 — falta probar el alta completa con Google de punta a punta (con cuentas de prueba), que es la parte más delicada porque la cuenta se crea en el callback de Google.
+**Hecho:** 🟡 2026-09-27 — el inicio de sesión con Google en producción lo probó Camila y pudo entrar (T-39). Sigue faltando el alta completa de creador y de marca de punta a punta.
 
 ---
 
@@ -480,7 +482,7 @@ Lo de Google que decía arriba se resuelve así: la ficha se completa entera **a
 
 ---
 
-### T-39 · Google no funciona en producción — `XS` — **BLOQUEADA: necesito que alguien con acceso a Clerk y a Google Cloud lo configure**
+### T-39 · Google no funciona en producción — `XS`
 
 **Reportado (26/09):** me avisaron que "Continuar con Google" no funciona en www.connectainf.com.
 
@@ -506,7 +508,7 @@ O sea, **Google de la instancia de producción de Clerk no tiene cargado el Clie
 
 **Estado:** se lo pasé a los jefes y todavía no me contestaron. Lo dejo anotado para que quien tenga el acceso lo pueda hacer sin preguntarme nada.
 
-**Hecho:** ⬜ — esperando a alguien con acceso a Clerk producción + Google Cloud
+**Hecho:** ✅ 2026-09-27 — Camila Sylvester. Sin cambio de código. En Clerk Production quedaron el Client ID y el Client Secret del Google Cloud de la empresa (redirect `https://clerk.connectainf.com/v1/oauth_callback`). La app de Clerk pasó al workspace de la empresa. Camila entró con Google en www.connectainf.com.
 
 ---
 
