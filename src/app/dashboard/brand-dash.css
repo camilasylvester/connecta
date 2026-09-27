@@ -1028,6 +1028,27 @@
   margin-bottom: 14px;
 }
 
+.brand-app .brand-name-list {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.brand-app .brand-name-list a {
+  display: block;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border-soft);
+  font-weight: 600;
+  font-size: 15px;
+}
+.brand-app .brand-name-list a:last-child {
+  border-bottom: none;
+}
+.brand-app .brand-name-list a:hover {
+  background: rgba(244, 243, 239, 0.03);
+  color: var(--purple-2);
+}
+
 .brand-app .table-wrap {
   background: var(--surface);
   border: 1px solid var(--border-soft);

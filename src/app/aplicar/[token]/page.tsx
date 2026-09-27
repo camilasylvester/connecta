@@ -109,7 +109,7 @@ export default async function ApplyPage({
     <div className="apply-page">
       <div className="apply-shell">
         <header className="apply-top">
-          <Logo href="/" />
+          <Logo href={profile?.role === "admin" || profile?.role === "creator" ? "/eventos" : "/"} />
           <span className="apply-eyebrow">Invitación privada</span>
         </header>
 
@@ -214,17 +214,26 @@ export default async function ApplyPage({
                 </Link>
               </div>
             </>
-          ) : profile?.role === "brand" || profile?.role === "admin" ? (
+          ) : profile?.role === "brand" ? (
             <p>
-              Estás logueado como{" "}
-              {profile.role === "admin" ? "admin" : "marca"}.{" "}
-              <Link
-                href={profile.role === "admin" ? "/admin" : "/dashboard"}
-                className="apply-link"
-              >
+              Estás logueado como marca.{" "}
+              <Link href="/dashboard" className="apply-link">
                 Ir al panel →
               </Link>
             </p>
+          ) : profile?.role === "admin" ? (
+            <>
+              <h2>Postulate</h2>
+              <p>
+                Así ve esta invitación un influencer. Desde la cuenta admin no
+                se envía la postulación.
+              </p>
+              <p style={{ marginTop: 16 }}>
+                <Link href="/eventos" className="apply-link">
+                  Volver a eventos →
+                </Link>
+              </p>
+            </>
           ) : existingApp ? (
             <>
               <h2>Ya te postulaste</h2>
