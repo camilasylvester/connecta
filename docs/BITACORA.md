@@ -236,7 +236,7 @@ La ficha que sale de ahí pasa la validación del servidor y guarda `province`, 
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `1d10698` — Camila Sylvester
 
 **Qué cambié:** dejé en `docs` los previews estáticos del login (desktop y mobile) y las capturas mobile de creador y marca. El wizard de acceso ya estaba en `a1fc48b`; los commits siguientes hasta `57ee4bc` son ajustes de esa misma pantalla (logo, tarjetas, card, títulos, Volver), más tres arreglos del código por email para Clerk 7.
 
