@@ -33,6 +33,15 @@ export type BrandFichaModel = {
   onboardingCompleted: boolean;
 };
 
+function registrantName(brand: BrandFichaModel): string {
+  const brandName = (brand.brandName || "").trim().toLowerCase();
+  const person = (brand.displayName || "").trim();
+  const contact = (brand.contactPerson || "").trim();
+  if (person && person.toLowerCase() !== brandName) return person;
+  if (contact && contact.toLowerCase() !== brandName) return contact;
+  return "";
+}
+
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "M";
@@ -65,10 +74,7 @@ export function BrandFicha({
   const stripRef = useRef<HTMLDivElement>(null);
 
   const title = brand.brandName || brand.displayName || "Marca";
-  const subtitle =
-    audience === "self"
-      ? "Tu marca"
-      : brand.contactPerson || brand.displayName || "";
+  const subtitle = registrantName(brand);
   const rubro = brand.industry || brand.category || "";
   const location = brand.companyLocation || brand.city || brand.province || "";
   const photos = photosOf(brand.galleryUrls);

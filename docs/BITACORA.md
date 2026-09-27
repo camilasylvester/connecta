@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-27 — `pendiente` — Camila Sylvester
+
+**Qué cambié:** en la ficha de marca saqué el recuadro “Revisar solicitud de acceso”. El título grande es el nombre de la marca y debajo está quien la inscribió. La ficha ya no se estira a todo el ancho.
+
+**Por qué:** Camila lo pidió al ver AFT Amantes en el admin.
+
+**Dónde:** `src/app/admin/usuarios/[id]/page.tsx`, `src/components/BrandFicha.tsx`, `src/components/brand-ficha.css`.
+
+**Cómo probarlo:** Admin → AFT Amantes. Arriba dice AFT Amantes y debajo Federico de Corral. No aparece “Revisar solicitud de acceso”. La tarjeta no llega hasta el borde derecho.
+
+**Riesgo / qué mirar:** aprobar o rechazar una marca nueva se hace desde Solicitudes, no desde esta ficha. La ficha de creador no cambia.
+
+---
+
 ## 2026-09-27 — `e7d76b1` — Camila Sylvester
 
 **Qué cambié:** la ficha de marca ahora se lee primero (logo, resumen, rubro, fotos y contacto). Editar queda detrás del botón. La ve el admin, la marca en Mi perfil, y el creador desde el evento. La ficha de creador no se tocó.

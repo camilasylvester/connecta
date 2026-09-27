@@ -1,4 +1,5 @@
 .brand-ficha {
+  max-width: 760px;
   margin-bottom: 28px;
   --bf-line: rgba(244, 243, 239, 0.12);
   --bf-text: #f4f3ef;
