@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `e7d76b1` — Camila Sylvester
 
 **Qué cambié:** la ficha de marca ahora se lee primero (logo, resumen, rubro, fotos y contacto). Editar queda detrás del botón. La ve el admin, la marca en Mi perfil, y el creador desde el evento. La ficha de creador no se tocó.
 
