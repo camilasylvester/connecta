@@ -126,6 +126,31 @@ export function legacyToGeo(value: string | null | undefined): GeoUbicacion | nu
   return hit ? { ...hit } : null;
 }
 
+/** Minúsculas y sin tildes: "cordoba" encuentra "Córdoba". */
+function fold(s: string): string {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+/**
+ * Búsqueda de los desplegables de ubicación. Compara contra el nombre oficial
+ * Y contra el que se muestra en pantalla, así "CABA" encuentra "Ciudad
+ * Autónoma de Buenos Aires" (T-40). Primero van los que empiezan con lo
+ * escrito ("San" → "San Isidro" antes que "Villa San…").
+ */
+export function searchGeoOptions(
+  options: string[],
+  query: string,
+  display: (option: string) => string = (s) => s
+): string[] {
+  const q = fold(query.trim());
+  if (!q) return options;
+  const texts = (o: string) => [fold(o), fold(display(o))];
+  const starts = (o: string) => texts(o).some((t) => t.startsWith(q));
+  return options
+    .filter((o) => texts(o).some((t) => t.includes(q)))
+    .sort((a, b) => Number(!starts(a)) - Number(!starts(b)));
+}
+
 // ---------------------------------------------------------------------------
 // Filtro en escalera
 //

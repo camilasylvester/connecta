@@ -8,6 +8,7 @@ import {
   geoPath,
   loadGeoCountry,
   removeGeoPath,
+  searchGeoOptions,
   shortRegionName,
   type GeoCountry,
   type GeoCountryCode,
@@ -16,14 +17,13 @@ import {
 } from "@/lib/geo";
 import "./geo-picker.css";
 
-/** Minúsculas y sin tildes: "cordoba" encuentra "Córdoba". */
-function fold(s: string): string {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-}
-
 // Con 8.000 municipios (España) no tiene sentido pintar todo: se muestran los
 // primeros que coinciden y se invita a seguir escribiendo.
 const MAX_OPTIONS = 60;
+
+// Fuera del componente para que sea siempre la misma función: si fuera un
+// default inline, el filtro de abajo se recalcularía en cada render.
+const asIs = (s: string) => s;
 
 /**
  * Buscador con lista desplegable. Controlado por `value`; al elegir llama a
@@ -37,7 +37,7 @@ export function GeoCombobox({
   disabled = false,
   clearOnSelect = false,
   labelFor,
-  display = (s: string) => s,
+  display = asIs,
   inline = false,
 }: {
   options: string[];
@@ -60,13 +60,10 @@ export function GeoCombobox({
   // Mientras no escribe, el input muestra lo elegido.
   const text = query ?? (clearOnSelect ? "" : display(value));
 
-  const matches = useMemo(() => {
-    const q = fold((query ?? "").trim());
-    const list = q ? options.filter((o) => fold(o).includes(q)) : options;
-    // Primero los que empiezan con lo escrito ("San" → "San Isidro" antes que "Villa San...").
-    if (q) list.sort((a, b) => Number(!fold(a).startsWith(q)) - Number(!fold(b).startsWith(q)));
-    return list;
-  }, [options, query]);
+  const matches = useMemo(
+    () => searchGeoOptions(options, query ?? "", display),
+    [options, query, display]
+  );
   const shown = matches.slice(0, MAX_OPTIONS);
 
   useEffect(() => {

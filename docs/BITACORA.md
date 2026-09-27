@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-26 — `pendiente de commit` — Amadeo Rodríguez
+
+**Qué cambié:** arreglé el buscador de provincia, que no encontraba "CABA" (**T-40**, un bug mío de T-14). Comparaba solo contra el nombre oficial ("Ciudad Autónoma de Buenos Aires") y no contra el que se muestra en pantalla ("CABA"). Ahora busca en los dos. Lo mismo pasaba con "Tierra del Fuego".
+
+**Dónde:** saqué la búsqueda a una función aparte, `searchGeoOptions` en `src/lib/geo.ts`, para poder probarla sin el navegador. `GeoCombobox` (`src/components/GeoPicker.tsx`) la usa. De paso, el `display` por defecto pasó a ser una función fija (`asIs`); antes era una función nueva en cada render, y eso hacía que el filtro se recalculara cada vez que el mouse pasaba por una opción.
+
+**Cómo probarlo:** alta de creador → paso 1 → Argentina → escribí "CABA" en provincia: tiene que aparecer CABA. Escribir "ciudad" y "cordoba" también tiene que seguir andando.
+
+**Riesgo / qué mirar:** bajo. Solo cambia qué opciones aparecen al escribir en el buscador de ubicación; lo que se guarda es igual que antes.
+
+**Cómo lo verifiqué:** lint, `tsc` y `next build` limpios. Probé la función con los datos reales de Argentina: "CABA", "caba", "ciudad", "tierra", "cordoba" y el orden de "san" dan lo esperado. Sobre los 8.131 municipios de España la búsqueda tarda ~7 ms. No lo pude ver en el navegador porque se desconectó la extensión de Chrome, pero la página compila y carga en local.
+
+---
+
 ## 2026-09-26 — sin cambio de código — Amadeo Rodríguez
 
 **Qué pasó:** después del deploy me avisaron que Google no funcionaba en el sitio. Lo investigué y **no es código: es configuración**. Google de la instancia de producción de Clerk no tiene cargado el Client ID, y Google corta con *"Missing required parameter: client_id — Error 400"*. Falla igual en "Crear cuenta" y en "Iniciar sesión", así que no lo rompió el cambio del alta: por lo que vi, en producción no anduvo nunca. En local anda porque la instancia de desarrollo de Clerk trae credenciales compartidas.
