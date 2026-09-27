@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-27 — `pendiente` — Camila Sylvester
+## 2026-09-27 — `d7936c0` — Camila Sylvester
 
 **Qué cambié:** el perfil de influencer usa el mismo formato que la ficha de marca: foto redonda, nombre, una pastilla y los datos en filas.
 
