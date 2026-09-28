@@ -42,6 +42,20 @@ Reglas de la entrada:
 
 ---
 
+## 2026-09-28 — `68953a0` — Camila Sylvester
+
+**Qué cambié:** si TikTok no está conectado en el servidor, el perfil del influencer ya no muestra “OAuth no configurado”.
+
+**Por qué:** Camila marcó ese cartel. Es un aviso interno y el influencer no puede hacer nada con él. El @ y los seguidores siguen en la ficha.
+
+**Dónde:** `src/components/CreatorSocialProfile.tsx`.
+
+**Cómo probarlo:** abrir Mi perfil sin las claves de TikTok. No aparece el recuadro de TikTok. Si más adelante se configuran, vuelve el botón Conectar TikTok.
+
+**Riesgo / qué mirar:** bajo. Quien ya conectó TikTok sigue viendo sincronizar y desconectar.
+
+---
+
 ## 2026-09-27 — `d7936c0` — Camila Sylvester
 
 **Qué cambié:** el perfil de influencer usa el mismo formato que la ficha de marca: foto redonda, nombre, una pastilla y los datos en filas.
