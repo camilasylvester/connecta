@@ -306,6 +306,7 @@ export function CreatorSocialProfile({
         </p>
       ) : null}
 
+      {connected || tiktokConfigured ? (
       <section className="mb-7 rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -356,21 +357,18 @@ export function CreatorSocialProfile({
                   Desconectar
                 </button>
               </>
-            ) : tiktokConfigured ? (
+            ) : (
               <a
                 href="/api/tiktok/connect"
                 className="rounded-full bg-purple px-4 py-2 text-sm font-bold text-white hover:bg-purple-2"
               >
                 Conectar TikTok
               </a>
-            ) : (
-              <span className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-muted-dark">
-                OAuth no configurado
-              </span>
             )}
           </div>
         </div>
       </section>
+      ) : null}
 
       {!editing ? (
         <CreatorFicha
