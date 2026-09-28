@@ -42,7 +42,7 @@ Reglas de la entrada:
 
 ---
 
-## 2026-09-28 — `pendiente` — Camila Sylvester
+## 2026-09-28 — `68953a0` — Camila Sylvester
 
 **Qué cambié:** si TikTok no está conectado en el servidor, el perfil del influencer ya no muestra “OAuth no configurado”.
 
